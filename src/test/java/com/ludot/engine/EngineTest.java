@@ -118,7 +118,7 @@ class EngineTest {
             Piece red2 = red.pieces().get(1);
             board.enter(red1, Direction.CLOCKWISE);
             board.enter(red2, Direction.CLOCKWISE);
-            turnsRolling().breakBlockades(red);
+            rollResolver(scriptedDice(), fixedCoin(true), preferring(0)).breakBlockades(red);
             assertEquals(Position.onTrack(26), red1.position());
             assertEquals(Position.onTrack(32), red2.position());
         }
@@ -196,10 +196,18 @@ class EngineTest {
     }
 
     private TurnProcessor turnProcessor(Dice dice, Coin coin, MysteryCellManager mysteryCells) {
+        return new TurnProcessor(dice, board, rollResolver(dice, coin, mysteryCells), observer);
+    }
+
+    private RollResolver rollResolver(Dice dice, Coin coin, CellPicker cellPicker) {
+        return rollResolver(dice, coin, new MysteryCellManager(board, cellPicker, observer));
+    }
+
+    private RollResolver rollResolver(Dice dice, Coin coin, MysteryCellManager mysteryCells) {
         TrackNavigator navigator = new TrackNavigator();
         Teleporter teleporter = new Teleporter(board, dice, coin, navigator, observer);
         CommandFactory commands = new CommandFactory(board, coin, navigator, teleporter, observer);
-        return new TurnProcessor(dice, board, new MovePlanner(board, navigator), commands, mysteryCells, observer);
+        return new RollResolver(new MovePlanner(board, navigator), commands, mysteryCells);
     }
 
     private int countRolls() {

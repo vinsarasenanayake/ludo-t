@@ -16,7 +16,7 @@ public final class Main {
 
     public static void main(String[] args) {
         long seed = args.length > 0 ? parseSeed(args[0]) : DEFAULT_SEED;
-        new LudoGameFacade(seed, System.out).play();
+        new GameConfiguration(seed, System.out).createGame().play();
     }
 
     private static long parseSeed(String argument) {

@@ -17,7 +17,7 @@ class LudoGameFacadeTest {
     @Test
     @DisplayName("Facade: one call plays a whole game and returns its result")
     void playingAGameReturnsItsResult() {
-        GameResultDto result = new LudoGameFacade(42L, silentConsole()).play();
+        GameResultDto result = new GameConfiguration(42L, silentConsole()).createGame().play();
         assertEquals(4, result.finishingOrder().size());
         assertTrue(result.rounds() > 0);
     }
@@ -25,15 +25,15 @@ class LudoGameFacadeTest {
     @Test
     @DisplayName("The same seed always produces the same game")
     void sameSeedGivesSameResult() {
-        GameResultDto first = new LudoGameFacade(7L, silentConsole()).play();
-        GameResultDto second = new LudoGameFacade(7L, silentConsole()).play();
+        GameResultDto first = new GameConfiguration(7L, silentConsole()).createGame().play();
+        GameResultDto second = new GameConfiguration(7L, silentConsole()).createGame().play();
         assertEquals(first, second);
     }
 
     @Test
     void theGameOutputStartsWithThePlayerIntroductions() {
         ByteArrayOutputStream printed = new ByteArrayOutputStream();
-        new LudoGameFacade(42L, new PrintStream(printed, true)).play();
+        new GameConfiguration(42L, new PrintStream(printed, true)).createGame().play();
         assertTrue(printed.toString().startsWith("The red player has four (04) pieces named R1, R2, R3, and R4."));
     }
 
