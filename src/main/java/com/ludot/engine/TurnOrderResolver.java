@@ -2,7 +2,7 @@ package com.ludot.engine;
 
 import com.ludot.domain.Colour;
 import com.ludot.port.Dice;
-import com.ludot.port.GameObserver;
+import com.ludot.port.TurnOrderListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,14 +10,15 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+// Highest opening roll starts; tied players roll again. Play then goes clockwise from the starter.
 public class TurnOrderResolver {
 
     private final Dice dice;
-    private final GameObserver observer;
+    private final TurnOrderListener listener;
 
-    public TurnOrderResolver(Dice dice, GameObserver observer) {
+    public TurnOrderResolver(Dice dice, TurnOrderListener listener) {
         this.dice = dice;
-        this.observer = observer;
+        this.listener = listener;
     }
 
     public List<Colour> resolve(List<Colour> colours) {
@@ -26,7 +27,7 @@ public class TurnOrderResolver {
             contenders = highestRollers(contenders);
         }
         List<Colour> order = clockwiseOrderFrom(contenders.get(0), colours.size());
-        observer.onTurnOrderDecided(order);
+        listener.onTurnOrderDecided(order);
         return order;
     }
 
@@ -34,7 +35,7 @@ public class TurnOrderResolver {
         Map<Colour, Integer> rolls = new EnumMap<>(Colour.class);
         for (Colour colour : contenders) {
             int roll = dice.roll();
-            observer.onOpeningRoll(colour, roll);
+            listener.onOpeningRoll(colour, roll);
             rolls.put(colour, roll);
         }
         int highest = Collections.max(rolls.values());

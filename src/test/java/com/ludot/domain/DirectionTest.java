@@ -1,6 +1,5 @@
 package com.ludot.domain;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,7 +8,7 @@ class DirectionTest {
 
     @Test
     void clockwiseStepsForward() {
-        Assertions.assertEquals(1, Direction.CLOCKWISE.stepSign());
+        assertEquals(1, Direction.CLOCKWISE.stepSign());
     }
 
     @Test

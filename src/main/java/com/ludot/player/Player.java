@@ -2,6 +2,7 @@ package com.ludot.player;
 
 import com.ludot.domain.Colour;
 import com.ludot.domain.Piece;
+import com.ludot.player.selector.TurnContext;
 import com.ludot.rules.MoveOption;
 
 import java.util.ArrayList;

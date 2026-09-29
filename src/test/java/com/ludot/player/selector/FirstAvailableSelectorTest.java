@@ -15,6 +15,6 @@ class FirstAvailableSelectorTest {
     void alwaysReturnsTheFirstOption() {
         MoveOption first = move(new Piece(Colour.RED, 1));
         MoveOption second = move(new Piece(Colour.RED, 2));
-        assertSame(first, new FirstAvailableSelector().select(context(3, first, second)));
+        assertSame(first, new FirstAvailableSelector().select(context(first, second)));
     }
 }

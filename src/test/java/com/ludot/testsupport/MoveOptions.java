@@ -1,13 +1,12 @@
 package com.ludot.testsupport;
 
-import com.ludot.domain.NoMysteryCell;
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
-import com.ludot.player.TurnContext;
+import com.ludot.domain.Route;
+import com.ludot.player.selector.TurnContext;
 import com.ludot.rules.Landing;
 import com.ludot.rules.MoveOption;
 import com.ludot.rules.MoveType;
-import com.ludot.rules.Route;
 
 import java.util.List;
 
@@ -18,8 +17,8 @@ public final class MoveOptions {
     private MoveOptions() {
     }
 
-    public static TurnContext context(int roll, MoveOption... options) {
-        return new TurnContext(roll, List.of(options), NoMysteryCell.INSTANCE);
+    public static TurnContext context(MoveOption... options) {
+        return new TurnContext(List.of(options));
     }
 
     public static MoveOption enter(Piece piece) {

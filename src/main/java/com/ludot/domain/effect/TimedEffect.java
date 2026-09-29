@@ -1,5 +1,6 @@
 package com.ludot.domain.effect;
 
+// Rule T-12 and T-13: Alpha and Beta effects last four rounds, then wear off.
 public abstract class TimedEffect implements PieceEffect {
 
     public static final int DURATION_ROUNDS = 4;

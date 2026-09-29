@@ -125,6 +125,7 @@ public class Piece {
         }
     }
 
+    // Rule T-9: a captured piece loses everything it had (captures, passes, direction, effect).
     public void returnToBase() {
         resetToBase();
     }

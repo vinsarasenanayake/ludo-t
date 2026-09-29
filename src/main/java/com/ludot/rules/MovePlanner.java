@@ -1,5 +1,6 @@
 package com.ludot.rules;
 
+import com.ludot.domain.Blockage;
 import com.ludot.domain.Board;
 import com.ludot.domain.Cell;
 import com.ludot.domain.Colour;
@@ -7,6 +8,7 @@ import com.ludot.domain.Direction;
 import com.ludot.domain.MysteryCell;
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
+import com.ludot.domain.Route;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -17,6 +19,7 @@ import java.util.Set;
 import static com.ludot.domain.BoardConstants.ENTRY_ROLL;
 import static com.ludot.domain.BoardConstants.HOME_STRAIGHT_LENGTH;
 
+// Works out every legal move for a roll. It only plans: nothing on the board changes here.
 public class MovePlanner {
 
     private static final int SINGLE_PIECE = 1;
@@ -62,10 +65,11 @@ public class MovePlanner {
         if (!onTheWayHome || !piece.canMove() || steps == 0) {
             return Optional.empty();
         }
-        Optional<Route> route = walk(List.of(piece), piece.direction(), steps, true);
-        return route.map(found -> toOption(MoveType.MOVE_PIECE, List.of(piece), found, mysteryCell));
+        Walk walk = new Walk(MoveType.MOVE_PIECE, List.of(piece), piece.direction(), steps);
+        return walk(walk).map(route -> toOption(walk, route, mysteryCell));
     }
 
+    // Rule T-4: a block moves roll / (pieces in the block) cells, in the direction of the piece furthest from home.
     private List<MoveOption> planBlockMoves(List<Piece> pieces, int roll, MysteryCell mysteryCell) {
         List<MoveOption> options = new ArrayList<>();
         for (int cellIndex : ownBlockCells(pieces)) {
@@ -73,35 +77,32 @@ public class MovePlanner {
             int distance = roll / block.size();
             boolean everyPieceCanMove = block.stream().allMatch(Piece::canMove);
             if (distance > 0 && everyPieceCanMove) {
-                walk(block, blockDirection(block), distance, false)
-                        .map(route -> toOption(MoveType.MOVE_BLOCK, block, route, mysteryCell))
-                        .ifPresent(options::add);
+                Walk walk = new Walk(MoveType.MOVE_BLOCK, block, blockDirection(block), distance);
+                walk(walk).map(route -> toOption(walk, route, mysteryCell)).ifPresent(options::add);
             }
         }
         return options;
     }
 
-    private Optional<Route> walk(List<Piece> movers, Direction direction, int steps, boolean mayEnterHomeStraight) {
-        Piece leader = movers.get(0);
-        Position start = leader.position();
-        Position current = start;
+    private Optional<Route> walk(Walk walk) {
+        Position current = walk.start();
         int passesGained = 0;
-        for (int step = 1; step <= steps; step++) {
-            Optional<Position> next = nextPosition(leader, current, direction, passesGained, mayEnterHomeStraight);
+        for (int step = 1; step <= walk.steps(); step++) {
+            Optional<Position> next = nextPosition(walk, current, passesGained);
             if (next.isEmpty()) {
                 return Optional.empty();
             }
-            if (blocksPassage(next.get(), leader.colour(), movers.size(), step == steps)) {
-                return cutShortRoute(start, current, step - 1, passesGained, blockageAt(start, next.get(), steps, direction));
+            if (blocksPassage(walk, next.get(), step == walk.steps())) {
+                Route partial = Route.completed(walk.start(), current, step - 1, passesGained);
+                return stopBeforeBlock(walk, partial, next.get());
             }
             current = next.get();
-            passesGained += arrivedAtApproach(current, leader.colour()) ? 1 : 0;
+            passesGained += arrivedAtApproach(current, walk.leader().colour()) ? 1 : 0;
         }
-        return Optional.of(Route.completed(start, current, steps, passesGained));
+        return Optional.of(Route.completed(walk.start(), current, walk.steps(), passesGained));
     }
 
-    private Optional<Position> nextPosition(Piece leader, Position current, Direction direction,
-                                            int passesGained, boolean mayEnterHomeStraight) {
+    private Optional<Position> nextPosition(Walk walk, Position current, int passesGained) {
         if (current.isHome()) {
             return Optional.empty();
         }
@@ -109,37 +110,41 @@ public class MovePlanner {
             int nextStep = current.index() + 1;
             return Optional.of(nextStep < HOME_STRAIGHT_LENGTH ? Position.inHomeStraight(nextStep) : Position.home());
         }
+        Piece leader = walk.leader();
         boolean atOwnApproach = current.index() == leader.colour().approachCell();
-        if (mayEnterHomeStraight && atOwnApproach && isAllowedIntoHomeStraight(leader, passesGained)) {
+        if (walk.mayEnterHomeStraight() && atOwnApproach && isAllowedIntoHomeStraight(leader, passesGained)) {
             return Optional.of(Position.inHomeStraight(0));
         }
-        return Optional.of(Position.onTrack(navigator.step(current.index(), direction)));
+        return Optional.of(Position.onTrack(navigator.step(current.index(), walk.direction())));
     }
 
+    // Rules T-1 and T-7: the piece needs a capture, and enough passes of its approach for its direction.
     private boolean isAllowedIntoHomeStraight(Piece piece, int passesGained) {
         int passes = piece.approachPasses() + passesGained;
         return piece.hasCaptured() && passes >= navigator.passesNeededToEnterHome(piece.direction());
     }
 
-    private boolean blocksPassage(Position next, Colour moverColour, int movingGroupSize, boolean isFinalStep) {
-        if (!next.isOnTrack() || !isOpponentBlockAt(moverColour, next.index())) {
+    // Rule T-3: nobody passes an opponent block. Rule T-8: a same-size block may land on it and capture it.
+    private boolean blocksPassage(Walk walk, Position next, boolean isFinalStep) {
+        if (!next.isOnTrack() || !isOpponentBlockAt(walk.leader().colour(), next.index())) {
             return false;
         }
+        int movingGroupSize = walk.movers().size();
         boolean canCaptureBlock = isFinalStep && movingGroupSize > SINGLE_PIECE
                 && board.occupantsAt(next.index()).size() == movingGroupSize;
         return !canCaptureBlock;
     }
 
-    private Optional<Route> cutShortRoute(Position start, Position stoppedAt, int stepsTaken,
-                                          int passesGained, Blockage blockage) {
-        if (stepsTaken == 0) {
+    // Rule T-3: stop on the cell before the block, as long as the piece moved at least one cell.
+    private Optional<Route> stopBeforeBlock(Walk walk, Route partial, Position blockCell) {
+        if (partial.distance() == 0) {
             return Optional.empty();
         }
-        return Optional.of(Route.cutShort(start, stoppedAt, stepsTaken, passesGained, blockage));
+        return Optional.of(partial.stoppedBy(blockageAt(walk, blockCell)));
     }
 
-    private Blockage blockageAt(Position start, Position blockCell, int steps, Direction direction) {
-        Position intended = Position.onTrack(navigator.move(start.index(), steps, direction));
+    private Blockage blockageAt(Walk walk, Position blockCell) {
+        Position intended = Position.onTrack(navigator.move(walk.start().index(), walk.steps(), walk.direction()));
         Piece blockingPiece = board.occupantsAt(blockCell.index()).get(0);
         return new Blockage(intended, blockingPiece);
     }
@@ -148,12 +153,12 @@ public class MovePlanner {
         return position.isOnTrack() && position.index() == colour.approachCell();
     }
 
-    private MoveOption toOption(MoveType type, List<Piece> movers, Route route, MysteryCell mysteryCell) {
+    private MoveOption toOption(Walk walk, Route route, MysteryCell mysteryCell) {
         Landing landing = route.destination().isOnTrack()
-                ? landingAt(route.destination().index(), movers, mysteryCell)
+                ? landingAt(route.destination().index(), walk.movers(), mysteryCell)
                 : Landing.offTrack();
-        boolean leavesBlock = type == MoveType.MOVE_PIECE && board.isBlockAt(route.from().index());
-        return new MoveOption(type, movers, route, landing, leavesBlock);
+        boolean leavesBlock = walk.type() == MoveType.MOVE_PIECE && board.isBlockAt(route.from().index());
+        return new MoveOption(walk.type(), walk.movers(), route, landing, leavesBlock);
     }
 
     private Landing landingAt(int cellIndex, List<Piece> movers, MysteryCell mysteryCell) {
@@ -187,5 +192,22 @@ public class MovePlanner {
             }
         }
         return furthestFromHome.direction();
+    }
+
+    // Parameter object: everything needed to walk a piece (or a block) cell by cell.
+    private record Walk(MoveType type, List<Piece> movers, Direction direction, int steps) {
+
+        Piece leader() {
+            return movers.get(0);
+        }
+
+        Position start() {
+            return leader().position();
+        }
+
+        // Assumption: only a single piece may turn into its home straight; a block stays on the track.
+        boolean mayEnterHomeStraight() {
+            return type == MoveType.MOVE_PIECE;
+        }
     }
 }

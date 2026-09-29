@@ -1,10 +1,12 @@
 package com.ludot.infrastructure;
 
+import com.ludot.domain.Blockage;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Direction;
 import com.ludot.domain.MysteryCell;
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
+import com.ludot.domain.Route;
 import com.ludot.domain.TeleportDestination;
 import com.ludot.dto.PieceLocationDto;
 import com.ludot.dto.PlayerStatusDto;
@@ -14,6 +16,7 @@ import java.util.List;
 
 import static com.ludot.domain.BoardConstants.PIECES_PER_PLAYER;
 
+// Every sentence of section 3.1 of the brief lives here, so the wording is in one place.
 public class MessageFormatter {
 
     private static final String SEPARATOR = "============================";
@@ -48,22 +51,24 @@ public class MessageFormatter {
         return String.format("%s player moves piece %s to the starting point.", title(piece.colour()), piece.name());
     }
 
+    // "on pieces on the board" is copied word for word from section 3.1 of the brief on purpose.
     public String playerStatus(PlayerStatusDto status) {
         return String.format("%s player now has %d/%d on pieces on the board and %d/%d pieces on the base.",
                 title(status.colour()), status.piecesOnBoard(), PIECES_PER_PLAYER,
                 status.piecesInBase(), PIECES_PER_PLAYER);
     }
 
-    public String pieceMoved(Piece piece, Position from, int distance, Direction direction) {
+    public String pieceMoved(Piece piece, Route route, Direction direction) {
         return String.format("%s moves piece %s from location %s to %s by %d units in %s direction.",
-                title(piece.colour()), piece.name(), from.describe(piece.colour()),
-                piece.position().describe(piece.colour()), distance, direction.displayName());
+                title(piece.colour()), piece.name(), route.from().describe(piece.colour()),
+                piece.position().describe(piece.colour()), route.distance(), direction.displayName());
     }
 
-    public String pieceBlocked(Piece piece, Position from, Position intended, Piece blockingPiece) {
+    public String pieceBlocked(Piece piece, Position from, Blockage blockage) {
+        Piece blocker = blockage.blockingPiece();
         return String.format("%s piece %s is blocked from moving from %s to %s by %s piece %s.",
                 title(piece.colour()), piece.name(), from.describe(piece.colour()),
-                intended.describe(piece.colour()), title(blockingPiece.colour()), blockingPiece.name());
+                blockage.intendedDestination().describe(piece.colour()), title(blocker.colour()), blocker.name());
     }
 
     public String movedBeforeBlock(Colour colour, Position stoppedAt) {

@@ -26,11 +26,11 @@ class NonBlockPieceClosestToHomeSelectorTest {
         green1.enterBoard(Direction.CLOCKWISE);
         green3.enterBoard(Direction.CLOCKWISE);
         MoveOption free = move(green3);
-        assertSame(free, selector.select(context(3, leavingBlock(green1), free)));
+        assertSame(free, selector.select(context(leavingBlock(green1), free)));
     }
 
     @Test
     void passesOnWhenOnlyBlockPiecesCanMove() {
-        assertSame(PASSED_ON, selector.select(context(3, leavingBlock(green1))));
+        assertSame(PASSED_ON, selector.select(context(leavingBlock(green1))));
     }
 }

@@ -1,5 +1,6 @@
 package com.ludot.domain;
 
+// Null Object for "no mystery cell yet". It holds no state, so one shared instance is enough (enum Singleton).
 public enum NoMysteryCell implements MysteryCell {
     INSTANCE;
 

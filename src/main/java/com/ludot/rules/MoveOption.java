@@ -2,9 +2,11 @@ package com.ludot.rules;
 
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
+import com.ludot.domain.Route;
 
 import java.util.List;
 
+// Describes a possible move before it happens; the chosen one is turned into a Command.
 public record MoveOption(MoveType type, List<Piece> movers, Route route, Landing landing, boolean leavesBlock) {
 
     public Piece leadPiece() {

@@ -1,10 +1,11 @@
 package com.ludot.player.selector;
 
-import com.ludot.player.TurnContext;
 import com.ludot.rules.MoveOption;
 
 import java.util.Optional;
 
+// Chain of Responsibility: each rule either picks a move or passes the turn to the next rule.
+// select() is the fixed Template Method; subclasses only fill in trySelect().
 public abstract class ChainedMoveSelector implements MoveSelector {
 
     private final MoveSelector next;

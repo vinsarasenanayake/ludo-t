@@ -26,11 +26,11 @@ class AvoidBlockClosestToHomeSelectorTest {
         red1.enterBoard(Direction.CLOCKWISE);
         red2.enterBoard(Direction.CLOCKWISE);
         MoveOption plain = move(red2);
-        assertSame(plain, selector.select(context(3, formingBlock(red1), plain)));
+        assertSame(plain, selector.select(context(formingBlock(red1), plain)));
     }
 
     @Test
     void passesOnWhenEveryMoveFormsABlock() {
-        assertSame(PASSED_ON, selector.select(context(3, formingBlock(red1))));
+        assertSame(PASSED_ON, selector.select(context(formingBlock(red1))));
     }
 }

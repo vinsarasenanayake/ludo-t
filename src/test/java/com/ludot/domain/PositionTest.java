@@ -1,6 +1,5 @@
 package com.ludot.domain;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +11,7 @@ class PositionTest {
 
     @Test
     void baseIsDescribedAsBase() {
-        Assertions.assertEquals("Base", Position.base().describe(Colour.RED));
+        assertEquals("Base", Position.base().describe(Colour.RED));
     }
 
     @Test

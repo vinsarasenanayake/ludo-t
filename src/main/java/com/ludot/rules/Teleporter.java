@@ -9,12 +9,13 @@ import com.ludot.domain.TeleportDestination;
 import com.ludot.port.Coin;
 import com.ludot.port.Dice;
 import com.ludot.port.EffectNotice;
-import com.ludot.port.GameObserver;
+import com.ludot.port.MysteryListener;
 
 import static com.ludot.domain.BoardConstants.ALPHA_OFFSET;
 import static com.ludot.domain.BoardConstants.BETA_OFFSET;
 import static com.ludot.domain.BoardConstants.GAMMA_OFFSET;
 
+// Rules T-11 to T-15: effects only happen when a piece arrives here through a mystery cell.
 public class Teleporter {
 
     private final Board board;
@@ -22,21 +23,22 @@ public class Teleporter {
     private final Coin coin;
     private final TrackNavigator navigator;
     private final EffectFactory effectFactory;
-    private final GameObserver observer;
+    private final MysteryListener listener;
 
     public Teleporter(Board board, Dice dice, Coin coin, TrackNavigator navigator,
-                      EffectFactory effectFactory, GameObserver observer) {
+                      EffectFactory effectFactory, MysteryListener listener) {
         this.board = board;
         this.dice = dice;
         this.coin = coin;
         this.navigator = navigator;
         this.effectFactory = effectFactory;
-        this.observer = observer;
+        this.listener = listener;
     }
 
-    public TeleportDestination teleport(Piece piece) {
+    public void teleport(Piece piece) {
+        // Rule T-11: "randomly select one of six options" is done with a die roll.
         TeleportDestination destination = TeleportDestination.fromDieFace(dice.roll());
-        observer.onTeleport(piece, destination);
+        listener.onTeleport(piece, destination);
         switch (destination) {
             case ALPHA -> sendToAlpha(piece);
             case BETA -> sendToBeta(piece);
@@ -45,39 +47,42 @@ public class Teleporter {
             case START -> board.move(piece, Position.onTrack(piece.colour().startCell()));
             case APPROACH -> sendToApproach(piece);
         }
-        return destination;
     }
 
+    // Rule T-12: a coin toss decides energised (heads) or sick (tails).
     private void sendToAlpha(Piece piece) {
         board.move(piece, Position.onTrack(teleportCell(ALPHA_OFFSET)));
         boolean energised = coin.tossHeads();
         piece.applyEffect(energised ? effectFactory.createEnergisedEffect() : effectFactory.createSickEffect());
-        observer.onEffectApplied(piece, energised ? EffectNotice.ENERGISED : EffectNotice.SICK);
+        listener.onEffectApplied(piece, energised ? EffectNotice.ENERGISED : EffectNotice.SICK);
     }
 
     private void sendToBeta(Piece piece) {
         board.move(piece, Position.onTrack(teleportCell(BETA_OFFSET)));
         piece.applyEffect(effectFactory.createBriefingEffect());
-        observer.onEffectApplied(piece, EffectNotice.BRIEFING);
+        listener.onEffectApplied(piece, EffectNotice.BRIEFING);
     }
 
+    // Rule T-14: clockwise pieces turn around; counter-clockwise pieces are sent on to Beta.
     private void sendToGamma(Piece piece) {
         board.move(piece, Position.onTrack(teleportCell(GAMMA_OFFSET)));
         if (piece.direction() == Direction.CLOCKWISE) {
             piece.reverseDirection();
-            observer.onEffectApplied(piece, EffectNotice.DIRECTION_REVERSED);
+            listener.onEffectApplied(piece, EffectNotice.DIRECTION_REVERSED);
             return;
         }
-        observer.onEffectApplied(piece, EffectNotice.SENT_TO_BETA);
-        observer.onTeleport(piece, TeleportDestination.BETA);
+        listener.onEffectApplied(piece, EffectNotice.SENT_TO_BETA);
+        listener.onTeleport(piece, TeleportDestination.BETA);
         sendToBeta(piece);
     }
 
+    // Assumption: landing on the approach this way counts as passing it once.
     private void sendToApproach(Piece piece) {
         board.move(piece, Position.onTrack(piece.colour().approachCell()));
         piece.recordApproachPass();
     }
 
+    // Rule T-11: Alpha, Beta and Gamma are counted clockwise from the yellow approach cell (cell 0 of the count).
     private int teleportCell(int offsetFromYellowApproach) {
         return navigator.move(Colour.YELLOW.approachCell(), offsetFromYellowApproach, Direction.CLOCKWISE);
     }

@@ -1,21 +1,22 @@
 package com.ludot.command;
 
 import com.ludot.domain.Colour;
-import com.ludot.port.GameObserver;
+import com.ludot.port.MoveListener;
 
+// Null Object: used when no piece can move, so the engine never has to check for "no command".
 public class NullMoveCommand implements GameCommand {
 
     private final Colour colour;
-    private final GameObserver observer;
+    private final MoveListener listener;
 
-    public NullMoveCommand(Colour colour, GameObserver observer) {
+    public NullMoveCommand(Colour colour, MoveListener listener) {
         this.colour = colour;
-        this.observer = observer;
+        this.listener = listener;
     }
 
     @Override
     public TurnOutcome execute() {
-        observer.onNoMovePossible(colour);
+        listener.onNoMovePossible(colour);
         return TurnOutcome.NOTHING;
     }
 }

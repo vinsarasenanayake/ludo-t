@@ -36,7 +36,7 @@ class EngineTestFixture {
         Teleporter teleporter = new Teleporter(board, dice, coin, navigator, new EffectFactory(), observer);
         CommandFactory commands = new CommandFactory(board, coin, navigator,
                 new LandingHandler(captureResolver, teleporter, observer), observer);
-        mysteryCells = new MysteryCellManager(board, cellPicker);
+        mysteryCells = new MysteryCellManager(board, cellPicker, observer);
         rollResolver = new RollResolver(new MovePlanner(board, navigator, captureResolver), commands, mysteryCells);
         turnProcessor = new TurnProcessor(dice, rollResolver, new BriefingMonitor(board, observer), snapshots, observer);
         PlayerFactory playerFactory = new PlayerFactory(navigator);

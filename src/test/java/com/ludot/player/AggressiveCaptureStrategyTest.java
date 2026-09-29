@@ -40,7 +40,7 @@ class AggressiveCaptureStrategyTest {
     @DisplayName("Red prefers capturing to any other move")
     void capturesBeforeAnythingElse() {
         MoveOption capture = capture(red1, green1);
-        assertSame(capture, red.chooseMove(context(3, move(red2), capture)));
+        assertSame(capture, red.chooseMove(context(move(red2), capture)));
     }
 
     @Test
@@ -50,7 +50,7 @@ class AggressiveCaptureStrategyTest {
         green2.moveTo(Position.inHomeStraight(3));
         MoveOption farVictim = capture(red1, green1);
         MoveOption nearVictim = capture(red2, green2);
-        assertSame(nearVictim, red.chooseMove(context(3, farVictim, nearVictim)));
+        assertSame(nearVictim, red.chooseMove(context(farVictim, nearVictim)));
     }
 
     @Test
@@ -58,20 +58,20 @@ class AggressiveCaptureStrategyTest {
     void entersOnSixWhenNoCaptureIsPossible() {
         Piece red3 = new Piece(Colour.RED, 3);
         MoveOption entry = enter(red3);
-        assertSame(entry, red.chooseMove(context(6, move(red1), entry)));
+        assertSame(entry, red.chooseMove(context(move(red1), entry)));
     }
 
     @Test
     @DisplayName("Red avoids forming a block when another move exists")
     void avoidsFormingABlock() {
         MoveOption plainMove = move(red2);
-        assertSame(plainMove, red.chooseMove(context(3, formingBlock(red1), plainMove)));
+        assertSame(plainMove, red.chooseMove(context(formingBlock(red1), plainMove)));
     }
 
     @Test
     @DisplayName("Red forms a block only when it is unavoidable")
     void formsABlockWhenItIsTheOnlyMove() {
         MoveOption onlyMove = formingBlock(red1);
-        assertSame(onlyMove, red.chooseMove(context(3, onlyMove)));
+        assertSame(onlyMove, red.chooseMove(context(onlyMove)));
     }
 }

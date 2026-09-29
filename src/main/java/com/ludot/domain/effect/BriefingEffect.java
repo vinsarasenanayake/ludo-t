@@ -1,5 +1,7 @@
 package com.ludot.domain.effect;
 
+// Rule T-13: the piece cannot move for four rounds. Assumption: "rolls three consecutively"
+// means two threes in a row, which sends the piece back to base.
 public class BriefingEffect extends TimedEffect {
 
     private static final int RETURN_TRIGGER_ROLL = 3;

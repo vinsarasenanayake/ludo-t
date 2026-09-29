@@ -5,9 +5,11 @@ import com.ludot.player.selector.CaptureClosestToVictimHomeSelector;
 import com.ludot.player.selector.EnterFromBaseSelector;
 import com.ludot.player.selector.FirstAvailableSelector;
 import com.ludot.player.selector.MoveSelector;
+import com.ludot.player.selector.TurnContext;
 import com.ludot.rules.MoveOption;
 import com.ludot.rules.TrackNavigator;
 
+// Red (section 2.1.1): capture first, then enter from base, then avoid forming blocks.
 public class AggressiveCaptureStrategy implements PlayerStrategy {
 
     private final MoveSelector chain;

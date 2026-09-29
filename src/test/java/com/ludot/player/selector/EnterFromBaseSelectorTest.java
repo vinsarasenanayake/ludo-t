@@ -20,11 +20,11 @@ class EnterFromBaseSelectorTest {
     @Test
     void picksTheEntryOption() {
         MoveOption entry = enter(red1);
-        assertSame(entry, selector.select(context(6, move(red1), entry)));
+        assertSame(entry, selector.select(context(move(red1), entry)));
     }
 
     @Test
     void passesOnWhenThereIsNoEntry() {
-        assertSame(PASSED_ON, selector.select(context(3, move(red1))));
+        assertSame(PASSED_ON, selector.select(context(move(red1))));
     }
 }

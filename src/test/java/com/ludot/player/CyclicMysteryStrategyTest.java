@@ -36,39 +36,39 @@ class CyclicMysteryStrategyTest {
     @DisplayName("Blue starts the cycle with B1")
     void startsWithPieceOne() {
         MoveOption first = move(blue1);
-        assertSame(first, blue.chooseMove(context(3, move(blue2), first)));
+        assertSame(first, blue.chooseMove(context(move(blue2), first)));
     }
 
     @Test
     @DisplayName("Blue moves in a cycle: after B1 comes B2")
     void movesToTheNextPieceInTheCycle() {
-        blue.chooseMove(context(3, move(blue1), move(blue2)));
+        blue.chooseMove(context(move(blue1), move(blue2)));
         MoveOption second = move(blue2);
-        assertSame(second, blue.chooseMove(context(3, move(blue1), second)));
+        assertSame(second, blue.chooseMove(context(move(blue1), second)));
     }
 
     @Test
     @DisplayName("Assumption A16: an unmovable piece is skipped")
     void skipsAPieceWithNoMoves() {
-        blue.chooseMove(context(3, move(blue1)));
+        blue.chooseMove(context(move(blue1)));
         MoveOption third = move(blue3);
-        assertSame(third, blue.chooseMove(context(3, move(blue1), third)));
+        assertSame(third, blue.chooseMove(context(move(blue1), third)));
         assertEquals(4, blue.nextPieceNumber());
     }
 
     @Test
     @DisplayName("Blue moving counter-clockwise prefers landing on the mystery cell")
     void counterClockwisePieceSeeksTheMysteryCell() {
-        blue.chooseMove(context(3, move(blue1)));
-        blue.chooseMove(context(3, move(blue2)));
+        blue.chooseMove(context(move(blue1)));
+        blue.chooseMove(context(move(blue2)));
         MoveOption mystery = ontoMystery(blue3);
-        assertSame(mystery, blue.chooseMove(context(3, move(blue3), mystery)));
+        assertSame(mystery, blue.chooseMove(context(move(blue3), mystery)));
     }
 
     @Test
     @DisplayName("Blue moving clockwise avoids landing on the mystery cell")
     void clockwisePieceAvoidsTheMysteryCell() {
         MoveOption safe = move(blue1);
-        assertSame(safe, blue.chooseMove(context(3, ontoMystery(blue1), safe)));
+        assertSame(safe, blue.chooseMove(context(ontoMystery(blue1), safe)));
     }
 }

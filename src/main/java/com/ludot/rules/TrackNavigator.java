@@ -11,6 +11,7 @@ public class TrackNavigator {
     public static final int NOT_ON_BOARD = Integer.MAX_VALUE;
 
     private static final int STEPS_FROM_APPROACH_TO_HOME = HOME_STRAIGHT_LENGTH + 1;
+    // Rule T-1: counter-clockwise pieces must pass their approach cell twice.
     private static final int CLOCKWISE_PASSES_TO_ENTER_HOME = 1;
     private static final int COUNTER_CLOCKWISE_PASSES_TO_ENTER_HOME = 2;
 
@@ -45,6 +46,7 @@ public class TrackNavigator {
         return stepsToHomeFromTrack(piece);
     }
 
+    // A piece that still needs passes has to go all the way round the track once more for each one.
     private int stepsToHomeFromTrack(Piece piece) {
         int toApproach = distance(piece.position().index(), piece.colour().approachCell(), piece.direction());
         int passesStillNeeded = Math.max(0, passesNeededToEnterHome(piece.direction()) - piece.approachPasses());

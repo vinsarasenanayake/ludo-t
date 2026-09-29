@@ -5,7 +5,7 @@ import com.ludot.command.GameCommand;
 import com.ludot.command.TurnOutcome;
 import com.ludot.domain.Piece;
 import com.ludot.player.Player;
-import com.ludot.player.TurnContext;
+import com.ludot.player.selector.TurnContext;
 import com.ludot.rules.MoveOption;
 import com.ludot.rules.MovePlanner;
 import com.ludot.rules.MoveType;
@@ -34,10 +34,11 @@ public class RollResolver {
         List<MoveOption> options = planner.findOptions(player.pieces(), roll, mysteryCells.current());
         GameCommand command = options.isEmpty()
                 ? commands.createNoMove(player.colour())
-                : commands.create(player.chooseMove(new TurnContext(roll, options, mysteryCells.current())));
+                : commands.create(player.chooseMove(new TurnContext(options)));
         return command.execute();
     }
 
+    // Rule T-6: every piece but one leaves each blockade, moving six cells in its own direction.
     public void breakBlockades(Player player) {
         for (Piece piece : piecesToBreakAway(player)) {
             planner.findOptions(List.of(piece), ENTRY_ROLL, mysteryCells.current()).stream()

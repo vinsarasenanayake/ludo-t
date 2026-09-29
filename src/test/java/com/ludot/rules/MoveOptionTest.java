@@ -1,8 +1,10 @@
 package com.ludot.rules;
 
+import com.ludot.domain.Blockage;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
+import com.ludot.domain.Route;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -38,7 +40,7 @@ class MoveOptionTest {
     @Test
     void routeStoppedBeforeABlockIsCutShort() {
         Blockage blockage = new Blockage(Position.onTrack(6), green1);
-        Route route = Route.cutShort(Position.onTrack(1), Position.onTrack(3), 2, 0, blockage);
+        Route route = Route.completed(Position.onTrack(1), Position.onTrack(3), 2, 0).stoppedBy(blockage);
         assertTrue(route.isCutShortByBlock());
     }
 

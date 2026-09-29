@@ -21,11 +21,11 @@ class BlockMoveSelectorTest {
     @Test
     void picksTheBlockMove() {
         MoveOption together = blockMove(green1, green2);
-        assertSame(together, selector.select(context(4, move(green1), together)));
+        assertSame(together, selector.select(context(move(green1), together)));
     }
 
     @Test
     void passesOnWhenThereIsNoBlock() {
-        assertSame(PASSED_ON, selector.select(context(4, move(green1))));
+        assertSame(PASSED_ON, selector.select(context(move(green1))));
     }
 }

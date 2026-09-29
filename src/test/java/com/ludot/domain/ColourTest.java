@@ -1,6 +1,5 @@
 package com.ludot.domain;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +10,7 @@ class ColourTest {
     @Test
     @DisplayName("Numbering starts at Yellow's starting square")
     void yellowStartsAtCellZero() {
-        Assertions.assertEquals(0, Colour.YELLOW.startCell());
+        assertEquals(0, Colour.YELLOW.startCell());
     }
 
     @Test

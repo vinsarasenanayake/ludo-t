@@ -1,11 +1,13 @@
 package com.ludot.infrastructure;
 
 import com.ludot.domain.ActiveMysteryCell;
+import com.ludot.domain.Blockage;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Direction;
 import com.ludot.domain.NoMysteryCell;
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
+import com.ludot.domain.Route;
 import com.ludot.domain.TeleportDestination;
 import com.ludot.dto.PieceLocationDto;
 import com.ludot.dto.PlayerStatusDto;
@@ -75,13 +77,13 @@ class MessageFormatterTest {
         red1.enterBoard(Direction.CLOCKWISE);
         red1.moveTo(Position.onTrack(30));
         assertEquals("Red moves piece R1 from location 26 to 30 by 4 units in clockwise direction.",
-                messages.pieceMoved(red1, Position.onTrack(26), 4, Direction.CLOCKWISE));
+                messages.pieceMoved(red1, Route.completed(Position.onTrack(26), Position.onTrack(30), 4, 0), Direction.CLOCKWISE));
     }
 
     @Test
     void pieceBlocked() {
         assertEquals("Red piece R1 is blocked from moving from 0 to 6 by Green piece G1.",
-                messages.pieceBlocked(red1, Position.onTrack(0), Position.onTrack(6), green1));
+                messages.pieceBlocked(red1, Position.onTrack(0), new Blockage(Position.onTrack(6), green1)));
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.ludot.app;
 
 public final class Main {
 
+    // Same seed = same dice = same game, so any run can be repeated (e.g. in the demo).
     private static final long DEFAULT_SEED = 42L;
 
     private Main() {

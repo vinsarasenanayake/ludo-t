@@ -1,6 +1,5 @@
 package com.ludot.player.selector;
 
-import com.ludot.player.TurnContext;
 import com.ludot.rules.MoveOption;
 import com.ludot.rules.MoveType;
 import com.ludot.rules.TrackNavigator;

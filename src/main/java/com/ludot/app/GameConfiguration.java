@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+// Composition root: the only place that knows every concrete class and wires them together.
 public class GameConfiguration {
 
     private final long seed;
@@ -55,7 +56,7 @@ public class GameConfiguration {
         Teleporter teleporter = new Teleporter(board, dice, coin, navigator, new EffectFactory(), observer);
         LandingHandler landingHandler = new LandingHandler(captureResolver, teleporter, observer);
         CommandFactory commands = new CommandFactory(board, coin, navigator, landingHandler, observer);
-        MysteryCellManager mysteryCells = new MysteryCellManager(board, new RandomCellPicker(random));
+        MysteryCellManager mysteryCells = new MysteryCellManager(board, new RandomCellPicker(random), observer);
         StatusSnapshotFactory snapshots = new StatusSnapshotFactory();
 
         RollResolver rollResolver = new RollResolver(planner, commands, mysteryCells);

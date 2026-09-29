@@ -5,61 +5,70 @@ import com.ludot.domain.Board;
 import com.ludot.domain.MysteryCell;
 import com.ludot.domain.NoMysteryCell;
 import com.ludot.port.CellPicker;
+import com.ludot.port.MysteryListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.ludot.domain.BoardConstants.MYSTERY_LIFETIME_ROUNDS;
 import static com.ludot.domain.BoardConstants.MYSTERY_SPAWN_DELAY_ROUNDS;
 
+// Rule T-10: appears two rounds after pieces reach the track, stays four rounds,
+// then moves to a random empty cell that is never the same cell twice in a row.
 public class MysteryCellManager {
 
     private static final int NO_PREVIOUS_LOCATION = -1;
 
     private final Board board;
     private final CellPicker cellPicker;
+    private final MysteryListener listener;
     private MysteryCell current = NoMysteryCell.INSTANCE;
     private boolean countingStarted;
     private int roundsCounted;
     private int previousLocation = NO_PREVIOUS_LOCATION;
 
-    public MysteryCellManager(Board board, CellPicker cellPicker) {
+    public MysteryCellManager(Board board, CellPicker cellPicker, MysteryListener listener) {
         this.board = board;
         this.cellPicker = cellPicker;
+        this.listener = listener;
     }
 
     public MysteryCell current() {
         return current;
     }
 
-    public Optional<MysteryCell> endRound(boolean anyPieceOnTrack) {
+    public void endRound(boolean anyPieceOnTrack) {
         if (current.isActive()) {
             current = current.afterOneRound();
-            return current.roundsRemaining() == 0 ? spawn() : Optional.empty();
+            if (current.roundsRemaining() == 0) {
+                spawn();
+            }
+            return;
         }
-        return countTowardsFirstSpawn(anyPieceOnTrack);
+        countTowardsFirstSpawn(anyPieceOnTrack);
     }
 
-    private Optional<MysteryCell> countTowardsFirstSpawn(boolean anyPieceOnTrack) {
+    private void countTowardsFirstSpawn(boolean anyPieceOnTrack) {
         if (!countingStarted) {
             countingStarted = anyPieceOnTrack;
-            return Optional.empty();
+            return;
         }
         roundsCounted++;
-        return roundsCounted >= MYSTERY_SPAWN_DELAY_ROUNDS ? spawn() : Optional.empty();
+        if (roundsCounted >= MYSTERY_SPAWN_DELAY_ROUNDS) {
+            spawn();
+        }
     }
 
-    private Optional<MysteryCell> spawn() {
+    private void spawn() {
         List<Integer> candidates = new ArrayList<>(board.emptyCellIndexes());
         candidates.remove(Integer.valueOf(previousLocation));
         if (candidates.isEmpty()) {
             current = NoMysteryCell.INSTANCE;
-            return Optional.empty();
+            return;
         }
         int location = cellPicker.pick(candidates);
         previousLocation = location;
         current = new ActiveMysteryCell(location, MYSTERY_LIFETIME_ROUNDS);
-        return Optional.of(current);
+        listener.onMysteryCellSpawned(current);
     }
 }

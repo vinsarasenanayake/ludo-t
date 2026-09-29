@@ -15,6 +15,7 @@ public class CaptureResolver {
         this.board = board;
     }
 
+    // Rule 6 for single pieces. Rule T-8: a block can only be captured by a block of the same size.
     public List<Piece> findVictims(Colour moverColour, int cellIndex, int movingGroupSize) {
         Cell cell = board.cellAt(cellIndex);
         List<Piece> opponents = cell.opponentsOf(moverColour);

@@ -20,11 +20,11 @@ class FormBlockSelectorTest {
     @Test
     void picksTheOptionThatFormsABlock() {
         MoveOption blockMaker = formingBlock(green1);
-        assertSame(blockMaker, selector.select(context(3, move(green1), blockMaker)));
+        assertSame(blockMaker, selector.select(context(move(green1), blockMaker)));
     }
 
     @Test
     void passesOnWhenNoOptionFormsABlock() {
-        assertSame(PASSED_ON, selector.select(context(3, move(green1))));
+        assertSame(PASSED_ON, selector.select(context(move(green1))));
     }
 }

@@ -4,12 +4,12 @@ import com.ludot.domain.Board;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
+import com.ludot.domain.Route;
 import com.ludot.rules.CaptureResolver;
 import com.ludot.rules.EffectFactory;
 import com.ludot.rules.Landing;
 import com.ludot.rules.MoveOption;
 import com.ludot.rules.MoveType;
-import com.ludot.rules.Route;
 import com.ludot.rules.Teleporter;
 import com.ludot.rules.TrackNavigator;
 import com.ludot.testsupport.FixedCoin;
@@ -21,17 +21,18 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LandingHandlerTest {
 
     private LandingHandler landingHandler;
+    private RecordingObserver observer;
     private Piece red1;
 
     @BeforeEach
     void setUp() {
         Board board = new Board();
-        RecordingObserver observer = new RecordingObserver();
+        observer = new RecordingObserver();
         Teleporter teleporter = new Teleporter(board, new ScriptedDice(), new FixedCoin(true),
                 new TrackNavigator(), new EffectFactory(), observer);
         landingHandler = new LandingHandler(new CaptureResolver(board), teleporter, observer);
@@ -46,7 +47,8 @@ class LandingHandlerTest {
 
     @Test
     void landingWithoutVictimsCapturesNothing() {
-        assertFalse(landingHandler.resolve(optionGaining(0)));
+        landingHandler.resolve(optionGaining(0));
+        assertTrue(observer.events().isEmpty());
     }
 
     private MoveOption optionGaining(int approachPasses) {

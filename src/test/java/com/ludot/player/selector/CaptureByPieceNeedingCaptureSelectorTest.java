@@ -20,12 +20,12 @@ class CaptureByPieceNeedingCaptureSelectorTest {
     @Test
     void picksACaptureByAPieceWithNoCapturesYet() {
         MoveOption capture = capture(yellow1, red1);
-        assertSame(capture, selector.select(context(3, capture)));
+        assertSame(capture, selector.select(context(capture)));
     }
 
     @Test
     void passesOnWhenThePieceAlreadyCaptured() {
         yellow1.recordCapture();
-        assertSame(PASSED_ON, selector.select(context(3, capture(yellow1, red1))));
+        assertSame(PASSED_ON, selector.select(context(capture(yellow1, red1))));
     }
 }

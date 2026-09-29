@@ -41,34 +41,34 @@ class BlockingStrategyTest {
     @DisplayName("Green moving six to create a block beats leaving base")
     void formingABlockBeatsEntering() {
         MoveOption blockMaker = formingBlock(green1);
-        assertSame(blockMaker, green.chooseMove(context(6, enter(green4), blockMaker)));
+        assertSame(blockMaker, green.chooseMove(context(enter(green4), blockMaker)));
     }
 
     @Test
     @DisplayName("Green keeps an empty base: a six brings a piece out")
     void entersOnSix() {
         MoveOption entry = enter(green4);
-        assertSame(entry, green.chooseMove(context(6, move(green1), entry)));
+        assertSame(entry, green.chooseMove(context(move(green1), entry)));
     }
 
     @Test
     @DisplayName("Green moves its other pieces before breaking a block")
     void movesOtherPiecesBeforeBreakingABlock() {
         MoveOption otherPiece = move(green3);
-        assertSame(otherPiece, green.chooseMove(context(4, leavingBlock(green1), otherPiece)));
+        assertSame(otherPiece, green.chooseMove(context(leavingBlock(green1), otherPiece)));
     }
 
     @Test
     @DisplayName("Rule T-4: Green uses the block move before breaking the block")
     void prefersBlockMoveToBreakingTheBlock() {
         MoveOption moveTogether = blockMove(green1, green2);
-        assertSame(moveTogether, green.chooseMove(context(4, leavingBlock(green1), moveTogether)));
+        assertSame(moveTogether, green.chooseMove(context(leavingBlock(green1), moveTogether)));
     }
 
     @Test
     @DisplayName("Green breaks a block only when nothing else can use the roll")
     void breaksTheBlockAsLastResort() {
         MoveOption breakAway = leavingBlock(green1);
-        assertSame(breakAway, green.chooseMove(context(1, breakAway)));
+        assertSame(breakAway, green.chooseMove(context(breakAway)));
     }
 }

@@ -3,14 +3,12 @@ package com.ludot.rules;
 import com.ludot.domain.Board;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Direction;
-import com.ludot.domain.MysteryCell;
 import com.ludot.domain.Piece;
 import com.ludot.testsupport.FixedCellPicker;
+import com.ludot.testsupport.RecordingObserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -20,10 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MysteryCellManagerTest {
 
     private Board board;
+    private RecordingObserver observer;
 
     @BeforeEach
     void setUp() {
         board = new Board();
+        observer = new RecordingObserver();
     }
 
     @Test
@@ -46,9 +46,9 @@ class MysteryCellManagerTest {
     void spawnsAfterTwoRounds() {
         MysteryCellManager manager = managerPreferring(10);
         endRounds(manager, true, 2);
-        Optional<MysteryCell> spawned = manager.endRound(true);
-        assertTrue(spawned.isPresent());
+        manager.endRound(true);
         assertEquals(10, manager.current().location());
+        assertTrue(observer.hasEvent("mystery spawned 10"));
     }
 
     @Test
@@ -81,7 +81,7 @@ class MysteryCellManagerTest {
     }
 
     private MysteryCellManager managerPreferring(int cell) {
-        return new MysteryCellManager(board, new FixedCellPicker(cell));
+        return new MysteryCellManager(board, new FixedCellPicker(cell), observer);
     }
 
     private void endRounds(MysteryCellManager manager, boolean anyPieceOnTrack, int rounds) {

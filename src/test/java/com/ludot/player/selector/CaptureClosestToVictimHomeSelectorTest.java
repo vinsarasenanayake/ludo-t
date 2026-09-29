@@ -29,11 +29,11 @@ class CaptureClosestToVictimHomeSelectorTest {
         green1.enterBoard(Direction.CLOCKWISE);
         green2.moveTo(Position.inHomeStraight(4));
         MoveOption nearHome = capture(red2, green2);
-        assertSame(nearHome, selector.select(context(3, capture(red1, green1), nearHome)));
+        assertSame(nearHome, selector.select(context(capture(red1, green1), nearHome)));
     }
 
     @Test
     void passesOnWhenNothingCanBeCaptured() {
-        assertSame(PASSED_ON, selector.select(context(3, move(red1))));
+        assertSame(PASSED_ON, selector.select(context(move(red1))));
     }
 }

@@ -8,6 +8,7 @@ import com.ludot.engine.TurnOrderResolver;
 
 import java.util.List;
 
+// Facade: Main starts a whole game with one call and never touches the engine's parts.
 public class LudoGameFacade {
 
     private final GameEngine engine;

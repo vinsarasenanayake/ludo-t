@@ -1,5 +1,6 @@
 package com.ludot.domain.effect;
 
+// Null Object for "no effect". It holds no state, so one shared instance is enough (enum Singleton).
 public enum NoEffect implements PieceEffect {
     INSTANCE;
 

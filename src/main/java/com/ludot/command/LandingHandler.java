@@ -1,36 +1,35 @@
 package com.ludot.command;
 
 import com.ludot.domain.Piece;
+import com.ludot.port.MoveListener;
 import com.ludot.rules.CaptureResolver;
 import com.ludot.rules.MoveOption;
 import com.ludot.rules.Teleporter;
-import com.ludot.port.GameObserver;
 
 import java.util.List;
 
+// What happens after pieces arrive: approach passes are recorded, then captures, then the mystery cell.
 public class LandingHandler {
 
     private final CaptureResolver captureResolver;
     private final Teleporter teleporter;
-    private final GameObserver observer;
+    private final MoveListener listener;
 
-    public LandingHandler(CaptureResolver captureResolver, Teleporter teleporter, GameObserver observer) {
+    public LandingHandler(CaptureResolver captureResolver, Teleporter teleporter, MoveListener listener) {
         this.captureResolver = captureResolver;
         this.teleporter = teleporter;
-        this.observer = observer;
+        this.listener = listener;
     }
 
-    public boolean resolve(MoveOption option) {
+    public void resolve(MoveOption option) {
         List<Piece> movers = option.movers();
         recordApproachPasses(movers, option.route().approachPassesGained());
-        boolean captured = option.capturesAny();
-        if (captured) {
+        if (option.capturesAny()) {
             captureVictims(option);
         }
         if (option.landsOnMysteryCell()) {
             movers.forEach(teleporter::teleport);
         }
-        return captured;
     }
 
     private void recordApproachPasses(List<Piece> movers, int passes) {
@@ -43,7 +42,7 @@ public class LandingHandler {
 
     private void captureVictims(MoveOption option) {
         for (Piece victim : option.landing().victims()) {
-            observer.onCapture(option.leadPiece(), victim, option.destination());
+            listener.onCapture(option.leadPiece(), victim, option.destination());
         }
         captureResolver.capture(option.movers(), option.landing().victims());
     }

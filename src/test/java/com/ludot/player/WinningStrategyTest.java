@@ -39,14 +39,14 @@ class WinningStrategyTest {
     @DisplayName("Yellow keeps an empty base: a six always brings a piece out")
     void alwaysEntersOnSix() {
         MoveOption entry = enter(yellow3);
-        assertSame(entry, yellow.chooseMove(context(6, capture(yellow1, red1), entry)));
+        assertSame(entry, yellow.chooseMove(context(capture(yellow1, red1), entry)));
     }
 
     @Test
     @DisplayName("Yellow captures with a piece that still needs a capture")
     void capturesWithAPieceThatNeedsOne() {
         MoveOption capture = capture(yellow1, red1);
-        assertSame(capture, yellow.chooseMove(context(3, move(yellow2), capture)));
+        assertSame(capture, yellow.chooseMove(context(move(yellow2), capture)));
     }
 
     @Test
@@ -55,7 +55,7 @@ class WinningStrategyTest {
         yellow1.recordCapture();
         yellow2.moveTo(Position.inHomeStraight(1));
         MoveOption closestToHome = move(yellow2);
-        assertSame(closestToHome, yellow.chooseMove(context(3, capture(yellow1, red1), closestToHome)));
+        assertSame(closestToHome, yellow.chooseMove(context(capture(yellow1, red1), closestToHome)));
     }
 
     @Test
@@ -63,6 +63,6 @@ class WinningStrategyTest {
     void movesThePieceClosestToHome() {
         yellow2.moveTo(Position.inHomeStraight(2));
         MoveOption closestToHome = move(yellow2);
-        assertSame(closestToHome, yellow.chooseMove(context(3, move(yellow1), closestToHome)));
+        assertSame(closestToHome, yellow.chooseMove(context(move(yellow1), closestToHome)));
     }
 }

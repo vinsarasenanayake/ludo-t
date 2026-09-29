@@ -24,6 +24,6 @@ class ClosestToHomeSelectorTest {
         yellow1.enterBoard(Direction.CLOCKWISE);
         yellow2.moveTo(Position.inHomeStraight(1));
         MoveOption nearHome = move(yellow2);
-        assertSame(nearHome, selector.select(context(3, move(yellow1), nearHome)));
+        assertSame(nearHome, selector.select(context(move(yellow1), nearHome)));
     }
 }

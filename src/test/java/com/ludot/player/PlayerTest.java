@@ -64,6 +64,6 @@ class PlayerTest {
     @DisplayName("Strategy: the player delegates the decision to its strategy")
     void chooseMoveDelegatesToTheStrategy() {
         MoveOption option = move(red.pieces().get(0));
-        assertSame(option, red.chooseMove(context(3, option)));
+        assertSame(option, red.chooseMove(context(option)));
     }
 }

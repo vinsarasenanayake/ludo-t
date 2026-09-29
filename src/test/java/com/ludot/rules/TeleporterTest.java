@@ -5,7 +5,6 @@ import com.ludot.domain.Colour;
 import com.ludot.domain.Direction;
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
-import com.ludot.domain.TeleportDestination;
 import com.ludot.domain.effect.EnergisedEffect;
 import com.ludot.domain.effect.SickEffect;
 import com.ludot.testsupport.FixedCoin;
@@ -104,8 +103,7 @@ class TeleporterTest {
 
     @Test
     void teleportIsReported() {
-        TeleportDestination destination = teleporterRolling(BETA_FACE, true).teleport(red1);
-        assertEquals(TeleportDestination.BETA, destination);
+        teleporterRolling(BETA_FACE, true).teleport(red1);
         assertTrue(observer.hasEvent("teleport R1 BETA"));
     }
 

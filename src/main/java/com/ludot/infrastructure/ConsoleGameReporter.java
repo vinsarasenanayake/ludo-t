@@ -1,10 +1,12 @@
 package com.ludot.infrastructure;
 
+import com.ludot.domain.Blockage;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Direction;
 import com.ludot.domain.MysteryCell;
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
+import com.ludot.domain.Route;
 import com.ludot.domain.TeleportDestination;
 import com.ludot.dto.PlayerStatusDto;
 import com.ludot.port.EffectNotice;
@@ -13,6 +15,8 @@ import com.ludot.port.GameObserver;
 import java.io.PrintStream;
 import java.util.List;
 
+// Plugin at the edge of the system: turns game events into console lines. Swapping it (for a GUI or a
+// log file) needs no change to the game itself.
 public class ConsoleGameReporter implements GameObserver {
 
     private final MessageFormatter messages;
@@ -54,13 +58,13 @@ public class ConsoleGameReporter implements GameObserver {
     }
 
     @Override
-    public void onPieceMoved(Piece piece, Position from, int distance, Direction direction) {
-        out.println(messages.pieceMoved(piece, from, distance, direction));
+    public void onPieceMoved(Piece piece, Route route, Direction direction) {
+        out.println(messages.pieceMoved(piece, route, direction));
     }
 
     @Override
-    public void onPieceBlocked(Piece piece, Position from, Position intendedDestination, Piece blockingPiece) {
-        out.println(messages.pieceBlocked(piece, from, intendedDestination, blockingPiece));
+    public void onPieceBlocked(Piece piece, Position from, Blockage blockage) {
+        out.println(messages.pieceBlocked(piece, from, blockage));
     }
 
     @Override

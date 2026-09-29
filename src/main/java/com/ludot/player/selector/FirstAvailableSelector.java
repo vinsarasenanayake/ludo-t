@@ -1,8 +1,8 @@
 package com.ludot.player.selector;
 
-import com.ludot.player.TurnContext;
 import com.ludot.rules.MoveOption;
 
+// The last link of every chain, so a move is always chosen and the chain never ends in null.
 public class FirstAvailableSelector implements MoveSelector {
 
     @Override

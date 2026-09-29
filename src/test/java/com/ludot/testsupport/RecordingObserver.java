@@ -1,10 +1,12 @@
 package com.ludot.testsupport;
 
+import com.ludot.domain.Blockage;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Direction;
 import com.ludot.domain.MysteryCell;
 import com.ludot.domain.Piece;
 import com.ludot.domain.Position;
+import com.ludot.domain.Route;
 import com.ludot.domain.TeleportDestination;
 import com.ludot.dto.PlayerStatusDto;
 import com.ludot.port.EffectNotice;
@@ -56,13 +58,13 @@ public class RecordingObserver implements GameObserver {
     }
 
     @Override
-    public void onPieceMoved(Piece piece, Position from, int distance, Direction direction) {
+    public void onPieceMoved(Piece piece, Route route, Direction direction) {
         events.add("moved " + piece.name() + " to " + piece.position().describe(piece.colour()));
     }
 
     @Override
-    public void onPieceBlocked(Piece piece, Position from, Position intendedDestination, Piece blockingPiece) {
-        events.add("blocked " + piece.name() + " by " + blockingPiece.name());
+    public void onPieceBlocked(Piece piece, Position from, Blockage blockage) {
+        events.add("blocked " + piece.name() + " by " + blockage.blockingPiece().name());
     }
 
     @Override
