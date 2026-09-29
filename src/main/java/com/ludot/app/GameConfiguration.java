@@ -11,7 +11,6 @@ import com.ludot.engine.StatusSnapshotFactory;
 import com.ludot.engine.TurnOrderResolver;
 import com.ludot.engine.TurnProcessor;
 import com.ludot.infrastructure.ConsoleGameReporter;
-import com.ludot.infrastructure.CsvGameResultGateway;
 import com.ludot.infrastructure.FairCoin;
 import com.ludot.infrastructure.MessageFormatter;
 import com.ludot.infrastructure.RandomCellPicker;
@@ -21,7 +20,6 @@ import com.ludot.player.PlayerFactory;
 import com.ludot.port.Coin;
 import com.ludot.port.Dice;
 import com.ludot.port.GameObserver;
-import com.ludot.port.GameResultGateway;
 import com.ludot.rules.CaptureResolver;
 import com.ludot.rules.EffectFactory;
 import com.ludot.rules.MovePlanner;
@@ -30,27 +28,18 @@ import com.ludot.rules.Teleporter;
 import com.ludot.rules.TrackNavigator;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 public class GameConfiguration {
 
-    private static final Path RESULTS_FILE = Path.of("game-results.csv");
-
     private final long seed;
     private final PrintStream out;
-    private final GameResultGateway results;
 
     public GameConfiguration(long seed, PrintStream out) {
-        this(seed, out, new CsvGameResultGateway(RESULTS_FILE));
-    }
-
-    public GameConfiguration(long seed, PrintStream out, GameResultGateway results) {
         this.seed = seed;
         this.out = out;
-        this.results = results;
     }
 
     public LudoGameFacade createGame() {
@@ -74,7 +63,7 @@ public class GameConfiguration {
                 new BriefingMonitor(board, observer), snapshots, observer);
         GameEngine engine = new GameEngine(createPlayers(navigator), turnProcessor, mysteryCells, snapshots, observer);
 
-        return new LudoGameFacade(engine, new TurnOrderResolver(dice, observer), results, seed);
+        return new LudoGameFacade(engine, new TurnOrderResolver(dice, observer), seed);
     }
 
     private List<Player> createPlayers(TrackNavigator navigator) {
