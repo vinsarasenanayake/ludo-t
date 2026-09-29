@@ -24,4 +24,9 @@ public enum NoMysteryCell implements MysteryCell {
     public int roundsRemaining() {
         return 0;
     }
+
+    @Override
+    public MysteryCell afterOneRound() {
+        return this;
+    }
 }

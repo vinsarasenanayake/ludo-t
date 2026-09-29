@@ -9,4 +9,6 @@ public interface MysteryCell {
     int location();
 
     int roundsRemaining();
+
+    MysteryCell afterOneRound();
 }

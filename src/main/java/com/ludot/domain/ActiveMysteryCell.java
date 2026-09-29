@@ -20,6 +20,7 @@ public record ActiveMysteryCell(int location, int roundsRemaining) implements My
         return location == cell;
     }
 
+    @Override
     public ActiveMysteryCell afterOneRound() {
         return new ActiveMysteryCell(location, roundsRemaining - 1);
     }
