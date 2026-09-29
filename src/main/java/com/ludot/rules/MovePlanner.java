@@ -146,7 +146,8 @@ public class MovePlanner {
         Landing landing = route.destination().isOnTrack()
                 ? landingAt(route.destination().index(), walk.movers(), mysteryCell)
                 : Landing.offTrack();
-        boolean leavesBlock = walk.type() == Type.MOVE_PIECE && board.isBlockAt(route.from().index());
+        boolean leavesBlock = walk.type() == Type.MOVE_PIECE && route.from().isOnTrack()
+                && board.isBlockAt(route.from().index());
         return new MoveOption(walk.type(), walk.movers(), route, landing, leavesBlock);
     }
 

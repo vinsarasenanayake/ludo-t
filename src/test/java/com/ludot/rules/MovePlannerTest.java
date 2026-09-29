@@ -238,6 +238,15 @@ class MovePlannerTest {
     }
 
     @Test
+    @DisplayName("A piece in its home straight is never treated as leaving a block on the track")
+    void homeStraightPieceDoesNotLeaveATrackBlock() {
+        red1.moveTo(Position.inHomeStraight(2));
+        placeGreenBlockAt(2);
+        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 1, NO_MYSTERY));
+        assertFalse(option.leavesBlock());
+    }
+
+    @Test
     @DisplayName("Rule T-3: one piece cannot capture a block, it stops in front of it")
     void singlePieceCannotCaptureABlock() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
