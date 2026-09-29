@@ -1,8 +1,8 @@
 package com.ludot.player;
 
-import com.ludot.rules.MoveOption;
+import com.ludot.board.TrackNavigator;
 import com.ludot.rules.MoveOption.Type;
-import com.ludot.rules.TrackNavigator;
+import com.ludot.rules.MoveOption;
 
 import java.util.Comparator;
 import java.util.List;

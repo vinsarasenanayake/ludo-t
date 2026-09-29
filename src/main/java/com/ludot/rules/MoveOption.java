@@ -1,8 +1,8 @@
 package com.ludot.rules;
 
-import com.ludot.domain.Piece;
-import com.ludot.domain.Position;
-import com.ludot.domain.Route;
+import com.ludot.board.Piece;
+import com.ludot.board.Position;
+import com.ludot.board.Route;
 
 import java.util.List;
 

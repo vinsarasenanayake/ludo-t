@@ -1,6 +1,7 @@
 package com.ludot.player;
 
-import com.ludot.domain.Colour;
+import com.ludot.board.Colour;
+import com.ludot.board.TrackNavigator;
 import com.ludot.player.MoveRule.AvoidBlockClosestToHome;
 import com.ludot.player.MoveRule.BlockMove;
 import com.ludot.player.MoveRule.CaptureByPieceNeedingCapture;
@@ -10,7 +11,6 @@ import com.ludot.player.MoveRule.EnterFromBase;
 import com.ludot.player.MoveRule.FirstAvailable;
 import com.ludot.player.MoveRule.FormBlock;
 import com.ludot.player.MoveRule.NonBlockPieceClosestToHome;
-import com.ludot.rules.TrackNavigator;
 
 public class PlayerFactory {
 

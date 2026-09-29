@@ -1,12 +1,13 @@
 package com.ludot.rules;
 
-import com.ludot.domain.Board;
-import com.ludot.domain.Colour;
-import com.ludot.domain.Direction;
-import com.ludot.domain.MysteryCell;
-import com.ludot.domain.Piece;
-import com.ludot.domain.Position;
-import com.ludot.domain.Route;
+import com.ludot.board.Board;
+import com.ludot.board.Colour;
+import com.ludot.board.Direction;
+import com.ludot.board.Piece;
+import com.ludot.board.Position;
+import com.ludot.board.Route;
+import com.ludot.board.TrackNavigator;
+import com.ludot.mystery.MysteryCell;
 import com.ludot.rules.MoveOption.Landing;
 import com.ludot.rules.MoveOption.Type;
 
@@ -16,8 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.ludot.domain.BoardConstants.ENTRY_ROLL;
-import static com.ludot.domain.BoardConstants.HOME_STRAIGHT_LENGTH;
+import static com.ludot.board.BoardConstants.ENTRY_ROLL;
+import static com.ludot.board.BoardConstants.HOME_STRAIGHT_LENGTH;
 
 public class MovePlanner {
 

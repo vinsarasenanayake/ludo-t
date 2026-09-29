@@ -1,11 +1,11 @@
 package com.ludot.player;
 
-import com.ludot.domain.Direction;
+import com.ludot.board.Direction;
 import com.ludot.rules.MoveOption;
 
 import java.util.List;
 
-import static com.ludot.domain.BoardConstants.PIECES_PER_PLAYER;
+import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
 public class CyclicMysteryStrategy implements PlayerStrategy {
 
@@ -24,10 +24,6 @@ public class CyclicMysteryStrategy implements PlayerStrategy {
             }
         }
         return options.get(0);
-    }
-
-    public int nextPieceNumber() {
-        return nextPieceNumber;
     }
 
     private static int wrapToPieceNumber(int number) {

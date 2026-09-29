@@ -1,14 +1,13 @@
 package com.ludot.player;
 
-import com.ludot.domain.Colour;
-import com.ludot.domain.Piece;
-import com.ludot.dto.PlayerStatusDto;
+import com.ludot.board.Colour;
+import com.ludot.board.Piece;
 import com.ludot.rules.MoveOption;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ludot.domain.BoardConstants.PIECES_PER_PLAYER;
+import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
 public class Player {
 

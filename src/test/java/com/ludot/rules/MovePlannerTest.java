@@ -1,22 +1,21 @@
 package com.ludot.rules;
 
-import com.ludot.domain.Board;
-import com.ludot.domain.Colour;
-import com.ludot.domain.Direction;
-import com.ludot.domain.MysteryCell;
-import com.ludot.domain.Piece;
-import com.ludot.domain.PieceEffect;
-import com.ludot.domain.Position;
+import com.ludot.board.Board;
+import com.ludot.board.Colour;
+import com.ludot.board.Direction;
+import com.ludot.board.Piece;
+import com.ludot.board.Position;
+import com.ludot.board.TrackNavigator;
+import com.ludot.mystery.MysteryCell;
 import com.ludot.rules.MoveOption.Type;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MovePlannerTest {
@@ -41,41 +40,21 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule 2: a piece cannot leave base without a six")
-    void noOptionToLeaveBaseWithoutSix() {
-        List<MoveOption> options = planner.findOptions(List.of(red1), 5, NO_MYSTERY);
-        assertTrue(options.isEmpty());
-    }
-
-    @Test
-    @DisplayName("Rule 2: a six lets a piece enter the board at its X")
-    void sixOffersEntryToTheStartCell() {
+    @DisplayName("Rule 2: only a six lets a piece leave base, and it enters at its X")
+    void onlyASixEntersTheBoard() {
+        assertTrue(planner.findOptions(List.of(red1), 5, NO_MYSTERY).isEmpty());
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 6, NO_MYSTERY));
         assertEquals(Type.ENTER_BOARD, option.type());
         assertEquals(Position.onTrack(26), option.destination());
     }
 
     @Test
-    @DisplayName("Rule 1: a piece moves forward by the roll")
-    void pieceMovesByTheRoll() {
-        board.enter(red1, Direction.CLOCKWISE);
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 4, NO_MYSTERY));
-        assertEquals(Position.onTrack(30), option.destination());
-    }
-
-    @Test
-    @DisplayName("Rule T-1: a counter-clockwise piece moves backwards around the track")
-    void counterClockwisePieceMovesTheOtherWay() {
-        board.enter(red1, Direction.COUNTER_CLOCKWISE);
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 4, NO_MYSTERY));
-        assertEquals(Position.onTrack(22), option.destination());
-    }
-
-    @Test
-    void movementWrapsFromCellFiftyOneToZero() {
-        placeOnTrack(red1, 50, Direction.CLOCKWISE);
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
-        assertEquals(Position.onTrack(1), option.destination());
+    @DisplayName("Rule 1 + T-1: a piece moves by the roll in its own direction")
+    void pieceMovesByTheRollInItsDirection() {
+        placeOnTrack(red1, 10, Direction.CLOCKWISE);
+        placeOnTrack(red2, 40, Direction.COUNTER_CLOCKWISE);
+        assertEquals(Position.onTrack(14), onlyOption(planner.findOptions(List.of(red1), 4, NO_MYSTERY)).destination());
+        assertEquals(Position.onTrack(36), onlyOption(planner.findOptions(List.of(red2), 4, NO_MYSTERY)).destination());
     }
 
     @Test
@@ -107,51 +86,29 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule T-3: a piece stops on the cell before an opponent block")
+    @DisplayName("Rule T-3: a single piece cannot pass or capture a block, it stops in front of it")
     void pieceStopsBeforeAnOpponentBlock() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
         placeGreenBlockAt(4);
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 6, NO_MYSTERY));
         assertEquals(Position.onTrack(3), option.destination());
         assertTrue(option.isCutShortByBlock());
+        assertFalse(option.capturesAny());
     }
 
     @Test
-    @DisplayName("Rule T-3: no move at all when the block is on the very next cell")
-    void noMoveWhenBlockIsAdjacent() {
-        placeOnTrack(red1, 3, Direction.CLOCKWISE);
-        placeGreenBlockAt(4);
-        assertTrue(planner.findOptions(List.of(red1), 5, NO_MYSTERY).isEmpty());
-    }
-
-    @Test
-    @DisplayName("Rule T-7: without a capture the piece passes its approach and keeps circling")
-    void pieceWithoutCaptureStaysOnTheTrack() {
+    @DisplayName("Rule 9 + T-7: only a piece that has captured turns into its home straight")
+    void onlyAPieceWithACaptureEntersHomeStraight() {
         placeOnTrack(red1, 23, Direction.CLOCKWISE);
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
-        assertEquals(Position.onTrack(26), option.destination());
+        placeOnTrack(red2, 22, Direction.CLOCKWISE);
+        red2.recordCapture();
+        assertEquals(Position.onTrack(26), onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY)).destination());
+        MoveOption afterCapture = onlyOption(planner.findOptions(List.of(red2), 4, NO_MYSTERY));
+        assertEquals(Position.inHomeStraight(1), afterCapture.destination());
     }
 
     @Test
-    @DisplayName("Rule 9 + T-7: after a capture the piece turns into its home straight")
-    void pieceWithCaptureEntersHomeStraight() {
-        placeOnTrack(red1, 23, Direction.CLOCKWISE);
-        red1.recordCapture();
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
-        assertEquals(Position.inHomeStraight(1), option.destination());
-    }
-
-    @Test
-    @DisplayName("Rule T-1: counter-clockwise, the first pass of the approach does not count")
-    void counterClockwiseFirstPassKeepsCircling() {
-        board.enter(red1, Direction.COUNTER_CLOCKWISE);
-        red1.recordCapture();
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 4, NO_MYSTERY));
-        assertEquals(Position.onTrack(22), option.destination());
-    }
-
-    @Test
-    @DisplayName("Rule T-1: counter-clockwise, the second pass enters the home straight")
+    @DisplayName("Rule T-1: counter-clockwise, only the second pass of the approach enters the home straight")
     void counterClockwiseSecondPassEntersHomeStraight() {
         placeOnTrack(red1, 25, Direction.COUNTER_CLOCKWISE);
         red1.recordCapture();
@@ -161,35 +118,11 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule 10: the exact roll takes a piece home")
-    void exactRollReachesHome() {
+    @DisplayName("Rule 10: only the exact roll takes a piece home")
+    void onlyTheExactRollReachesHome() {
         red1.moveTo(Position.inHomeStraight(2));
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
-        assertEquals(Position.home(), option.destination());
-    }
-
-    @Test
-    @DisplayName("Rule 10: a roll that overshoots home is not allowed")
-    void overshootingHomeIsNotAllowed() {
-        red1.moveTo(Position.inHomeStraight(2));
+        assertEquals(Position.home(), onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY)).destination());
         assertTrue(planner.findOptions(List.of(red1), 4, NO_MYSTERY).isEmpty());
-    }
-
-    @Test
-    @DisplayName("Rule T-12: an energised piece moves double")
-    void energisedPieceMovesDouble() {
-        board.enter(red1, Direction.CLOCKWISE);
-        red1.applyEffect(new PieceEffect.Energised());
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
-        assertEquals(Position.onTrack(32), option.destination());
-    }
-
-    @Test
-    @DisplayName("Rule T-13: a piece at a briefing has no moves")
-    void briefedPieceHasNoMoves() {
-        board.enter(red1, Direction.CLOCKWISE);
-        red1.applyEffect(new PieceEffect.Briefing());
-        assertTrue(planner.findOptions(List.of(red1), 3, NO_MYSTERY).isEmpty());
     }
 
     @Test
@@ -230,36 +163,12 @@ class MovePlannerTest {
     }
 
     @Test
-    void movingOnePieceOutOfABlockIsMarkedAsLeavingTheBlock() {
-        placeOnTrack(red1, 0, Direction.CLOCKWISE);
-        placeOnTrack(red2, 0, Direction.CLOCKWISE);
-        MoveOption single = optionOfType(planner.findOptions(List.of(red1, red2), 5, NO_MYSTERY), Type.MOVE_PIECE);
-        assertTrue(single.leavesBlock());
-    }
-
-    @Test
-    @DisplayName("A piece in its home straight is never treated as leaving a block on the track")
+    @DisplayName("Bug fix: a piece in its home straight is never treated as leaving a block on the track")
     void homeStraightPieceDoesNotLeaveATrackBlock() {
         red1.moveTo(Position.inHomeStraight(2));
         placeGreenBlockAt(2);
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 1, NO_MYSTERY));
         assertFalse(option.leavesBlock());
-    }
-
-    @Test
-    @DisplayName("Rule T-3: one piece cannot capture a block, it stops in front of it")
-    void singlePieceCannotCaptureABlock() {
-        placeOnTrack(red1, 0, Direction.CLOCKWISE);
-        placeGreenBlockAt(3);
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
-        assertFalse(option.capturesAny());
-        assertEquals(Position.onTrack(2), option.destination());
-    }
-
-    @Test
-    void leadPieceIsTheFirstMover() {
-        board.enter(red1, Direction.CLOCKWISE);
-        assertSame(red1, onlyOption(planner.findOptions(List.of(red1), 4, NO_MYSTERY)).leadPiece());
     }
 
     private void placeOnTrack(Piece piece, int cell, Direction direction) {

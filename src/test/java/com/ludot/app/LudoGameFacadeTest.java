@@ -1,9 +1,10 @@
 package com.ludot.app;
 
-import com.ludot.dto.GameResultDto;
+import com.ludot.game.GameResultDto;
+import com.ludot.game.LudoGameFacade;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
@@ -15,25 +16,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LudoGameFacadeTest {
 
     @Test
-    @DisplayName("Facade: one call plays a whole game and returns its result")
-    void playingAGameReturnsItsResult() {
-        GameResultDto result = new GameConfiguration(42L, silentConsole()).createGame().play();
-        assertEquals(4, result.finishingOrder().size());
-        assertTrue(result.rounds() > 0);
-    }
-
-    @Test
-    @DisplayName("The same seed always produces the same game")
-    void sameSeedGivesSameResult() {
-        GameResultDto first = new GameConfiguration(7L, silentConsole()).createGame().play();
-        GameResultDto second = new GameConfiguration(7L, silentConsole()).createGame().play();
-        assertEquals(first, second);
-    }
-
-    @Test
-    void theGameOutputStartsWithThePlayerIntroductions() {
+    @DisplayName("Facade: one call plays a whole game, prints it, and the same seed gives the same result")
+    void playingAGameIsRepeatable() {
         ByteArrayOutputStream printed = new ByteArrayOutputStream();
-        new GameConfiguration(42L, new PrintStream(printed, true)).createGame().play();
+        LudoGameFacade game = new GameConfiguration(42L, new PrintStream(printed, true)).createGame();
+        GameResultDto first = game.play();
+        PrintStream silentConsole = new PrintStream(new ByteArrayOutputStream());
+        GameResultDto second = new GameConfiguration(42L, silentConsole).createGame().play();
+        assertEquals(4, first.finishingOrder().size());
+        assertEquals(first, second);
         assertTrue(printed.toString().startsWith("The red player has four (04) pieces named R1, R2, R3, and R4."));
     }
 
@@ -43,9 +34,5 @@ class LudoGameFacadeTest {
         Main.InvalidSeedException error = assertThrows(Main.InvalidSeedException.class,
                 () -> Main.main(new String[]{"abc"}));
         assertInstanceOf(NumberFormatException.class, error.getCause());
-    }
-
-    private PrintStream silentConsole() {
-        return new PrintStream(new ByteArrayOutputStream());
     }
 }

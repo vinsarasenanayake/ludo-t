@@ -1,20 +1,21 @@
 package com.ludot.app;
 
-import com.ludot.command.CommandFactory;
-import com.ludot.domain.Board;
-import com.ludot.domain.Colour;
-import com.ludot.engine.GameEngine;
-import com.ludot.engine.RollResolver;
-import com.ludot.engine.TurnOrderResolver;
-import com.ludot.engine.TurnProcessor;
-import com.ludot.infrastructure.ConsoleReporter;
-import com.ludot.infrastructure.SeededRandomness;
+import com.ludot.board.Board;
+import com.ludot.board.Colour;
+import com.ludot.board.TrackNavigator;
+import com.ludot.game.GameEngine;
+import com.ludot.game.LudoGameFacade;
+import com.ludot.game.RollResolver;
+import com.ludot.game.TurnOrderResolver;
+import com.ludot.game.TurnProcessor;
+import com.ludot.movement.CommandFactory;
+import com.ludot.mystery.MysteryCellManager;
+import com.ludot.mystery.Teleporter;
+import com.ludot.output.ConsoleReporter;
 import com.ludot.player.Player;
 import com.ludot.player.PlayerFactory;
+import com.ludot.random.SeededRandomness;
 import com.ludot.rules.MovePlanner;
-import com.ludot.rules.MysteryCellManager;
-import com.ludot.rules.Teleporter;
-import com.ludot.rules.TrackNavigator;
 
 import java.io.PrintStream;
 import java.util.Arrays;

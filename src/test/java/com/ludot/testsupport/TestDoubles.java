@@ -1,20 +1,20 @@
 package com.ludot.testsupport;
 
-import com.ludot.domain.Colour;
-import com.ludot.domain.Direction;
-import com.ludot.domain.MysteryCell;
-import com.ludot.domain.Piece;
-import com.ludot.domain.Position;
-import com.ludot.domain.Route;
-import com.ludot.dto.PlayerStatusDto;
-import com.ludot.port.CellPicker;
-import com.ludot.port.Coin;
-import com.ludot.port.Dice;
-import com.ludot.port.GameEvents.EffectNotice;
-import com.ludot.port.GameObserver;
-import com.ludot.rules.MoveOption;
+import com.ludot.board.Colour;
+import com.ludot.board.Direction;
+import com.ludot.board.Piece;
+import com.ludot.board.Position;
+import com.ludot.board.Route;
+import com.ludot.mystery.MysteryCell;
+import com.ludot.mystery.MysteryEvents.EffectNotice;
+import com.ludot.output.GameObserver;
+import com.ludot.player.PlayerStatusDto;
+import com.ludot.random.CellPicker;
+import com.ludot.random.Coin;
+import com.ludot.random.Dice;
 import com.ludot.rules.MoveOption.Landing;
 import com.ludot.rules.MoveOption.Type;
+import com.ludot.rules.MoveOption;
 
 import java.util.ArrayList;
 import java.util.List;
