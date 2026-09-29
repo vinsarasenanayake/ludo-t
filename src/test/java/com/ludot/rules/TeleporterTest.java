@@ -4,16 +4,15 @@ import com.ludot.domain.Board;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Direction;
 import com.ludot.domain.Piece;
+import com.ludot.domain.PieceEffect;
 import com.ludot.domain.Position;
-import com.ludot.domain.effect.EnergisedEffect;
-import com.ludot.domain.effect.SickEffect;
-import com.ludot.testsupport.FixedCoin;
-import com.ludot.testsupport.RecordingObserver;
-import com.ludot.testsupport.ScriptedDice;
+import com.ludot.testsupport.TestDoubles.RecordingObserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static com.ludot.testsupport.TestDoubles.fixedCoin;
+import static com.ludot.testsupport.TestDoubles.scriptedDice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -46,14 +45,14 @@ class TeleporterTest {
     void alphaWithHeadsEnergises() {
         teleporterRolling(ALPHA_FACE, true).teleport(red1);
         assertEquals(Position.onTrack(7), red1.position());
-        assertInstanceOf(EnergisedEffect.class, red1.effect());
+        assertInstanceOf(PieceEffect.Energised.class, red1.effect());
     }
 
     @Test
     @DisplayName("Rule T-12: Alpha with tails makes the piece sick")
     void alphaWithTailsMakesSick() {
         teleporterRolling(ALPHA_FACE, false).teleport(red1);
-        assertInstanceOf(SickEffect.class, red1.effect());
+        assertInstanceOf(PieceEffect.Sick.class, red1.effect());
     }
 
     @Test
@@ -108,7 +107,6 @@ class TeleporterTest {
     }
 
     private Teleporter teleporterRolling(int dieFace, boolean heads) {
-        return new Teleporter(board, new ScriptedDice(dieFace), new FixedCoin(heads),
-                new TrackNavigator(), new EffectFactory(), observer);
+        return new Teleporter(board, scriptedDice(dieFace), fixedCoin(heads), new TrackNavigator(), observer);
     }
 }

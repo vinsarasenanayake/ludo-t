@@ -8,6 +8,7 @@ public final class BoardConstants {
     public static final int ENTRY_ROLL = 6;
     public static final int MAX_CONSECUTIVE_SIXES = 3;
     public static final int APPROACH_OFFSET_FROM_START = 2;
+    public static final int EFFECT_DURATION_ROUNDS = 4;
     public static final int MYSTERY_SPAWN_DELAY_ROUNDS = 2;
     public static final int MYSTERY_LIFETIME_ROUNDS = 4;
     public static final int ALPHA_OFFSET = 9;
@@ -15,6 +16,5 @@ public final class BoardConstants {
     public static final int GAMMA_OFFSET = 46;
 
     private BoardConstants() {
-        // Holds constants only; never instantiated.
     }
 }

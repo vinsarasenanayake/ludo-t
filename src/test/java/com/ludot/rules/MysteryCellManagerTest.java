@@ -4,12 +4,12 @@ import com.ludot.domain.Board;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Direction;
 import com.ludot.domain.Piece;
-import com.ludot.testsupport.FixedCellPicker;
-import com.ludot.testsupport.RecordingObserver;
+import com.ludot.testsupport.TestDoubles.RecordingObserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static com.ludot.testsupport.TestDoubles.preferring;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -81,7 +81,7 @@ class MysteryCellManagerTest {
     }
 
     private MysteryCellManager managerPreferring(int cell) {
-        return new MysteryCellManager(board, new FixedCellPicker(cell), observer);
+        return new MysteryCellManager(board, preferring(cell), observer);
     }
 
     private void endRounds(MysteryCellManager manager, boolean anyPieceOnTrack, int rounds) {

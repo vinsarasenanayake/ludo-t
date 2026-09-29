@@ -2,7 +2,7 @@ package com.ludot.player;
 
 import com.ludot.domain.Colour;
 import com.ludot.domain.Piece;
-import com.ludot.player.selector.TurnContext;
+import com.ludot.dto.PlayerStatusDto;
 import com.ludot.rules.MoveOption;
 
 import java.util.ArrayList;
@@ -48,7 +48,14 @@ public class Player {
         return pieces.stream().allMatch(Piece::isHome);
     }
 
-    public MoveOption chooseMove(TurnContext context) {
-        return strategy.chooseMove(context);
+    public MoveOption chooseMove(List<MoveOption> options) {
+        return strategy.chooseMove(options);
+    }
+
+    public PlayerStatusDto status() {
+        List<PlayerStatusDto.PieceLocation> locations = pieces.stream()
+                .map(piece -> new PlayerStatusDto.PieceLocation(piece.name(), piece.position().describe(colour)))
+                .toList();
+        return new PlayerStatusDto(colour, piecesOnBoard(), piecesInBase(), locations);
     }
 }

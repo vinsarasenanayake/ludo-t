@@ -1,8 +1,5 @@
 package com.ludot.domain;
 
-import com.ludot.domain.effect.BriefingEffect;
-import com.ludot.domain.effect.EnergisedEffect;
-import com.ludot.domain.effect.NoEffect;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +32,7 @@ class PieceTest {
 
     @Test
     void newPieceHasNoEffect() {
-        assertSame(NoEffect.INSTANCE, red1.effect());
+        assertSame(PieceEffect.None.INSTANCE, red1.effect());
     }
 
     @Test
@@ -55,13 +52,13 @@ class PieceTest {
     @Test
     void enteringWhenAlreadyOnTheBoardIsRejected() {
         red1.enterBoard(Direction.CLOCKWISE);
-        assertThrows(IllegalMoveException.class, () -> red1.enterBoard(Direction.CLOCKWISE));
+        assertThrows(Piece.IllegalMoveException.class, () -> red1.enterBoard(Direction.CLOCKWISE));
     }
 
     @Test
     void pieceThatIsHomeCannotBeMoved() {
         red1.moveTo(Position.home());
-        assertThrows(IllegalMoveException.class, () -> red1.moveTo(Position.onTrack(3)));
+        assertThrows(Piece.IllegalMoveException.class, () -> red1.moveTo(Position.onTrack(3)));
     }
 
     @Test
@@ -92,24 +89,22 @@ class PieceTest {
     @Test
     @DisplayName("Rule T-12: an energised piece moves double")
     void energisedPieceDoublesItsRoll() {
-        red1.applyEffect(new EnergisedEffect());
+        red1.applyEffect(new PieceEffect.Energised());
         assertEquals(10, red1.adjustRoll(5));
     }
 
     @Test
     @DisplayName("Rule T-13: a piece at a briefing cannot move")
     void briefedPieceCannotMove() {
-        red1.applyEffect(new BriefingEffect());
+        red1.applyEffect(new PieceEffect.Briefing());
         assertFalse(red1.canMove());
     }
 
     @Test
     void expiredEffectIsReplacedByNoEffect() {
-        red1.applyEffect(new EnergisedEffect());
-        for (int round = 0; round < 4; round++) {
-            red1.endRound();
-        }
-        assertSame(NoEffect.INSTANCE, red1.effect());
+        red1.applyEffect(new PieceEffect.Energised());
+        endRounds(red1, 4);
+        assertSame(PieceEffect.None.INSTANCE, red1.effect());
     }
 
     @Test
@@ -118,14 +113,136 @@ class PieceTest {
         red1.enterBoard(Direction.COUNTER_CLOCKWISE);
         red1.recordCapture();
         red1.recordApproachPass();
-        red1.applyEffect(new EnergisedEffect());
-
+        red1.applyEffect(new PieceEffect.Energised());
         red1.returnToBase();
-
         assertTrue(red1.isInBase());
         assertEquals(0, red1.captureCount());
         assertEquals(0, red1.approachPasses());
         assertEquals(Direction.CLOCKWISE, red1.direction());
-        assertSame(NoEffect.INSTANCE, red1.effect());
+        assertSame(PieceEffect.None.INSTANCE, red1.effect());
+    }
+
+    @Test
+    void noEffectLeavesTheRollUnchanged() {
+        assertEquals(5, PieceEffect.None.INSTANCE.adjustRoll(5));
+    }
+
+    @Test
+    void noEffectLetsThePieceMove() {
+        assertTrue(PieceEffect.None.INSTANCE.canMove());
+    }
+
+    @Test
+    void noEffectNeverExpires() {
+        endRounds(PieceEffect.None.INSTANCE, 10);
+        assertFalse(PieceEffect.None.INSTANCE.isExpired());
+    }
+
+    @Test
+    void noEffectNeverSendsThePieceToBase() {
+        PieceEffect.None.INSTANCE.observeRoll(3);
+        PieceEffect.None.INSTANCE.observeRoll(3);
+        assertFalse(PieceEffect.None.INSTANCE.requiresReturnToBase());
+    }
+
+    @Test
+    @DisplayName("Singleton: there is exactly one 'no effect' instance")
+    void everyNoEffectReferenceIsTheSameInstance() {
+        assertSame(PieceEffect.None.INSTANCE, PieceEffect.None.valueOf("INSTANCE"));
+    }
+
+    @Test
+    @DisplayName("Rule T-12: an energised piece moves double the roll")
+    void energisedDoublesTheRoll() {
+        assertEquals(8, new PieceEffect.Energised().adjustRoll(4));
+    }
+
+    @Test
+    void energisedPieceCanStillMove() {
+        assertTrue(new PieceEffect.Energised().canMove());
+    }
+
+    @Test
+    void energisedIsStillActiveAfterThreeRounds() {
+        PieceEffect effect = new PieceEffect.Energised();
+        endRounds(effect, 3);
+        assertFalse(effect.isExpired());
+    }
+
+    @Test
+    @DisplayName("Rule T-12: the effect lasts four rounds")
+    void energisedExpiresAfterFourRounds() {
+        PieceEffect effect = new PieceEffect.Energised();
+        endRounds(effect, 4);
+        assertTrue(effect.isExpired());
+    }
+
+    @Test
+    @DisplayName("Rule T-12: a sick piece moves half the roll")
+    void sickHalvesAnEvenRoll() {
+        assertEquals(3, new PieceEffect.Sick().adjustRoll(6));
+    }
+
+    @Test
+    @DisplayName("Assumption A10: odd rolls are rounded down")
+    void sickRoundsDownAnOddRoll() {
+        assertEquals(2, new PieceEffect.Sick().adjustRoll(5));
+    }
+
+    @Test
+    @DisplayName("Assumption A10: a sick piece always moves at least one cell")
+    void sickNeverMovesLessThanOne() {
+        assertEquals(1, new PieceEffect.Sick().adjustRoll(1));
+    }
+
+    @Test
+    void sickExpiresAfterFourRounds() {
+        PieceEffect effect = new PieceEffect.Sick();
+        endRounds(effect, 4);
+        assertTrue(effect.isExpired());
+    }
+
+    @Test
+    void oneThreeDoesNotEndTheBriefing() {
+        PieceEffect effect = new PieceEffect.Briefing();
+        effect.observeRoll(3);
+        assertFalse(effect.requiresReturnToBase());
+    }
+
+    @Test
+    @DisplayName("Rule T-13 (assumption A11): two threes in a row send the piece to base")
+    void twoConsecutiveThreesSendPieceToBase() {
+        PieceEffect effect = new PieceEffect.Briefing();
+        effect.observeRoll(3);
+        effect.observeRoll(3);
+        assertTrue(effect.requiresReturnToBase());
+    }
+
+    @Test
+    void anotherRollBetweenThreesResetsTheCount() {
+        PieceEffect effect = new PieceEffect.Briefing();
+        effect.observeRoll(3);
+        effect.observeRoll(5);
+        effect.observeRoll(3);
+        assertFalse(effect.requiresReturnToBase());
+    }
+
+    @Test
+    void briefingEndsAfterFourRounds() {
+        PieceEffect effect = new PieceEffect.Briefing();
+        endRounds(effect, 4);
+        assertTrue(effect.isExpired());
+    }
+
+    private void endRounds(Piece piece, int rounds) {
+        for (int round = 0; round < rounds; round++) {
+            piece.endRound();
+        }
+    }
+
+    private void endRounds(PieceEffect effect, int rounds) {
+        for (int round = 0; round < rounds; round++) {
+            effect.endRound();
+        }
     }
 }

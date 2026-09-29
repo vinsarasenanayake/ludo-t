@@ -15,11 +15,9 @@ class DtoTest {
     @Test
     @DisplayName("DTOs are immutable: changing the original list does not change the DTO")
     void playerStatusKeepsItsOwnCopyOfThePieces() {
-        List<PieceLocationDto> pieces = new ArrayList<>(List.of(new PieceLocationDto("R1", "Base")));
+        List<PlayerStatusDto.PieceLocation> pieces = new ArrayList<>(List.of(new PlayerStatusDto.PieceLocation("R1", "Base")));
         PlayerStatusDto status = new PlayerStatusDto(Colour.RED, 0, 4, pieces);
-
-        pieces.add(new PieceLocationDto("R2", "Base"));
-
+        pieces.add(new PlayerStatusDto.PieceLocation("R2", "Base"));
         assertEquals(1, status.pieces().size());
     }
 
@@ -27,12 +25,14 @@ class DtoTest {
     void playerStatusPiecesCannotBeModified() {
         PlayerStatusDto status = new PlayerStatusDto(Colour.RED, 0, 4, List.of());
         assertThrows(UnsupportedOperationException.class,
-                () -> status.pieces().add(new PieceLocationDto("R1", "Base")));
+                () -> status.pieces().add(new PlayerStatusDto.PieceLocation("R1", "Base")));
     }
 
     @Test
-    void winnerIsTheFirstPlayerToFinish() {
-        GameResultDto result = new GameResultDto(42L, 120, List.of(Colour.BLUE, Colour.RED, Colour.GREEN));
-        assertEquals(Colour.BLUE, result.winner());
+    void gameResultKeepsItsOwnCopyOfTheFinishingOrder() {
+        List<Colour> order = new ArrayList<>(List.of(Colour.BLUE, Colour.RED));
+        GameResultDto result = new GameResultDto(order, 120, false);
+        order.add(Colour.GREEN);
+        assertEquals(List.of(Colour.BLUE, Colour.RED), result.finishingOrder());
     }
 }

@@ -2,5 +2,9 @@ package com.ludot.command;
 
 public interface GameCommand {
 
-    TurnOutcome execute();
+    void execute();
+
+    boolean grantsBonusRoll();
+
+    boolean showsPlayerStatus();
 }

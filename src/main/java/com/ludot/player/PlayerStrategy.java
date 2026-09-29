@@ -1,9 +1,10 @@
 package com.ludot.player;
 
-import com.ludot.player.selector.TurnContext;
 import com.ludot.rules.MoveOption;
+
+import java.util.List;
 
 public interface PlayerStrategy {
 
-    MoveOption chooseMove(TurnContext context);
+    MoveOption chooseMove(List<MoveOption> options);
 }

@@ -7,36 +7,56 @@ import static com.ludot.domain.BoardConstants.TRACK_SIZE;
 
 public class Board {
 
-    private final Cell[] cells = new Cell[TRACK_SIZE];
+    private static final int MINIMUM_BLOCK_SIZE = 2;
+
+    private final List<List<Piece>> cells = new ArrayList<>();
 
     public Board() {
         for (int index = 0; index < TRACK_SIZE; index++) {
-            cells[index] = new Cell(index);
+            cells.add(new ArrayList<>());
         }
     }
 
-    public Cell cellAt(int index) {
-        return cells[index];
+    public List<Piece> occupantsAt(int index) {
+        return List.copyOf(cells.get(index));
     }
 
-    public List<Piece> occupantsAt(int index) {
-        return cellAt(index).occupants();
+    public List<Piece> opponentsAt(int index, Colour colour) {
+        return cells.get(index).stream()
+                .filter(piece -> piece.colour() != colour)
+                .toList();
     }
 
     public boolean isBlockAt(int index) {
-        return cellAt(index).isBlock();
+        List<Piece> occupants = cells.get(index);
+        return occupants.size() >= MINIMUM_BLOCK_SIZE
+                && occupants.stream().allMatch(piece -> piece.colour() == occupants.get(0).colour());
+    }
+
+    public boolean isBlockOwnedBy(int index, Colour colour) {
+        return isBlockAt(index) && cells.get(index).get(0).colour() == colour;
+    }
+
+    public List<Integer> emptyCellIndexes() {
+        List<Integer> emptyCells = new ArrayList<>();
+        for (int index = 0; index < TRACK_SIZE; index++) {
+            if (cells.get(index).isEmpty()) {
+                emptyCells.add(index);
+            }
+        }
+        return emptyCells;
     }
 
     public void enter(Piece piece, Direction direction) {
         piece.enterBoard(direction);
-        cellAt(piece.position().index()).add(piece);
+        cells.get(piece.position().index()).add(piece);
     }
 
     public void move(Piece piece, Position destination) {
         leaveCurrentCell(piece);
         piece.moveTo(destination);
         if (destination.isOnTrack()) {
-            cellAt(destination.index()).add(piece);
+            cells.get(destination.index()).add(piece);
         }
     }
 
@@ -45,19 +65,9 @@ public class Board {
         piece.returnToBase();
     }
 
-    public List<Integer> emptyCellIndexes() {
-        List<Integer> emptyCells = new ArrayList<>();
-        for (Cell cell : cells) {
-            if (cell.isEmpty()) {
-                emptyCells.add(cell.index());
-            }
-        }
-        return emptyCells;
-    }
-
     private void leaveCurrentCell(Piece piece) {
         if (piece.isOnTrack()) {
-            cellAt(piece.position().index()).remove(piece);
+            cells.get(piece.position().index()).remove(piece);
         }
     }
 }

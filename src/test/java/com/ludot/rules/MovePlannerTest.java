@@ -1,15 +1,13 @@
 package com.ludot.rules;
 
-import com.ludot.domain.ActiveMysteryCell;
 import com.ludot.domain.Board;
 import com.ludot.domain.Colour;
 import com.ludot.domain.Direction;
 import com.ludot.domain.MysteryCell;
-import com.ludot.domain.NoMysteryCell;
 import com.ludot.domain.Piece;
+import com.ludot.domain.PieceEffect;
 import com.ludot.domain.Position;
-import com.ludot.domain.effect.BriefingEffect;
-import com.ludot.domain.effect.EnergisedEffect;
+import com.ludot.rules.MoveOption.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,11 +16,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MovePlannerTest {
 
-    private static final MysteryCell NO_MYSTERY = NoMysteryCell.INSTANCE;
+    private static final MysteryCell NO_MYSTERY = MysteryCell.None.INSTANCE;
 
     private Board board;
     private MovePlanner planner;
@@ -34,7 +33,7 @@ class MovePlannerTest {
     @BeforeEach
     void setUp() {
         board = new Board();
-        planner = new MovePlanner(board, new TrackNavigator(), new CaptureResolver(board));
+        planner = new MovePlanner(board, new TrackNavigator());
         red1 = new Piece(Colour.RED, 1);
         red2 = new Piece(Colour.RED, 2);
         green1 = new Piece(Colour.GREEN, 1);
@@ -52,7 +51,7 @@ class MovePlannerTest {
     @DisplayName("Rule 2: a six lets a piece enter the board at its X")
     void sixOffersEntryToTheStartCell() {
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 6, NO_MYSTERY));
-        assertEquals(MoveType.ENTER_BOARD, option.type());
+        assertEquals(Type.ENTER_BOARD, option.type());
         assertEquals(Position.onTrack(26), option.destination());
     }
 
@@ -180,7 +179,7 @@ class MovePlannerTest {
     @DisplayName("Rule T-12: an energised piece moves double")
     void energisedPieceMovesDouble() {
         board.enter(red1, Direction.CLOCKWISE);
-        red1.applyEffect(new EnergisedEffect());
+        red1.applyEffect(new PieceEffect.Energised());
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
         assertEquals(Position.onTrack(32), option.destination());
     }
@@ -189,7 +188,7 @@ class MovePlannerTest {
     @DisplayName("Rule T-13: a piece at a briefing has no moves")
     void briefedPieceHasNoMoves() {
         board.enter(red1, Direction.CLOCKWISE);
-        red1.applyEffect(new BriefingEffect());
+        red1.applyEffect(new PieceEffect.Briefing());
         assertTrue(planner.findOptions(List.of(red1), 3, NO_MYSTERY).isEmpty());
     }
 
@@ -197,7 +196,7 @@ class MovePlannerTest {
     @DisplayName("Rule T-10: landing on the mystery cell is flagged")
     void landingOnTheMysteryCellIsFlagged() {
         board.enter(red1, Direction.CLOCKWISE);
-        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 4, new ActiveMysteryCell(30, 4)));
+        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 4, new MysteryCell.Active(30, 4)));
         assertTrue(option.landsOnMysteryCell());
     }
 
@@ -206,7 +205,7 @@ class MovePlannerTest {
     void blockMovesByRollDividedBySize() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
         placeOnTrack(red2, 0, Direction.CLOCKWISE);
-        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), MoveType.MOVE_BLOCK);
+        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), Type.MOVE_BLOCK);
         assertEquals(Position.onTrack(3), blockMove.destination());
         assertEquals(2, blockMove.movers().size());
     }
@@ -216,7 +215,7 @@ class MovePlannerTest {
     void mixedBlockMovesTheWayOfThePieceFurthestFromHome() {
         placeOnTrack(red1, 30, Direction.CLOCKWISE);
         placeOnTrack(red2, 30, Direction.COUNTER_CLOCKWISE);
-        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 4, NO_MYSTERY), MoveType.MOVE_BLOCK);
+        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 4, NO_MYSTERY), Type.MOVE_BLOCK);
         assertEquals(Position.onTrack(28), blockMove.destination());
     }
 
@@ -226,7 +225,7 @@ class MovePlannerTest {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
         placeOnTrack(red2, 0, Direction.CLOCKWISE);
         placeGreenBlockAt(3);
-        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), MoveType.MOVE_BLOCK);
+        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), Type.MOVE_BLOCK);
         assertEquals(2, blockMove.landing().victims().size());
     }
 
@@ -234,8 +233,24 @@ class MovePlannerTest {
     void movingOnePieceOutOfABlockIsMarkedAsLeavingTheBlock() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
         placeOnTrack(red2, 0, Direction.CLOCKWISE);
-        MoveOption single = optionOfType(planner.findOptions(List.of(red1, red2), 5, NO_MYSTERY), MoveType.MOVE_PIECE);
+        MoveOption single = optionOfType(planner.findOptions(List.of(red1, red2), 5, NO_MYSTERY), Type.MOVE_PIECE);
         assertTrue(single.leavesBlock());
+    }
+
+    @Test
+    @DisplayName("Rule T-3: one piece cannot capture a block, it stops in front of it")
+    void singlePieceCannotCaptureABlock() {
+        placeOnTrack(red1, 0, Direction.CLOCKWISE);
+        placeGreenBlockAt(3);
+        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
+        assertFalse(option.capturesAny());
+        assertEquals(Position.onTrack(2), option.destination());
+    }
+
+    @Test
+    void leadPieceIsTheFirstMover() {
+        board.enter(red1, Direction.CLOCKWISE);
+        assertSame(red1, onlyOption(planner.findOptions(List.of(red1), 4, NO_MYSTERY)).leadPiece());
     }
 
     private void placeOnTrack(Piece piece, int cell, Direction direction) {
@@ -253,7 +268,7 @@ class MovePlannerTest {
         return options.get(0);
     }
 
-    private MoveOption optionOfType(List<MoveOption> options, MoveType type) {
+    private MoveOption optionOfType(List<MoveOption> options, Type type) {
         return options.stream()
                 .filter(option -> option.type() == type)
                 .findFirst()

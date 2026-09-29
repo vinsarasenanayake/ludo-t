@@ -1,9 +1,13 @@
 package com.ludot.domain;
 
-import com.ludot.domain.effect.NoEffect;
-import com.ludot.domain.effect.PieceEffect;
-
 public class Piece {
+
+    public static class IllegalMoveException extends RuntimeException {
+
+        public IllegalMoveException(String message) {
+            super(message);
+        }
+    }
 
     private final Colour colour;
     private final int number;
@@ -121,11 +125,10 @@ public class Piece {
     public void endRound() {
         effect.endRound();
         if (effect.isExpired()) {
-            effect = NoEffect.INSTANCE;
+            effect = PieceEffect.None.INSTANCE;
         }
     }
 
-    // Rule T-9: a captured piece loses everything it had (captures, passes, direction, effect).
     public void returnToBase() {
         resetToBase();
     }
@@ -140,6 +143,6 @@ public class Piece {
         direction = Direction.CLOCKWISE;
         captureCount = 0;
         approachPasses = 0;
-        effect = NoEffect.INSTANCE;
+        effect = PieceEffect.None.INSTANCE;
     }
 }
