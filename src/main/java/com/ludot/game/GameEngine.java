@@ -49,7 +49,9 @@ public class GameEngine {
             listener.onGameStalled(rounds);
         }
         turnOrder.stream().filter(colour -> !finishingOrder.contains(colour)).forEach(finishingOrder::add);
-        return new GameResultDto(finishingOrder, rounds, stalled);
+        GameResultDto result = new GameResultDto(finishingOrder, rounds, stalled);
+        listener.onGameOver(result);
+        return result;
     }
 
     private void playRound(List<Colour> turnOrder, List<Colour> finishingOrder) {

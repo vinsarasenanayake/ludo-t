@@ -1,6 +1,7 @@
 package com.ludot.output;
 
 import com.ludot.board.Colour;
+import com.ludot.game.GameResultDto;
 import com.ludot.mystery.MysteryCell;
 import com.ludot.player.PlayerStatusDto;
 import com.ludot.random.SeededRandomness;
@@ -57,11 +58,16 @@ class ConsoleReporterTest {
     }
 
     @Test
-    @DisplayName("Brief 3.1: upon winning, and the places after it")
-    void winnerAndLaterPlaces() {
+    @DisplayName("Rule 11: the winner, the later places and the final ranking of all four players")
+    void winnerLaterPlacesAndFinalRanking() {
         reporter.onPlayerFinished(Colour.RED, 1);
         reporter.onPlayerFinished(Colour.BLUE, 2);
-        assertPrinted("Red player wins!!!" + NEW_LINE + "Blue player finishes in place 2.");
+        List<Colour> ranking = List.of(Colour.RED, Colour.BLUE, Colour.GREEN, Colour.YELLOW);
+        reporter.onGameOver(new GameResultDto(ranking, 90, false));
+        assertPrinted("Red player wins!!!" + NEW_LINE + "Blue player finishes in place 2." + NEW_LINE
+                + "============================" + NEW_LINE + "Final results after 90 rounds" + NEW_LINE
+                + "============================" + NEW_LINE + "1st place: Red" + NEW_LINE
+                + "2nd place: Blue" + NEW_LINE + "3rd place: Green" + NEW_LINE + "4th place: Yellow");
     }
 
     @Test

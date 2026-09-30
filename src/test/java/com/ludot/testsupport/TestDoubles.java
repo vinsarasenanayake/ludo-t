@@ -5,6 +5,7 @@ import com.ludot.board.Direction;
 import com.ludot.board.Piece;
 import com.ludot.board.Position;
 import com.ludot.board.Route;
+import com.ludot.game.GameResultDto;
 import com.ludot.mystery.MysteryCell;
 import com.ludot.mystery.MysteryEvents.EffectNotice;
 import com.ludot.output.GameObserver;
@@ -182,6 +183,11 @@ public final class TestDoubles {
         @Override
         public void onGameStalled(int rounds) {
             events.add("stalled " + rounds);
+        }
+
+        @Override
+        public void onGameOver(GameResultDto result) {
+            events.add("game over " + result.finishingOrder());
         }
     }
 }

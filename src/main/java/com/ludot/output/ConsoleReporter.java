@@ -5,6 +5,7 @@ import com.ludot.board.Direction;
 import com.ludot.board.Piece;
 import com.ludot.board.Position;
 import com.ludot.board.Route;
+import com.ludot.game.GameResultDto;
 import com.ludot.mystery.MysteryCell;
 import com.ludot.mystery.MysteryEvents.EffectNotice;
 import com.ludot.player.PlayerStatusDto;
@@ -167,6 +168,29 @@ public class ConsoleReporter implements GameObserver {
     @Override
     public void onGameStalled(int rounds) {
         print("No piece can move any more after %d rounds (gridlock). The game ends here.", rounds);
+    }
+
+    @Override
+    public void onGameOver(GameResultDto result) {
+        print(SEPARATOR);
+        print("Final results after %d rounds", result.rounds());
+        print(SEPARATOR);
+        List<Colour> ranking = result.finishingOrder();
+        for (int place = 1; place <= ranking.size(); place++) {
+            print("%s place: %s", ordinal(place), ranking.get(place - 1).title());
+        }
+        if (result.stalled()) {
+            print("Players who did not reach home are listed in turn order.");
+        }
+    }
+
+    private static String ordinal(int place) {
+        return switch (place) {
+            case 1 -> "1st";
+            case 2 -> "2nd";
+            case 3 -> "3rd";
+            default -> place + "th";
+        };
     }
 
     private void print(String format, Object... values) {

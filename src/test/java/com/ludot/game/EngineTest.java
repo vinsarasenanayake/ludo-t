@@ -132,6 +132,7 @@ class EngineTest {
             assertEquals(4, result.finishingOrder().size());
             assertFalse(result.stalled());
             assertTrue(observer.hasEvent("finished " + result.finishingOrder().get(0) + " 1"));
+            assertTrue(observer.hasEvent("game over " + result.finishingOrder()));
         }
     }
 
