@@ -13,16 +13,14 @@ import com.ludot.player.PlayerStatusDto;
 import com.ludot.random.CellPicker;
 import com.ludot.random.Coin;
 import com.ludot.random.Dice;
+import com.ludot.rules.MoveOption;
 import com.ludot.rules.MoveOption.Landing;
 import com.ludot.rules.MoveOption.Type;
-import com.ludot.rules.MoveOption;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class TestDoubles {
-
-    private static final Landing NOTHING_SPECIAL = new Landing(List.of(), false, false);
 
     private TestDoubles() {
     }
@@ -47,15 +45,16 @@ public final class TestDoubles {
 
     public static MoveOption enter(Piece piece) {
         Route route = Route.completed(Position.base(), Position.onTrack(piece.colour().startCell()), 0, 0);
-        return new MoveOption(Type.ENTER_BOARD, List.of(piece), route, NOTHING_SPECIAL, false);
+        return new MoveOption(Type.ENTER_BOARD, List.of(piece), route, Landing.offTrack(), false);
     }
 
     public static MoveOption move(Piece piece) {
-        return new MoveOption(Type.MOVE_PIECE, List.of(piece), stay(piece), NOTHING_SPECIAL, false);
+        return new MoveOption(Type.MOVE_PIECE, List.of(piece), stay(piece), Landing.offTrack(), false);
     }
 
     public static MoveOption capture(Piece piece, Piece victim) {
-        return new MoveOption(Type.MOVE_PIECE, List.of(piece), stay(piece), new Landing(List.of(victim), false, false), false);
+        Landing landing = new Landing(List.of(victim), false, false);
+        return new MoveOption(Type.MOVE_PIECE, List.of(piece), stay(piece), landing, false);
     }
 
     public static MoveOption formingBlock(Piece piece) {
@@ -63,11 +62,11 @@ public final class TestDoubles {
     }
 
     public static MoveOption leavingBlock(Piece piece) {
-        return new MoveOption(Type.MOVE_PIECE, List.of(piece), stay(piece), NOTHING_SPECIAL, true);
+        return new MoveOption(Type.MOVE_PIECE, List.of(piece), stay(piece), Landing.offTrack(), true);
     }
 
     public static MoveOption blockMove(Piece first, Piece second) {
-        return new MoveOption(Type.MOVE_BLOCK, List.of(first, second), stay(first), NOTHING_SPECIAL, false);
+        return new MoveOption(Type.MOVE_BLOCK, List.of(first, second), stay(first), Landing.offTrack(), false);
     }
 
     public static MoveOption ontoMystery(Piece piece) {
@@ -143,6 +142,11 @@ public final class TestDoubles {
         @Override
         public void onNoMovePossible(Colour colour) {
             events.add("no move " + colour);
+        }
+
+        @Override
+        public void onBlockedThrowIgnored(Colour colour) {
+            events.add("blocked throw ignored " + colour);
         }
 
         @Override

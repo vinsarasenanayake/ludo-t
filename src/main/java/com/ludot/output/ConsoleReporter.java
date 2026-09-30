@@ -15,7 +15,7 @@ import java.util.List;
 
 import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
-public class ConsoleReporter implements GameObserver {
+public final class ConsoleReporter implements GameObserver {
 
     private static final String SEPARATOR = "============================";
     private static final int WINNING_PLACE = 1;
@@ -99,8 +99,15 @@ public class ConsoleReporter implements GameObserver {
 
     @Override
     public void onNoMovePossible(Colour colour) {
-        print("%s does not have other pieces in the board to move. Ignoring the throw and moving on to the next player.",
+        print("%s does not have other pieces in the board to move. "
+                + "Ignoring the throw and moving on to the next player.",
                 colour.title());
+    }
+
+    @Override
+    public void onBlockedThrowIgnored(Colour colour) {
+        print("%s does not have other pieces in the board to move instead of the blocked piece. "
+                + "Ignoring the throw and moving on to the next player.", colour.title());
     }
 
     @Override
@@ -148,8 +155,9 @@ public class ConsoleReporter implements GameObserver {
             status.pieces().forEach(piece -> print("Piece %s -> %s", piece.pieceName(), piece.location()));
         }
         if (mysteryCell.isActive()) {
-            print("The mystery cell is at %d and will be at that location for the next %d rounds.",
-                    mysteryCell.location(), mysteryCell.roundsRemaining());
+            int rounds = mysteryCell.roundsRemaining();
+            print("The mystery cell is at %d and will be at that location for the next %d %s.",
+                    mysteryCell.location(), rounds, rounds == 1 ? "round" : "rounds");
         } else {
             print("There is no mystery cell on the board yet.");
         }

@@ -20,7 +20,7 @@ import java.util.Set;
 import static com.ludot.board.BoardConstants.ENTRY_ROLL;
 import static com.ludot.board.BoardConstants.HOME_STRAIGHT_LENGTH;
 
-public class MovePlanner {
+public final class MovePlanner {
 
     private static final int SINGLE_PIECE = 1;
 
@@ -34,20 +34,29 @@ public class MovePlanner {
 
     public List<MoveOption> findOptions(List<Piece> pieces, int roll, MysteryCell mysteryCell) {
         List<MoveOption> options = new ArrayList<>();
-        planEntry(pieces, roll, mysteryCell).ifPresent(options::add);
+        for (Piece piece : pieces) {
+            planEntry(piece, roll, mysteryCell).ifPresent(options::add);
+        }
         for (Piece piece : pieces) {
             planPieceMove(piece, roll, mysteryCell).ifPresent(options::add);
         }
         options.addAll(planBlockMoves(pieces, roll, mysteryCell));
-        return options;
+        return withoutBlockedMovesIfOthersExist(options);
     }
 
-    private Optional<MoveOption> planEntry(List<Piece> pieces, int roll, MysteryCell mysteryCell) {
-        Optional<Piece> waitingPiece = pieces.stream().filter(Piece::isInBase).findFirst();
-        if (roll != ENTRY_ROLL || waitingPiece.isEmpty()) {
+    private List<MoveOption> withoutBlockedMovesIfOthersExist(List<MoveOption> options) {
+        List<MoveOption> fullMoves = options.stream().filter(option -> !option.isCutShortByBlock()).toList();
+        if (!fullMoves.isEmpty()) {
+            return fullMoves;
+        }
+        List<MoveOption> partialMoves = options.stream().filter(option -> !option.isFullyBlocked()).toList();
+        return partialMoves.isEmpty() ? options : partialMoves;
+    }
+
+    private Optional<MoveOption> planEntry(Piece piece, int roll, MysteryCell mysteryCell) {
+        if (roll != ENTRY_ROLL || !piece.isInBase()) {
             return Optional.empty();
         }
-        Piece piece = waitingPiece.get();
         int startCell = piece.colour().startCell();
         if (isOpponentBlockAt(piece.colour(), startCell)) {
             return Optional.empty();
@@ -60,7 +69,7 @@ public class MovePlanner {
     private Optional<MoveOption> planPieceMove(Piece piece, int roll, MysteryCell mysteryCell) {
         boolean onTheWayHome = piece.isOnTrack() || piece.isInHomeStraight();
         int steps = piece.adjustRoll(roll);
-        if (!onTheWayHome || !piece.canMove() || steps == 0) {
+        if (!onTheWayHome || !piece.canMove()) {
             return Optional.empty();
         }
         Walk walk = new Walk(Type.MOVE_PIECE, List.of(piece), piece.direction(), steps);
@@ -70,11 +79,11 @@ public class MovePlanner {
     private List<MoveOption> planBlockMoves(List<Piece> pieces, int roll, MysteryCell mysteryCell) {
         List<MoveOption> options = new ArrayList<>();
         for (int cellIndex : ownBlockCells(pieces)) {
-            List<Piece> block = board.occupantsAt(cellIndex);
+            List<Piece> block = furthestFromHomeFirst(board.occupantsAt(cellIndex));
             int distance = roll / block.size();
             boolean everyPieceCanMove = block.stream().allMatch(Piece::canMove);
             if (distance > 0 && everyPieceCanMove) {
-                Walk walk = new Walk(Type.MOVE_BLOCK, block, blockDirection(block), distance);
+                Walk walk = new Walk(Type.MOVE_BLOCK, block, block.get(0).direction(), distance);
                 walk(walk).map(route -> toOption(walk, route, mysteryCell)).ifPresent(options::add);
             }
         }
@@ -131,9 +140,6 @@ public class MovePlanner {
     }
 
     private Optional<Route> stopBeforeBlock(Walk walk, Route partial, Position blockCell) {
-        if (partial.distance() == 0) {
-            return Optional.empty();
-        }
         Position intended = Position.onTrack(navigator.move(walk.start().index(), walk.steps(), walk.direction()));
         Piece blockingPiece = board.occupantsAt(blockCell.index()).get(0);
         return Optional.of(partial.stoppedBy(new Route.Blockage(intended, blockingPiece)));
@@ -144,10 +150,11 @@ public class MovePlanner {
     }
 
     private MoveOption toOption(Walk walk, Route route, MysteryCell mysteryCell) {
-        Landing landing = route.destination().isOnTrack()
+        boolean movesAtAll = route.distance() > 0;
+        Landing landing = movesAtAll && route.destination().isOnTrack()
                 ? landingAt(route.destination().index(), walk.movers(), mysteryCell)
                 : Landing.offTrack();
-        boolean leavesBlock = walk.type() == Type.MOVE_PIECE && route.from().isOnTrack()
+        boolean leavesBlock = movesAtAll && walk.type() == Type.MOVE_PIECE && route.from().isOnTrack()
                 && board.isBlockAt(route.from().index());
         return new MoveOption(walk.type(), walk.movers(), route, landing, leavesBlock);
     }
@@ -182,14 +189,21 @@ public class MovePlanner {
         return blockCells;
     }
 
-    private Direction blockDirection(List<Piece> block) {
+    private List<Piece> furthestFromHomeFirst(List<Piece> block) {
         Piece furthestFromHome = block.get(0);
         for (Piece piece : block) {
             if (navigator.stepsToHome(piece) > navigator.stepsToHome(furthestFromHome)) {
                 furthestFromHome = piece;
             }
         }
-        return furthestFromHome.direction();
+        List<Piece> ordered = new ArrayList<>();
+        ordered.add(furthestFromHome);
+        for (Piece piece : block) {
+            if (piece != furthestFromHome) {
+                ordered.add(piece);
+            }
+        }
+        return ordered;
     }
 
     private record Walk(Type type, List<Piece> movers, Direction direction, int steps) {

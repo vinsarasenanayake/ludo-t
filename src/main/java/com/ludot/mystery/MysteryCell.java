@@ -90,7 +90,7 @@ public interface MysteryCell {
         public static Destination fromDieFace(int face) {
             Destination[] destinations = values();
             if (face < 1 || face > destinations.length) {
-                throw new IllegalArgumentException("Die face must be 1-6 but was " + face);
+                throw new IllegalArgumentException("Die face must be 1 to " + destinations.length + " but was " + face);
             }
             return destinations[face - 1];
         }

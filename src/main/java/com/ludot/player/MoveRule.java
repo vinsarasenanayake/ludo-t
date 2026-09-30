@@ -1,14 +1,14 @@
 package com.ludot.player;
 
 import com.ludot.board.TrackNavigator;
-import com.ludot.rules.MoveOption.Type;
 import com.ludot.rules.MoveOption;
+import com.ludot.rules.MoveOption.Type;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class MoveRule implements PlayerStrategy {
+abstract class MoveRule implements PlayerStrategy {
 
     private final PlayerStrategy next;
 
@@ -23,7 +23,7 @@ public abstract class MoveRule implements PlayerStrategy {
 
     protected abstract Optional<MoveOption> trySelect(List<MoveOption> options);
 
-    public static final class FirstAvailable implements PlayerStrategy {
+    static final class FirstAvailable implements PlayerStrategy {
 
         @Override
         public MoveOption chooseMove(List<MoveOption> options) {
@@ -31,9 +31,9 @@ public abstract class MoveRule implements PlayerStrategy {
         }
     }
 
-    public static final class EnterFromBase extends MoveRule {
+    static final class EnterFromBase extends MoveRule {
 
-        public EnterFromBase(PlayerStrategy next) {
+        EnterFromBase(PlayerStrategy next) {
             super(next);
         }
 
@@ -43,9 +43,9 @@ public abstract class MoveRule implements PlayerStrategy {
         }
     }
 
-    public static final class FormBlock extends MoveRule {
+    static final class FormBlock extends MoveRule {
 
-        public FormBlock(PlayerStrategy next) {
+        FormBlock(PlayerStrategy next) {
             super(next);
         }
 
@@ -55,9 +55,9 @@ public abstract class MoveRule implements PlayerStrategy {
         }
     }
 
-    public static final class BlockMove extends MoveRule {
+    static final class BlockMove extends MoveRule {
 
-        public BlockMove(PlayerStrategy next) {
+        BlockMove(PlayerStrategy next) {
             super(next);
         }
 
@@ -67,9 +67,9 @@ public abstract class MoveRule implements PlayerStrategy {
         }
     }
 
-    public static final class CaptureByPieceNeedingCapture extends MoveRule {
+    static final class CaptureByPieceNeedingCapture extends MoveRule {
 
-        public CaptureByPieceNeedingCapture(PlayerStrategy next) {
+        CaptureByPieceNeedingCapture(PlayerStrategy next) {
             super(next);
         }
 
@@ -82,11 +82,11 @@ public abstract class MoveRule implements PlayerStrategy {
         }
     }
 
-    public static final class CaptureClosestToVictimHome extends MoveRule {
+    static final class CaptureClosestToVictimHome extends MoveRule {
 
         private final TrackNavigator navigator;
 
-        public CaptureClosestToVictimHome(TrackNavigator navigator, PlayerStrategy next) {
+        CaptureClosestToVictimHome(TrackNavigator navigator, PlayerStrategy next) {
             super(next);
             this.navigator = navigator;
         }
@@ -106,11 +106,11 @@ public abstract class MoveRule implements PlayerStrategy {
         }
     }
 
-    public static final class ClosestToHome extends MoveRule {
+    static final class ClosestToHome extends MoveRule {
 
         private final TrackNavigator navigator;
 
-        public ClosestToHome(TrackNavigator navigator, PlayerStrategy next) {
+        ClosestToHome(TrackNavigator navigator, PlayerStrategy next) {
             super(next);
             this.navigator = navigator;
         }
@@ -121,11 +121,11 @@ public abstract class MoveRule implements PlayerStrategy {
         }
     }
 
-    public static final class AvoidBlockClosestToHome extends MoveRule {
+    static final class AvoidBlockClosestToHome extends MoveRule {
 
         private final TrackNavigator navigator;
 
-        public AvoidBlockClosestToHome(TrackNavigator navigator, PlayerStrategy next) {
+        AvoidBlockClosestToHome(TrackNavigator navigator, PlayerStrategy next) {
             super(next);
             this.navigator = navigator;
         }
@@ -138,11 +138,11 @@ public abstract class MoveRule implements PlayerStrategy {
         }
     }
 
-    public static final class NonBlockPieceClosestToHome extends MoveRule {
+    static final class NonBlockPieceClosestToHome extends MoveRule {
 
         private final TrackNavigator navigator;
 
-        public NonBlockPieceClosestToHome(TrackNavigator navigator, PlayerStrategy next) {
+        NonBlockPieceClosestToHome(TrackNavigator navigator, PlayerStrategy next) {
             super(next);
             this.navigator = navigator;
         }

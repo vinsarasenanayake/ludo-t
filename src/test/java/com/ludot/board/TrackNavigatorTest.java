@@ -13,14 +13,14 @@ class TrackNavigatorTest {
     private final TrackNavigator navigator = new TrackNavigator();
 
     @Test
-    @DisplayName("The track wraps round: 51 -> 0 clockwise and 0 -> 51 counter-clockwise")
+    @DisplayName("R8: the track wraps round, 51 to 0 clockwise and 0 to 51 counter-clockwise")
     void movementWrapsRoundTheBoard() {
         assertEquals(0, navigator.step(51, Direction.CLOCKWISE));
         assertEquals(51, navigator.step(0, Direction.COUNTER_CLOCKWISE));
     }
 
     @Test
-    @DisplayName("Rule T-11: Alpha, Beta, Gamma are cells 7, 25, 44 counted from Yellow's approach")
+    @DisplayName("T-11: Alpha, Beta, Gamma are cells 7, 25, 44 counted from Yellow's approach")
     void teleportCellsAreCountedFromYellowApproach() {
         int yellowApproach = Colour.YELLOW.approachCell();
         assertEquals(7, navigator.move(yellowApproach, ALPHA_OFFSET, Direction.CLOCKWISE));
@@ -29,7 +29,7 @@ class TrackNavigatorTest {
     }
 
     @Test
-    @DisplayName("Rule T-1: counter-clockwise needs a full extra lap before the home straight")
+    @DisplayName("T-1: counter-clockwise needs a full extra lap before the home straight")
     void counterClockwisePieceIsFurtherFromHome() {
         Piece clockwise = new Piece(Colour.YELLOW, 1);
         Piece counterClockwise = new Piece(Colour.YELLOW, 2);

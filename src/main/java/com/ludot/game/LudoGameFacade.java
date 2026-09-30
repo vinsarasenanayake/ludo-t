@@ -4,7 +4,7 @@ import com.ludot.board.Colour;
 
 import java.util.List;
 
-public class LudoGameFacade {
+public final class LudoGameFacade {
 
     private final GameEngine engine;
     private final TurnOrderResolver turnOrderResolver;

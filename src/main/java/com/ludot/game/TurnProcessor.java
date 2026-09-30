@@ -9,7 +9,7 @@ import com.ludot.random.Dice;
 import static com.ludot.board.BoardConstants.ENTRY_ROLL;
 import static com.ludot.board.BoardConstants.MAX_CONSECUTIVE_SIXES;
 
-public class TurnProcessor {
+public final class TurnProcessor {
 
     private final Dice dice;
     private final Board board;
@@ -32,8 +32,8 @@ public class TurnProcessor {
             checkBriefings(player, roll);
             consecutiveSixes = roll == ENTRY_ROLL ? consecutiveSixes + 1 : 0;
             if (consecutiveSixes == MAX_CONSECUTIVE_SIXES) {
-                rollResolver.breakBlockades(player);
                 listener.onRollIgnored(player.colour());
+                rollResolver.breakBlockades(player);
                 return;
             }
             GameCommand command = rollResolver.commandFor(player, roll);

@@ -11,10 +11,11 @@ public record Position(Zone zone, int index) {
 
     public Position {
         if (zone == Zone.TRACK && isOutside(index, TRACK_SIZE)) {
-            throw new IllegalArgumentException("Track cell must be 0-51 but was " + index);
+            throw new IllegalArgumentException("Track cell must be 0 to " + (TRACK_SIZE - 1) + " but was " + index);
         }
         if (zone == Zone.HOME_STRAIGHT && isOutside(index, HOME_STRAIGHT_LENGTH)) {
-            throw new IllegalArgumentException("Home straight step must be 0-4 but was " + index);
+            throw new IllegalArgumentException(
+                    "Home straight step must be 0 to " + (HOME_STRAIGHT_LENGTH - 1) + " but was " + index);
         }
     }
 

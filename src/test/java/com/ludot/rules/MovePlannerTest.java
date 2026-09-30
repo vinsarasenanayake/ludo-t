@@ -12,6 +12,7 @@ import com.ludot.rules.MoveOption.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,16 +41,17 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule 2: only a six lets a piece leave base, and it enters at its X")
+    @DisplayName("R2: only a six lets a piece leave base, and every piece in base may be the one to enter at X")
     void onlyASixEntersTheBoard() {
         assertTrue(planner.findOptions(List.of(red1), 5, NO_MYSTERY).isEmpty());
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 6, NO_MYSTERY));
         assertEquals(Type.ENTER_BOARD, option.type());
         assertEquals(Position.onTrack(26), option.destination());
+        assertEquals(2, planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY).size());
     }
 
     @Test
-    @DisplayName("Rule 1 + T-1: a piece moves by the roll in its own direction")
+    @DisplayName("R1 + T-1: a piece moves by the roll in its own direction")
     void pieceMovesByTheRollInItsDirection() {
         placeOnTrack(red1, 10, Direction.CLOCKWISE);
         placeOnTrack(red2, 40, Direction.COUNTER_CLOCKWISE);
@@ -58,7 +60,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule 5: a piece can jump over a single opponent piece")
+    @DisplayName("R5: a piece can jump over a single opponent piece")
     void pieceJumpsOverASingleOpponent() {
         board.enter(red1, Direction.CLOCKWISE);
         placeOnTrack(green1, 28, Direction.CLOCKWISE);
@@ -68,7 +70,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule 6: landing on an opponent piece captures it")
+    @DisplayName("R6: landing on an opponent piece captures it")
     void landingOnAnOpponentCapturesIt() {
         board.enter(red1, Direction.CLOCKWISE);
         placeOnTrack(green1, 30, Direction.CLOCKWISE);
@@ -77,7 +79,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule T-3: landing on an own piece forms a block")
+    @DisplayName("T-3: landing on an own piece forms a block")
     void landingOnOwnPieceFormsABlock() {
         board.enter(red1, Direction.CLOCKWISE);
         placeOnTrack(red2, 30, Direction.CLOCKWISE);
@@ -86,7 +88,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule T-3: a single piece cannot pass or capture a block, it stops in front of it")
+    @DisplayName("T-3: a single piece cannot pass or capture a block, it stops in front of it")
     void pieceStopsBeforeAnOpponentBlock() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
         placeGreenBlockAt(4);
@@ -97,7 +99,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule 9 + T-7: only a piece that has captured turns into its home straight")
+    @DisplayName("R9 + T-7: only a piece that has captured turns into its home straight")
     void onlyAPieceWithACaptureEntersHomeStraight() {
         placeOnTrack(red1, 23, Direction.CLOCKWISE);
         placeOnTrack(red2, 22, Direction.CLOCKWISE);
@@ -108,7 +110,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule T-1: counter-clockwise, only the second pass of the approach enters the home straight")
+    @DisplayName("T-1: counter-clockwise, only the second pass of the approach enters the home straight")
     void counterClockwiseSecondPassEntersHomeStraight() {
         placeOnTrack(red1, 25, Direction.COUNTER_CLOCKWISE);
         red1.recordCapture();
@@ -118,7 +120,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule 10: only the exact roll takes a piece home")
+    @DisplayName("R10: only the exact roll takes a piece home")
     void onlyTheExactRollReachesHome() {
         red1.moveTo(Position.inHomeStraight(2));
         assertEquals(Position.home(), onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY)).destination());
@@ -126,7 +128,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule T-10: landing on the mystery cell is flagged")
+    @DisplayName("T-11: landing on the mystery cell is flagged")
     void landingOnTheMysteryCellIsFlagged() {
         board.enter(red1, Direction.CLOCKWISE);
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 4, new MysteryCell.Active(30, 4)));
@@ -134,7 +136,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule T-4: a block moves by the roll divided by its size")
+    @DisplayName("T-4: a block moves by the roll divided by its size")
     void blockMovesByRollDividedBySize() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
         placeOnTrack(red2, 0, Direction.CLOCKWISE);
@@ -144,7 +146,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule T-4: an opposite-direction block moves the way of the piece furthest from home")
+    @DisplayName("T-4: an opposite-direction block moves the way of the piece furthest from home")
     void mixedBlockMovesTheWayOfThePieceFurthestFromHome() {
         placeOnTrack(red1, 30, Direction.CLOCKWISE);
         placeOnTrack(red2, 30, Direction.COUNTER_CLOCKWISE);
@@ -153,7 +155,7 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Rule T-8: a block can capture a block of the same size")
+    @DisplayName("T-8: a block can capture a block of the same size")
     void blockCapturesSameSizeBlock() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
         placeOnTrack(red2, 0, Direction.CLOCKWISE);
@@ -163,12 +165,34 @@ class MovePlannerTest {
     }
 
     @Test
-    @DisplayName("Bug fix: a piece in its home straight is never treated as leaving a block on the track")
+    @DisplayName("T-4: a piece in its home straight never counts as leaving a block on the track")
     void homeStraightPieceDoesNotLeaveATrackBlock() {
         red1.moveTo(Position.inHomeStraight(2));
         placeGreenBlockAt(2);
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 1, NO_MYSTERY));
         assertFalse(option.leavesBlock());
+    }
+
+    @Test
+    @DisplayName("T-3 + A9: a move cut short by a block is only offered when no other move exists")
+    void blockedMoveIsOnlyOfferedAsALastResort() {
+        placeOnTrack(red1, 0, Direction.CLOCKWISE);
+        placeOnTrack(red2, 10, Direction.CLOCKWISE);
+        placeGreenBlockAt(4);
+        MoveOption option = onlyOption(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY));
+        assertEquals(Position.onTrack(16), option.destination());
+        assertFalse(option.isCutShortByBlock());
+    }
+
+    @Test
+    @DisplayName("A7: a block never enters the home straight, it carries on along the track")
+    void blockNeverEntersTheHomeStraight() {
+        placeOnTrack(red1, 22, Direction.CLOCKWISE);
+        placeOnTrack(red2, 22, Direction.CLOCKWISE);
+        red1.recordCapture();
+        red2.recordCapture();
+        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), Type.MOVE_BLOCK);
+        assertEquals(Position.onTrack(25), blockMove.destination());
     }
 
     private void placeOnTrack(Piece piece, int cell, Direction direction) {

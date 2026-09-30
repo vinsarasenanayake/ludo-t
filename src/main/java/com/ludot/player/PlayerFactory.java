@@ -12,7 +12,7 @@ import com.ludot.player.MoveRule.FirstAvailable;
 import com.ludot.player.MoveRule.FormBlock;
 import com.ludot.player.MoveRule.NonBlockPieceClosestToHome;
 
-public class PlayerFactory {
+public final class PlayerFactory {
 
     private final TrackNavigator navigator;
 

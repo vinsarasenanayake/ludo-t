@@ -1,6 +1,6 @@
 package com.ludot.board;
 
-public class Piece {
+public final class Piece {
 
     public static class IllegalMoveException extends RuntimeException {
 
@@ -43,16 +43,8 @@ public class Piece {
         return direction;
     }
 
-    public int captureCount() {
-        return captureCount;
-    }
-
     public int approachPasses() {
         return approachPasses;
-    }
-
-    public PieceEffect effect() {
-        return effect;
     }
 
     public boolean isInBase() {

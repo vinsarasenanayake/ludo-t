@@ -40,4 +40,8 @@ public record MoveOption(Type type, List<Piece> movers, Route route, Landing lan
     public boolean isCutShortByBlock() {
         return route.isCutShortByBlock();
     }
+
+    public boolean isFullyBlocked() {
+        return isCutShortByBlock() && route.distance() == 0;
+    }
 }

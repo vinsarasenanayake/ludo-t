@@ -3,7 +3,7 @@ package com.ludot.random;
 import java.util.List;
 import java.util.Random;
 
-public class SeededRandomness implements Dice, Coin, CellPicker {
+public final class SeededRandomness implements Dice, Coin, CellPicker {
 
     private static final int DICE_FACES = 6;
 

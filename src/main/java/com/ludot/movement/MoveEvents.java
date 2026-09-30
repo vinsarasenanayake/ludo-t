@@ -18,5 +18,7 @@ public interface MoveEvents {
 
     void onNoMovePossible(Colour colour);
 
+    void onBlockedThrowIgnored(Colour colour);
+
     void onCapture(Piece attacker, Piece victim, Position cell);
 }

@@ -10,6 +10,7 @@ import com.ludot.rules.MoveOption;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 
 import static com.ludot.testsupport.TestDoubles.blockMove;
@@ -34,7 +35,7 @@ class PlayerTest {
         private final Player red = factory.createPlayer(Colour.RED);
 
         @Test
-        @DisplayName("Rule 11: four pieces R1-R4 start in base; the player finishes when all four are home")
+        @DisplayName("R11: four pieces R1 to R4 start in base; the player finishes when all four are home")
         void playerFinishesWhenAllFourPiecesAreHome() {
             assertEquals(List.of("R1", "R2", "R3", "R4"), red.pieces().stream().map(Piece::name).toList());
             assertEquals(4, red.piecesInBase());
@@ -44,7 +45,7 @@ class PlayerTest {
         }
 
         @Test
-        @DisplayName("DTO: the status is a read-only snapshot with every piece's location")
+        @DisplayName("Design: the status DTO is a read-only snapshot with every piece's location")
         void statusDescribesEveryPiece() {
             red.pieces().get(0).enterBoard(Direction.CLOCKWISE);
             PlayerStatusDto status = red.status();
@@ -64,7 +65,7 @@ class PlayerTest {
         private final Piece green2 = new Piece(Colour.GREEN, 2);
 
         @Test
-        @DisplayName("Red captures first, choosing the victim closest to its home")
+        @DisplayName("Brief 2.1 Red: captures first, choosing the victim closest to its home")
         void capturesTheVictimClosestToItsHome() {
             green2.moveTo(Position.inHomeStraight(3));
             MoveOption nearVictim = capture(red2, green2);
@@ -73,14 +74,14 @@ class PlayerTest {
         }
 
         @Test
-        @DisplayName("With a six and no capture, Red brings a piece out of base")
+        @DisplayName("Brief 2.1 Red: with a six and no capture, brings a piece out of base")
         void entersOnSixWhenNoCaptureIsPossible() {
             MoveOption entry = enter(new Piece(Colour.RED, 3));
             assertSame(entry, red.chooseMove(List.of(move(red1), entry)));
         }
 
         @Test
-        @DisplayName("Red avoids forming a block when another move exists")
+        @DisplayName("Brief 2.1 Red: avoids forming a block when another move exists")
         void avoidsFormingABlock() {
             MoveOption plainMove = move(red2);
             assertSame(plainMove, red.chooseMove(List.of(formingBlock(red1), plainMove)));
@@ -97,21 +98,21 @@ class PlayerTest {
         private final Piece green4 = new Piece(Colour.GREEN, 4);
 
         @Test
-        @DisplayName("Green's first priority is forming a block, even over leaving base")
+        @DisplayName("Brief 2.1 Green: forming a block comes first, even before leaving base")
         void formingABlockBeatsEntering() {
             MoveOption blockMaker = formingBlock(green1);
             assertSame(blockMaker, green.chooseMove(List.of(enter(green4), blockMaker)));
         }
 
         @Test
-        @DisplayName("Green brings a piece out on a six before making a plain move")
+        @DisplayName("Brief 2.1 Green: brings a piece out on a six before making a plain move")
         void entersOnSix() {
             MoveOption entry = enter(green4);
             assertSame(entry, green.chooseMove(List.of(move(green3), entry)));
         }
 
         @Test
-        @DisplayName("Rule T-4: Green moves other pieces, then the whole block, and breaks a block last")
+        @DisplayName("Brief 2.1 Green + T-4: moves other pieces, then the whole block, and breaks a block last")
         void breaksTheBlockOnlyAsALastResort() {
             MoveOption otherPiece = move(green3);
             MoveOption moveTogether = blockMove(green1, green2);
@@ -130,21 +131,21 @@ class PlayerTest {
         private final Piece red1 = new Piece(Colour.RED, 1);
 
         @Test
-        @DisplayName("Yellow keeps an empty base: a six always brings a piece out")
+        @DisplayName("Brief 2.1 Yellow: a six always brings a piece out, keeping the base empty")
         void alwaysEntersOnSix() {
             MoveOption entry = enter(new Piece(Colour.YELLOW, 3));
             assertSame(entry, yellow.chooseMove(List.of(capture(yellow1, red1), entry)));
         }
 
         @Test
-        @DisplayName("Yellow captures with a piece that still needs a capture")
+        @DisplayName("Brief 2.1 Yellow: captures with a piece that still needs a capture")
         void capturesWithAPieceThatNeedsOne() {
             MoveOption capture = capture(yellow1, red1);
             assertSame(capture, yellow.chooseMove(List.of(move(yellow2), capture)));
         }
 
         @Test
-        @DisplayName("Otherwise Yellow ignores unneeded captures and moves the piece closest to home")
+        @DisplayName("Brief 2.1 Yellow: ignores unneeded captures and moves the piece closest to home")
         void movesThePieceClosestToHome() {
             yellow1.recordCapture();
             yellow2.moveTo(Position.inHomeStraight(1));
@@ -166,7 +167,7 @@ class PlayerTest {
         }
 
         @Test
-        @DisplayName("Blue moves its pieces in a cycle: B1, then B2")
+        @DisplayName("Brief 2.1 Blue: moves its pieces in a cycle, B1 then B2")
         void movesPiecesInACycle() {
             Player bluePlayer = factory.createPlayer(Colour.BLUE);
             MoveOption first = move(blue1);
@@ -176,7 +177,7 @@ class PlayerTest {
         }
 
         @Test
-        @DisplayName("Assumption A16: a piece that cannot move is skipped, and the cycle wraps round")
+        @DisplayName("Brief 2.1 Blue + A4: a piece that cannot move is skipped, and the cycle wraps round")
         void skipsAPieceWithNoMoves() {
             blue.chooseMove(List.of(move(blue1)));
             MoveOption third = move(blue3);
@@ -186,7 +187,7 @@ class PlayerTest {
         }
 
         @Test
-        @DisplayName("Blue avoids the mystery cell clockwise and seeks it counter-clockwise")
+        @DisplayName("Brief 2.1 Blue: avoids the mystery cell clockwise and seeks it counter-clockwise")
         void mysteryCellPreferenceDependsOnDirection() {
             MoveOption safe = move(blue1);
             assertSame(safe, blue.chooseMove(List.of(ontoMystery(blue1), safe)));

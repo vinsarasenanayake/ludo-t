@@ -11,9 +11,9 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-public class GameEngine {
+public final class GameEngine {
 
-    public static final int STALLED_ROUND_LIMIT = 50;
+    private static final int STALLED_ROUND_LIMIT = 50;
 
     private final Map<Colour, Player> players = new EnumMap<>(Colour.class);
     private final TurnProcessor turnProcessor;

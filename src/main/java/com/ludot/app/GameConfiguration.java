@@ -21,7 +21,7 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 
-public class GameConfiguration {
+public final class GameConfiguration {
 
     private final long seed;
     private final PrintStream out;
@@ -37,7 +37,7 @@ public class GameConfiguration {
         Board board = new Board();
         TrackNavigator navigator = new TrackNavigator();
         Teleporter teleporter = new Teleporter(board, random, random, navigator, reporter);
-        CommandFactory commands = new CommandFactory(board, random, navigator, teleporter, reporter);
+        CommandFactory commands = new CommandFactory(board, random, teleporter, reporter);
         MysteryCellManager mysteryCells = new MysteryCellManager(board, random, reporter);
         RollResolver rollResolver = new RollResolver(new MovePlanner(board, navigator), commands, mysteryCells);
         TurnProcessor turnProcessor = new TurnProcessor(random, board, rollResolver, reporter);

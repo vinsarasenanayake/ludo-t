@@ -13,9 +13,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ludot.board.BoardConstants.ENTRY_ROLL;
+import static com.ludot.board.BoardConstants.BLOCKADE_BREAK_DISTANCE;
 
-public class RollResolver {
+public final class RollResolver {
 
     private final MovePlanner planner;
     private final CommandFactory commands;
@@ -36,8 +36,8 @@ public class RollResolver {
 
     public void breakBlockades(Player player) {
         for (Piece piece : piecesToBreakAway(player)) {
-            planner.findOptions(List.of(piece), ENTRY_ROLL, mysteryCells.current()).stream()
-                    .filter(option -> option.type() == MoveOption.Type.MOVE_PIECE)
+            planner.findOptions(List.of(piece), BLOCKADE_BREAK_DISTANCE, mysteryCells.current()).stream()
+                    .filter(option -> option.type() == MoveOption.Type.MOVE_PIECE && !option.isFullyBlocked())
                     .findFirst()
                     .ifPresent(option -> commands.create(option).execute());
         }

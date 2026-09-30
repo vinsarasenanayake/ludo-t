@@ -7,7 +7,7 @@ import java.util.List;
 
 import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
-public class CyclicMysteryStrategy implements PlayerStrategy {
+final class CyclicMysteryStrategy implements PlayerStrategy {
 
     private int nextPieceNumber = 1;
 
@@ -23,7 +23,7 @@ public class CyclicMysteryStrategy implements PlayerStrategy {
                 return preferredByMysteryRule(pieceOptions);
             }
         }
-        return options.get(0);
+        throw new IllegalStateException("No option belongs to one of Blue's four pieces: " + options);
     }
 
     private static int wrapToPieceNumber(int number) {

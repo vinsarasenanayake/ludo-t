@@ -15,11 +15,15 @@ public final class Main {
     }
 
     public static void main(String[] args) {
-        long seed = args.length > 0 ? parseSeed(args[0]) : DEFAULT_SEED;
-        new GameConfiguration(seed, System.out).createGame().play();
+        try {
+            long seed = args.length > 0 ? parseSeed(args[0]) : DEFAULT_SEED;
+            new GameConfiguration(seed, System.out).createGame().play();
+        } catch (InvalidSeedException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
-    private static long parseSeed(String argument) {
+    static long parseSeed(String argument) {
         try {
             return Long.parseLong(argument);
         } catch (NumberFormatException e) {

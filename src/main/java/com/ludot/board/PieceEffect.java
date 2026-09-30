@@ -62,10 +62,6 @@ public interface PieceEffect {
         public boolean isExpired() {
             return roundsRemaining == 0;
         }
-
-        public int roundsRemaining() {
-            return roundsRemaining;
-        }
     }
 
     final class Energised extends Timed {

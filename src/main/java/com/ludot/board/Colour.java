@@ -38,7 +38,11 @@ public enum Colour {
     }
 
     public Colour nextClockwise() {
-        Colour[] colours = values();
-        return colours[(ordinal() + 1) % colours.length];
+        return switch (this) {
+            case YELLOW -> BLUE;
+            case BLUE -> RED;
+            case RED -> GREEN;
+            case GREEN -> YELLOW;
+        };
     }
 }

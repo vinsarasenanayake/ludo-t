@@ -28,7 +28,7 @@ class MysteryCellManagerTest {
     }
 
     @Test
-    @DisplayName("Rule T-10: no mystery cell while no piece is on the track")
+    @DisplayName("T-10: no mystery cell while no piece is on the track")
     void noMysteryCellWhileNoPieceIsOnTheTrack() {
         MysteryCellManager manager = managerPreferring(10);
         endRounds(manager, false, 5);
@@ -36,7 +36,7 @@ class MysteryCellManagerTest {
     }
 
     @Test
-    @DisplayName("Rule T-10: spawns only after two further rounds with pieces on the track")
+    @DisplayName("T-10: spawns only after two further rounds with pieces on the track")
     void spawnsAfterTwoRounds() {
         MysteryCellManager manager = managerPreferring(10);
         endRounds(manager, true, 2);
@@ -47,7 +47,7 @@ class MysteryCellManagerTest {
     }
 
     @Test
-    @DisplayName("Rule T-10: only spawns on a cell with no pieces")
+    @DisplayName("T-10: only spawns on a cell with no pieces")
     void spawnsOnlyOnAnEmptyCell() {
         board.enter(new Piece(Colour.RED, 1), Direction.CLOCKWISE);
         MysteryCellManager manager = managerPreferring(26);
@@ -56,7 +56,7 @@ class MysteryCellManagerTest {
     }
 
     @Test
-    @DisplayName("Rule T-10: stays for four rounds, then moves to a different cell")
+    @DisplayName("T-10: stays for four rounds, then moves to a different cell")
     void staysForFourRoundsThenRelocates() {
         MysteryCellManager manager = managerPreferring(10);
         endRounds(manager, true, 6);

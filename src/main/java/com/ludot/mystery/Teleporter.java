@@ -16,7 +16,7 @@ import static com.ludot.board.BoardConstants.ALPHA_OFFSET;
 import static com.ludot.board.BoardConstants.BETA_OFFSET;
 import static com.ludot.board.BoardConstants.GAMMA_OFFSET;
 
-public class Teleporter {
+public final class Teleporter {
 
     private final Board board;
     private final Dice dice;
@@ -66,7 +66,6 @@ public class Teleporter {
             return;
         }
         listener.onEffectApplied(piece, EffectNotice.SENT_TO_BETA);
-        listener.onTeleport(piece, Destination.BETA);
         sendToBeta(piece);
     }
 

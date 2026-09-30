@@ -9,7 +9,7 @@ import java.util.List;
 
 import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
-public class Player {
+public final class Player {
 
     private final Colour colour;
     private final PlayerStrategy strategy;

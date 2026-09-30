@@ -9,7 +9,7 @@ import java.util.List;
 import static com.ludot.board.BoardConstants.MYSTERY_LIFETIME_ROUNDS;
 import static com.ludot.board.BoardConstants.MYSTERY_SPAWN_DELAY_ROUNDS;
 
-public class MysteryCellManager {
+public final class MysteryCellManager {
 
     private static final int NO_PREVIOUS_LOCATION = -1;
 

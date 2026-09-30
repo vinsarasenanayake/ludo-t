@@ -5,7 +5,7 @@ import java.util.List;
 
 import static com.ludot.board.BoardConstants.TRACK_SIZE;
 
-public class Board {
+public final class Board {
 
     private static final int MINIMUM_BLOCK_SIZE = 2;
 

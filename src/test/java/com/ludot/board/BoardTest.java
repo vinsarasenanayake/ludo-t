@@ -3,6 +3,7 @@ package com.ludot.board;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,14 +27,14 @@ class BoardTest {
     }
 
     @Test
-    @DisplayName("Rule 2: entering puts the piece on its colour's X")
+    @DisplayName("R2: entering puts the piece on its colour's start cell X")
     void enteringPutsPieceOnItsStartCell() {
         board.enter(red1, Direction.CLOCKWISE);
         assertEquals(List.of(red1), board.occupantsAt(26));
     }
 
     @Test
-    @DisplayName("Rule 1: moving updates both cells and the piece")
+    @DisplayName("R1: moving updates both cells and the piece")
     void movingUpdatesBothCellsAndThePiece() {
         board.enter(red1, Direction.CLOCKWISE);
         board.move(red1, Position.onTrack(30));
@@ -43,7 +44,7 @@ class BoardTest {
     }
 
     @Test
-    @DisplayName("Rule 6: a piece sent to base leaves the board")
+    @DisplayName("R6: a piece sent to base leaves the board")
     void sendingToBaseEmptiesTheCellAndResetsThePiece() {
         board.enter(red1, Direction.CLOCKWISE);
         board.sendToBase(red1);
@@ -52,7 +53,7 @@ class BoardTest {
     }
 
     @Test
-    @DisplayName("Rule T-3: two pieces of the same colour on one cell form a block")
+    @DisplayName("T-3: two pieces of the same colour on one cell form a block")
     void twoOwnPiecesOnOneCellFormABlock() {
         board.enter(red1, Direction.CLOCKWISE);
         board.enter(red2, Direction.CLOCKWISE);
@@ -60,7 +61,7 @@ class BoardTest {
     }
 
     @Test
-    @DisplayName("Rule T-3: pieces of different colours are not a block")
+    @DisplayName("T-3: pieces of different colours are not a block")
     void piecesOfDifferentColoursAreNotABlock() {
         board.enter(red1, Direction.CLOCKWISE);
         board.enter(green1, Direction.CLOCKWISE);
@@ -69,7 +70,7 @@ class BoardTest {
     }
 
     @Test
-    @DisplayName("Positions outside the 52-cell track are rejected")
+    @DisplayName("Design: positions outside the 52-cell track are rejected")
     void positionsOutsideTheBoardAreRejected() {
         assertThrows(IllegalArgumentException.class, () -> Position.onTrack(52));
     }
