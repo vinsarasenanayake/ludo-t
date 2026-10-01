@@ -19,6 +19,9 @@ public final class ConsoleReporter implements GameObserver {
 
     private static final String SEPARATOR = "============================";
     private static final int WINNING_PLACE = 1;
+    private static final int SINGLE_ROUND = 1;
+    private static final String NO_OTHER_PIECE = "%s does not have other pieces in the board to move";
+    private static final String IGNORING_THROW = "Ignoring the throw and moving on to the next player.";
 
     private final PrintStream out;
 
@@ -59,9 +62,7 @@ public final class ConsoleReporter implements GameObserver {
 
     @Override
     public void onPlayerStatus(PlayerStatusDto status) {
-        print("%s player now has %d/%d on pieces on the board and %d/%d pieces on the base.",
-                status.colour().title(), status.piecesOnBoard(), PIECES_PER_PLAYER,
-                status.piecesInBase(), PIECES_PER_PLAYER);
+        printStatus(status);
     }
 
     @Override
@@ -79,7 +80,7 @@ public final class ConsoleReporter implements GameObserver {
     public void onPieceMoved(Piece piece, Route route, Direction direction) {
         print("%s moves piece %s from location %s to %s by %d units in %s direction.",
                 piece.colour().title(), piece.name(), route.from().describe(piece.colour()),
-                piece.position().describe(piece.colour()), route.distance(), direction.displayName());
+                route.destination().describe(piece.colour()), route.distance(), direction.displayName());
     }
 
     @Override
@@ -92,22 +93,19 @@ public final class ConsoleReporter implements GameObserver {
 
     @Override
     public void onMovedBeforeBlock(Colour colour, Position stoppedAt) {
-        print("%s does not have other pieces in the board to move instead of the blocked piece. "
+        print(NO_OTHER_PIECE + " instead of the blocked piece. "
                 + "Moved the piece to square %s which is the cell before the block.",
                 colour.title(), stoppedAt.describe(colour));
     }
 
     @Override
     public void onNoMovePossible(Colour colour) {
-        print("%s does not have other pieces in the board to move. "
-                + "Ignoring the throw and moving on to the next player.",
-                colour.title());
+        print(NO_OTHER_PIECE + ". " + IGNORING_THROW, colour.title());
     }
 
     @Override
     public void onBlockedThrowIgnored(Colour colour) {
-        print("%s does not have other pieces in the board to move instead of the blocked piece. "
-                + "Ignoring the throw and moving on to the next player.", colour.title());
+        print(NO_OTHER_PIECE + " instead of the blocked piece. " + IGNORING_THROW, colour.title());
     }
 
     @Override
@@ -148,18 +146,18 @@ public final class ConsoleReporter implements GameObserver {
     @Override
     public void onRoundEnded(List<PlayerStatusDto> statuses, MysteryCell mysteryCell) {
         for (PlayerStatusDto status : statuses) {
-            onPlayerStatus(status);
+            printStatus(status);
             print(SEPARATOR);
             print("Location of pieces %s", status.colour().title());
             print(SEPARATOR);
-            status.pieces().forEach(piece -> print("Piece %s -> %s", piece.pieceName(), piece.location()));
+            status.pieces().forEach(piece -> print("Piece %s -> %s.", piece.pieceName(), piece.location()));
         }
         if (mysteryCell.isActive()) {
             int rounds = mysteryCell.roundsRemaining();
             print("The mystery cell is at %d and will be at that location for the next %d %s.",
-                    mysteryCell.location(), rounds, rounds == 1 ? "round" : "rounds");
+                    mysteryCell.location(), rounds, rounds == SINGLE_ROUND ? "round" : "rounds");
         } else {
-            print("There is no mystery cell on the board yet.");
+            print("There is no mystery cell on the board.");
         }
         out.println();
     }
@@ -199,6 +197,12 @@ public final class ConsoleReporter implements GameObserver {
             case 3 -> "3rd";
             default -> place + "th";
         };
+    }
+
+    private void printStatus(PlayerStatusDto status) {
+        print("%s player now has %d/%d on pieces on the board and %d/%d pieces on the base.",
+                status.colour().title(), status.piecesOnBoard(), PIECES_PER_PLAYER,
+                status.piecesInBase(), PIECES_PER_PLAYER);
     }
 
     private void print(String format, Object... values) {

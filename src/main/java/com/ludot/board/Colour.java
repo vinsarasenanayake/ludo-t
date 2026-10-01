@@ -22,7 +22,7 @@ public enum Colour {
     }
 
     public String title() {
-        return Character.toUpperCase(displayName.charAt(0)) + displayName.substring(1);
+        return initial() + displayName.substring(1);
     }
 
     public char initial() {

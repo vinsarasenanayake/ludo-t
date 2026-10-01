@@ -15,17 +15,17 @@ final class MoveBlockCommand extends MoveCommand {
 
     @Override
     public void execute() {
-        Direction blockDirection = option.leadPiece().direction();
-        for (Piece piece : option.movers()) {
+        Direction blockDirection = option().leadPiece().direction();
+        for (Piece piece : option().movers()) {
             Position from = piece.position();
-            option.route().blockage().ifPresent(blockage -> listener.onPieceBlocked(piece, from, blockage));
-            board.move(piece, option.destination());
-            if (!option.isCutShortByBlock()) {
-                listener.onPieceMoved(piece, option.route(), blockDirection);
+            option().route().blockage().ifPresent(blockage -> listener().onPieceBlocked(piece, from, blockage));
+            board().move(piece, option().destination());
+            if (!option().isCutShortByBlock()) {
+                listener().onPieceMoved(piece, option().route(), blockDirection);
             }
         }
-        if (option.isCutShortByBlock()) {
-            listener.onMovedBeforeBlock(option.leadPiece().colour(), option.destination());
+        if (option().isCutShortByBlock()) {
+            listener().onMovedBeforeBlock(option().leadPiece().colour(), option().destination());
         }
         land();
     }

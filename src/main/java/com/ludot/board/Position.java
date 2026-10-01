@@ -5,9 +5,9 @@ import static com.ludot.board.BoardConstants.TRACK_SIZE;
 
 public record Position(Zone zone, int index) {
 
-    public enum Zone { BASE, TRACK, HOME_STRAIGHT, HOME }
-
     private static final int NO_INDEX = -1;
+
+    public enum Zone { BASE, TRACK, HOME_STRAIGHT, HOME }
 
     public Position {
         if (zone == Zone.TRACK && isOutside(index, TRACK_SIZE)) {

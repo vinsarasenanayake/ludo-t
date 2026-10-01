@@ -12,8 +12,8 @@ public record Route(Position from, Position destination, int distance,
         return new Route(from, destination, distance, approachPassesGained, Optional.empty());
     }
 
-    public Route stoppedBy(Blockage blocker) {
-        return new Route(from, destination, distance, approachPassesGained, Optional.of(blocker));
+    public Route stoppedBy(Blockage newBlockage) {
+        return new Route(from, destination, distance, approachPassesGained, Optional.of(newBlockage));
     }
 
     public boolean isCutShortByBlock() {

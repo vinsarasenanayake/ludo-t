@@ -18,9 +18,9 @@ final class EnterBoardCommand extends MoveCommand {
 
     @Override
     public void execute() {
-        Piece piece = option.leadPiece();
-        board.enter(piece, coin.tossHeads() ? Direction.CLOCKWISE : Direction.COUNTER_CLOCKWISE);
-        listener.onPieceEntered(piece);
+        Piece piece = option().leadPiece();
+        board().enter(piece, coin.tossHeads() ? Direction.CLOCKWISE : Direction.COUNTER_CLOCKWISE);
+        listener().onPieceEntered(piece);
         land();
     }
 

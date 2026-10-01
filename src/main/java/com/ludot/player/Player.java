@@ -15,7 +15,7 @@ public final class Player {
     private final PlayerStrategy strategy;
     private final List<Piece> pieces = new ArrayList<>();
 
-    public Player(Colour colour, PlayerStrategy strategy) {
+    Player(Colour colour, PlayerStrategy strategy) {
         this.colour = colour;
         this.strategy = strategy;
         for (int number = 1; number <= PIECES_PER_PLAYER; number++) {
@@ -31,11 +31,11 @@ public final class Player {
         return List.copyOf(pieces);
     }
 
-    public int piecesInBase() {
+    int piecesInBase() {
         return (int) pieces.stream().filter(Piece::isInBase).count();
     }
 
-    public int piecesOnBoard() {
+    int piecesOnBoard() {
         return (int) pieces.stream().filter(piece -> piece.isOnTrack() || piece.isInHomeStraight()).count();
     }
 

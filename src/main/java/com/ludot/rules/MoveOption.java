@@ -12,9 +12,17 @@ public record MoveOption(Type type, List<Piece> movers, Route route, Landing lan
 
     public record Landing(List<Piece> victims, boolean formsBlock, boolean onMysteryCell) {
 
+        public Landing {
+            victims = List.copyOf(victims);
+        }
+
         public static Landing offTrack() {
             return new Landing(List.of(), false, false);
         }
+    }
+
+    public MoveOption {
+        movers = List.copyOf(movers);
     }
 
     public Piece leadPiece() {

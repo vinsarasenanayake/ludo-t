@@ -23,29 +23,39 @@ public final class TurnProcessor {
         this.listener = listener;
     }
 
-    public void playTurn(Player player) {
+    void playTurn(Player player) {
         int consecutiveSixes = 0;
         boolean rollAgain = true;
         while (rollAgain && !player.hasFinished()) {
             int roll = dice.roll();
             listener.onDiceRolled(player.colour(), roll);
-            checkBriefings(player, roll);
+            applyRollToBriefedPieces(player, roll);
             consecutiveSixes = roll == ENTRY_ROLL ? consecutiveSixes + 1 : 0;
             if (consecutiveSixes == MAX_CONSECUTIVE_SIXES) {
                 listener.onRollIgnored(player.colour());
-                rollResolver.breakBlockades(player);
+                breakBlockades(player);
                 return;
             }
             GameCommand command = rollResolver.commandFor(player, roll);
-            command.execute();
-            if (command.showsPlayerStatus()) {
-                listener.onPlayerStatus(player.status());
-            }
+            run(command, player);
             rollAgain = roll == ENTRY_ROLL || command.grantsBonusRoll();
         }
     }
 
-    private void checkBriefings(Player player, int roll) {
+    private void breakBlockades(Player player) {
+        for (Piece piece : rollResolver.piecesToBreakAway(player)) {
+            rollResolver.breakAwayCommand(piece).ifPresent(command -> run(command, player));
+        }
+    }
+
+    private void run(GameCommand command, Player player) {
+        command.execute();
+        if (command.showsPlayerStatus()) {
+            listener.onPlayerStatus(player.status());
+        }
+    }
+
+    private void applyRollToBriefedPieces(Player player, int roll) {
         for (Piece piece : player.pieces()) {
             piece.observeRoll(roll);
             if (piece.requiresReturnToBase()) {

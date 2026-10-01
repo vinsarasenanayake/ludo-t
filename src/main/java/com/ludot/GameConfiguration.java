@@ -1,4 +1,4 @@
-package com.ludot.app;
+package com.ludot;
 
 import com.ludot.board.Board;
 import com.ludot.board.Colour;

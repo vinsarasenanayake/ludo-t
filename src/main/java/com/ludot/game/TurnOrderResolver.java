@@ -19,7 +19,7 @@ public final class TurnOrderResolver {
         this.listener = listener;
     }
 
-    public List<Colour> resolve(List<Colour> colours) {
+    List<Colour> resolve(List<Colour> colours) {
         List<Colour> contenders = colours;
         while (contenders.size() > 1) {
             contenders = highestRollers(contenders);

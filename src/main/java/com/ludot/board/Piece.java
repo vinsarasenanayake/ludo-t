@@ -2,7 +2,7 @@ package com.ludot.board;
 
 public final class Piece {
 
-    public static class IllegalMoveException extends RuntimeException {
+    public static final class IllegalMoveException extends RuntimeException {
 
         public IllegalMoveException(String message) {
             super(message);

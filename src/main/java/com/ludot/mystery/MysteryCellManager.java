@@ -39,8 +39,11 @@ public final class MysteryCellManager {
             }
         } else if (!countingStarted) {
             countingStarted = anyPieceOnTrack;
-        } else if (++roundsCounted >= MYSTERY_SPAWN_DELAY_ROUNDS) {
-            spawn();
+        } else {
+            roundsCounted++;
+            if (roundsCounted >= MYSTERY_SPAWN_DELAY_ROUNDS) {
+                spawn();
+            }
         }
     }
 

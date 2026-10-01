@@ -16,7 +16,8 @@ final class BlockedThrowCommand implements GameCommand {
     @Override
     public void execute() {
         for (Piece piece : option.movers()) {
-            option.route().blockage().ifPresent(blockage -> listener.onPieceBlocked(piece, piece.position(), blockage));
+            option.route().blockage()
+                    .ifPresent(blockage -> listener.onPieceBlocked(piece, piece.position(), blockage));
         }
         listener.onBlockedThrowIgnored(option.leadPiece().colour());
     }

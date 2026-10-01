@@ -7,9 +7,9 @@ import com.ludot.rules.MoveOption;
 
 abstract class MoveCommand implements GameCommand {
 
-    protected final MoveOption option;
-    protected final Board board;
-    protected final MoveEvents listener;
+    private final MoveOption option;
+    private final Board board;
+    private final MoveEvents listener;
     private final Teleporter teleporter;
 
     MoveCommand(MoveOption option, Board board, Teleporter teleporter, MoveEvents listener) {
@@ -17,6 +17,18 @@ abstract class MoveCommand implements GameCommand {
         this.board = board;
         this.teleporter = teleporter;
         this.listener = listener;
+    }
+
+    protected MoveOption option() {
+        return option;
+    }
+
+    protected Board board() {
+        return board;
+    }
+
+    protected MoveEvents listener() {
+        return listener;
     }
 
     @Override

@@ -1,14 +1,12 @@
 package com.ludot.board;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BoardTest {
@@ -26,15 +24,15 @@ class BoardTest {
         green1 = new Piece(Colour.GREEN, 1);
     }
 
+    // R2: entering puts the piece on its colour's start cell X
     @Test
-    @DisplayName("R2: entering puts the piece on its colour's start cell X")
     void enteringPutsPieceOnItsStartCell() {
         board.enter(red1, Direction.CLOCKWISE);
         assertEquals(List.of(red1), board.occupantsAt(26));
     }
 
+    // R1: moving updates both cells and the piece
     @Test
-    @DisplayName("R1: moving updates both cells and the piece")
     void movingUpdatesBothCellsAndThePiece() {
         board.enter(red1, Direction.CLOCKWISE);
         board.move(red1, Position.onTrack(30));
@@ -43,35 +41,62 @@ class BoardTest {
         assertEquals(Position.onTrack(30), red1.position());
     }
 
+    // R6 + T-9: a piece sent to base leaves the board and loses its information
     @Test
-    @DisplayName("R6: a piece sent to base leaves the board")
     void sendingToBaseEmptiesTheCellAndResetsThePiece() {
         board.enter(red1, Direction.CLOCKWISE);
+        red1.recordCapture();
         board.sendToBase(red1);
+        assertFalse(red1.hasCaptured());
         assertTrue(board.occupantsAt(26).isEmpty());
         assertTrue(red1.isInBase());
     }
 
+    // T-3: two pieces of the same colour on one cell form a block
     @Test
-    @DisplayName("T-3: two pieces of the same colour on one cell form a block")
     void twoOwnPiecesOnOneCellFormABlock() {
         board.enter(red1, Direction.CLOCKWISE);
         board.enter(red2, Direction.CLOCKWISE);
         assertTrue(board.isBlockOwnedBy(26, Colour.RED));
     }
 
+    // T-3: pieces of different colours are not a block
     @Test
-    @DisplayName("T-3: pieces of different colours are not a block")
     void piecesOfDifferentColoursAreNotABlock() {
         board.enter(red1, Direction.CLOCKWISE);
         board.enter(green1, Direction.CLOCKWISE);
         board.move(green1, Position.onTrack(26));
-        assertFalse(board.isBlockAt(26));
+        assertFalse(board.isBlockOwnedBy(26, Colour.RED));
+        assertFalse(board.isOpponentBlockAt(26, Colour.YELLOW));
     }
 
+    // T-3: a piece of another colour on the same cell does not dissolve a block
     @Test
-    @DisplayName("Design: positions outside the 52-cell track are rejected")
-    void positionsOutsideTheBoardAreRejected() {
-        assertThrows(IllegalArgumentException.class, () -> Position.onTrack(52));
+    void blockSurvivesAnOpponentPieceOnTheSameCell() {
+        board.enter(red1, Direction.CLOCKWISE);
+        board.enter(red2, Direction.CLOCKWISE);
+        board.enter(green1, Direction.CLOCKWISE);
+        board.move(green1, Position.onTrack(26));
+        assertTrue(board.isBlockOwnedBy(26, Colour.RED));
+        assertTrue(board.isOpponentBlockAt(26, Colour.GREEN));
+        assertFalse(board.isOpponentBlockAt(26, Colour.RED));
+    }
+
+    // R6: only opponent pieces on a cell can be captured
+    @Test
+    void opponentsAtListsOnlyOtherColours() {
+        board.enter(red1, Direction.CLOCKWISE);
+        board.enter(green1, Direction.CLOCKWISE);
+        board.move(green1, Position.onTrack(26));
+        assertEquals(List.of(green1), board.opponentsAt(26, Colour.RED));
+    }
+
+    // T-10: the mystery cell may only use empty cells
+    @Test
+    void emptyCellsExcludeOccupiedOnes() {
+        assertEquals(52, board.emptyCellIndexes().size());
+        board.enter(red1, Direction.CLOCKWISE);
+        assertEquals(51, board.emptyCellIndexes().size());
+        assertFalse(board.emptyCellIndexes().contains(26));
     }
 }

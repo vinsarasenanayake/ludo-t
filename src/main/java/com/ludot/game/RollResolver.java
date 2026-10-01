@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.ludot.board.BoardConstants.BLOCKADE_BREAK_DISTANCE;
 
@@ -27,23 +28,20 @@ public final class RollResolver {
         this.mysteryCells = mysteryCells;
     }
 
-    public GameCommand commandFor(Player player, int roll) {
+    GameCommand commandFor(Player player, int roll) {
         List<MoveOption> options = planner.findOptions(player.pieces(), roll, mysteryCells.current());
         return options.isEmpty()
                 ? commands.createNoMove(player.colour())
                 : commands.create(player.chooseMove(options));
     }
 
-    public void breakBlockades(Player player) {
-        for (Piece piece : piecesToBreakAway(player)) {
-            planner.findOptions(List.of(piece), BLOCKADE_BREAK_DISTANCE, mysteryCells.current()).stream()
-                    .filter(option -> option.type() == MoveOption.Type.MOVE_PIECE && !option.isFullyBlocked())
-                    .findFirst()
-                    .ifPresent(option -> commands.create(option).execute());
-        }
+    Optional<GameCommand> breakAwayCommand(Piece piece) {
+        return planner.planSingleMove(piece, BLOCKADE_BREAK_DISTANCE, mysteryCells.current())
+                .filter(option -> !option.isFullyBlocked())
+                .map(commands::create);
     }
 
-    private List<Piece> piecesToBreakAway(Player player) {
+    List<Piece> piecesToBreakAway(Player player) {
         Map<Integer, List<Piece>> piecesByCell = new LinkedHashMap<>();
         for (Piece piece : player.pieces()) {
             if (piece.isOnTrack()) {

@@ -14,14 +14,14 @@ final class MovePieceCommand extends MoveCommand {
 
     @Override
     public void execute() {
-        Piece piece = option.leadPiece();
+        Piece piece = option().leadPiece();
         Position from = piece.position();
-        option.route().blockage().ifPresent(blockage -> listener.onPieceBlocked(piece, from, blockage));
-        board.move(piece, option.destination());
-        if (option.isCutShortByBlock()) {
-            listener.onMovedBeforeBlock(piece.colour(), option.destination());
+        option().route().blockage().ifPresent(blockage -> listener().onPieceBlocked(piece, from, blockage));
+        board().move(piece, option().destination());
+        if (option().isCutShortByBlock()) {
+            listener().onMovedBeforeBlock(piece.colour(), option().destination());
         } else {
-            listener.onPieceMoved(piece, option.route(), piece.direction());
+            listener().onPieceMoved(piece, option().route(), piece.direction());
         }
         land();
     }

@@ -23,6 +23,10 @@ abstract class MoveRule implements PlayerStrategy {
 
     protected abstract Optional<MoveOption> trySelect(List<MoveOption> options);
 
+    private static Comparator<MoveOption> byLeadStepsToHome(TrackNavigator navigator) {
+        return Comparator.comparingInt(option -> navigator.stepsToHome(option.leadPiece()));
+    }
+
     static final class FirstAvailable implements PlayerStrategy {
 
         @Override
@@ -51,7 +55,10 @@ abstract class MoveRule implements PlayerStrategy {
 
         @Override
         protected Optional<MoveOption> trySelect(List<MoveOption> options) {
-            return options.stream().filter(MoveOption::formsBlock).findFirst();
+            return options.stream()
+                    .filter(MoveOption::formsBlock)
+                    .filter(option -> !option.leavesBlock())
+                    .findFirst();
         }
     }
 
@@ -117,7 +124,7 @@ abstract class MoveRule implements PlayerStrategy {
 
         @Override
         protected Optional<MoveOption> trySelect(List<MoveOption> options) {
-            return options.stream().min(Comparator.comparingInt(option -> navigator.stepsToHome(option.leadPiece())));
+            return options.stream().min(byLeadStepsToHome(navigator));
         }
     }
 
@@ -134,7 +141,7 @@ abstract class MoveRule implements PlayerStrategy {
         protected Optional<MoveOption> trySelect(List<MoveOption> options) {
             return options.stream()
                     .filter(option -> !option.formsBlock())
-                    .min(Comparator.comparingInt(option -> navigator.stepsToHome(option.leadPiece())));
+                    .min(byLeadStepsToHome(navigator));
         }
     }
 
@@ -152,7 +159,7 @@ abstract class MoveRule implements PlayerStrategy {
             return options.stream()
                     .filter(option -> option.type() == Type.MOVE_PIECE)
                     .filter(option -> !option.leavesBlock())
-                    .min(Comparator.comparingInt(option -> navigator.stepsToHome(option.leadPiece())));
+                    .min(byLeadStepsToHome(navigator));
         }
     }
 }

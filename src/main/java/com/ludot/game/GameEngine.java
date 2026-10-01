@@ -28,11 +28,11 @@ public final class GameEngine {
         this.listener = listener;
     }
 
-    public void introducePlayers() {
+    void introducePlayers() {
         players.keySet().forEach(listener::onPlayerIntroduced);
     }
 
-    public GameResultDto run(List<Colour> turnOrder) {
+    GameResultDto run(List<Colour> turnOrder) {
         List<Colour> finishingOrder = new ArrayList<>();
         List<PlayerStatusDto> previousStatuses = List.of();
         int rounds = 0;

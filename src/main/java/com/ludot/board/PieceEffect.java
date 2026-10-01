@@ -45,6 +45,7 @@ public interface PieceEffect {
     abstract class Timed implements PieceEffect {
 
         private int roundsRemaining = EFFECT_DURATION_ROUNDS;
+        private boolean appliedThisRound = true;
 
         @Override
         public boolean canMove() {
@@ -53,7 +54,9 @@ public interface PieceEffect {
 
         @Override
         public void endRound() {
-            if (roundsRemaining > 0) {
+            if (appliedThisRound) {
+                appliedThisRound = false;
+            } else if (roundsRemaining > 0) {
                 roundsRemaining--;
             }
         }

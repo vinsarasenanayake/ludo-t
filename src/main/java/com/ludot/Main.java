@@ -1,10 +1,10 @@
-package com.ludot.app;
+package com.ludot;
 
-public final class Main {
+public final class  Main {
 
-    public static class InvalidSeedException extends RuntimeException {
+    static final class InvalidSeedException extends RuntimeException {
 
-        public InvalidSeedException(String message, Throwable cause) {
+        InvalidSeedException(String message, Throwable cause) {
             super(message, cause);
         }
     }

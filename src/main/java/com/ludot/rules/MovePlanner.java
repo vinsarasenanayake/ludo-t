@@ -44,6 +44,10 @@ public final class MovePlanner {
         return withoutBlockedMovesIfOthersExist(options);
     }
 
+    public Optional<MoveOption> planSingleMove(Piece piece, int roll, MysteryCell mysteryCell) {
+        return planPieceMove(piece, roll, mysteryCell);
+    }
+
     private List<MoveOption> withoutBlockedMovesIfOthersExist(List<MoveOption> options) {
         List<MoveOption> fullMoves = options.stream().filter(option -> !option.isCutShortByBlock()).toList();
         if (!fullMoves.isEmpty()) {
@@ -58,7 +62,7 @@ public final class MovePlanner {
             return Optional.empty();
         }
         int startCell = piece.colour().startCell();
-        if (isOpponentBlockAt(piece.colour(), startCell)) {
+        if (board.isOpponentBlockAt(startCell, piece.colour())) {
             return Optional.empty();
         }
         Route route = Route.completed(Position.base(), Position.onTrack(startCell), 0, 0);
@@ -68,29 +72,29 @@ public final class MovePlanner {
 
     private Optional<MoveOption> planPieceMove(Piece piece, int roll, MysteryCell mysteryCell) {
         boolean onTheWayHome = piece.isOnTrack() || piece.isInHomeStraight();
-        int steps = piece.adjustRoll(roll);
         if (!onTheWayHome || !piece.canMove()) {
             return Optional.empty();
         }
+        int steps = piece.adjustRoll(roll);
         Walk walk = new Walk(Type.MOVE_PIECE, List.of(piece), piece.direction(), steps);
-        return walk(walk).map(route -> toOption(walk, route, mysteryCell));
+        return traceRoute(walk).map(route -> toOption(walk, route, mysteryCell));
     }
 
     private List<MoveOption> planBlockMoves(List<Piece> pieces, int roll, MysteryCell mysteryCell) {
         List<MoveOption> options = new ArrayList<>();
         for (int cellIndex : ownBlockCells(pieces)) {
-            List<Piece> block = furthestFromHomeFirst(board.occupantsAt(cellIndex));
+            List<Piece> block = furthestFromHomeFirst(ownPiecesAt(cellIndex, pieces));
             int distance = roll / block.size();
             boolean everyPieceCanMove = block.stream().allMatch(Piece::canMove);
-            if (distance > 0 && everyPieceCanMove) {
+            if (block.size() > SINGLE_PIECE && distance > 0 && everyPieceCanMove) {
                 Walk walk = new Walk(Type.MOVE_BLOCK, block, block.get(0).direction(), distance);
-                walk(walk).map(route -> toOption(walk, route, mysteryCell)).ifPresent(options::add);
+                traceRoute(walk).map(route -> toOption(walk, route, mysteryCell)).ifPresent(options::add);
             }
         }
         return options;
     }
 
-    private Optional<Route> walk(Walk walk) {
+    private Optional<Route> traceRoute(Walk walk) {
         Position current = walk.start();
         int passesGained = 0;
         for (int step = 1; step <= walk.steps(); step++) {
@@ -130,18 +134,19 @@ public final class MovePlanner {
     }
 
     private boolean blocksPassage(Walk walk, Position next, boolean isFinalStep) {
-        if (!next.isOnTrack() || !isOpponentBlockAt(walk.leader().colour(), next.index())) {
+        Colour moverColour = walk.leader().colour();
+        if (!next.isOnTrack() || !board.isOpponentBlockAt(next.index(), moverColour)) {
             return false;
         }
         int movingGroupSize = walk.movers().size();
         boolean canCaptureBlock = isFinalStep && movingGroupSize > SINGLE_PIECE
-                && board.occupantsAt(next.index()).size() == movingGroupSize;
+                && blockingPieces(next.index(), moverColour).size() == movingGroupSize;
         return !canCaptureBlock;
     }
 
     private Optional<Route> stopBeforeBlock(Walk walk, Route partial, Position blockCell) {
         Position intended = Position.onTrack(navigator.move(walk.start().index(), walk.steps(), walk.direction()));
-        Piece blockingPiece = board.occupantsAt(blockCell.index()).get(0);
+        Piece blockingPiece = blockingPieces(blockCell.index(), walk.leader().colour()).get(0);
         return Optional.of(partial.stoppedBy(new Route.Blockage(intended, blockingPiece)));
     }
 
@@ -155,7 +160,7 @@ public final class MovePlanner {
                 ? landingAt(route.destination().index(), walk.movers(), mysteryCell)
                 : Landing.offTrack();
         boolean leavesBlock = movesAtAll && walk.type() == Type.MOVE_PIECE && route.from().isOnTrack()
-                && board.isBlockAt(route.from().index());
+                && board.isBlockOwnedBy(route.from().index(), walk.leader().colour());
         return new MoveOption(walk.type(), walk.movers(), route, landing, leavesBlock);
     }
 
@@ -169,14 +174,16 @@ public final class MovePlanner {
 
     private List<Piece> findVictims(Colour moverColour, int cellIndex, int movingGroupSize) {
         List<Piece> opponents = board.opponentsAt(cellIndex, moverColour);
-        if (!board.isBlockAt(cellIndex)) {
+        if (!board.isOpponentBlockAt(cellIndex, moverColour)) {
             return opponents;
         }
-        return opponents.size() == movingGroupSize ? opponents : List.of();
+        return blockingPieces(cellIndex, moverColour).size() == movingGroupSize ? opponents : List.of();
     }
 
-    private boolean isOpponentBlockAt(Colour colour, int cellIndex) {
-        return board.isBlockAt(cellIndex) && !board.isBlockOwnedBy(cellIndex, colour);
+    private List<Piece> blockingPieces(int cellIndex, Colour moverColour) {
+        return board.opponentsAt(cellIndex, moverColour).stream()
+                .filter(piece -> board.isBlockOwnedBy(cellIndex, piece.colour()))
+                .toList();
     }
 
     private Set<Integer> ownBlockCells(List<Piece> pieces) {
@@ -187,6 +194,12 @@ public final class MovePlanner {
             }
         }
         return blockCells;
+    }
+
+    private List<Piece> ownPiecesAt(int cellIndex, List<Piece> pieces) {
+        return board.occupantsAt(cellIndex).stream()
+                .filter(pieces::contains)
+                .toList();
     }
 
     private List<Piece> furthestFromHomeFirst(List<Piece> block) {
