@@ -20,7 +20,7 @@ public final class Piece {
     public Piece(Colour colour, int number) {
         this.colour = colour;
         this.number = number;
-        resetToBase();
+        returnToBase();
     }
 
     public String name() {
@@ -67,7 +67,7 @@ public final class Piece {
         return captureCount > 0;
     }
 
-    public void enterBoard(Direction chosenDirection) {
+    void enterBoard(Direction chosenDirection) {
         if (!isInBase()) {
             throw new IllegalMoveException(name() + " can only enter the board from base");
         }
@@ -75,7 +75,7 @@ public final class Piece {
         direction = chosenDirection;
     }
 
-    public void moveTo(Position destination) {
+    void moveTo(Position destination) {
         if (isHome()) {
             throw new IllegalMoveException(name() + " is already home and cannot move");
         }
@@ -121,20 +121,16 @@ public final class Piece {
         }
     }
 
-    public void returnToBase() {
-        resetToBase();
-    }
-
-    @Override
-    public String toString() {
-        return name();
-    }
-
-    private void resetToBase() {
+    void returnToBase() {
         position = Position.base();
         direction = Direction.CLOCKWISE;
         captureCount = 0;
         approachPasses = 0;
         effect = PieceEffect.None.INSTANCE;
+    }
+
+    @Override
+    public String toString() {
+        return name();
     }
 }

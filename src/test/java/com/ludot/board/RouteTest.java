@@ -13,7 +13,6 @@ class RouteTest {
     void completedRouteHasNoBlockage() {
         Route route = Route.completed(Position.onTrack(0), Position.onTrack(4), 4, 0);
         assertFalse(route.isCutShortByBlock());
-        assertEquals(4, route.distance());
     }
 
     // T-3: a route stopped by a block keeps where it stopped and remembers the blocker

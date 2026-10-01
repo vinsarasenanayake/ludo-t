@@ -45,7 +45,7 @@ public interface PieceEffect {
     abstract class Timed implements PieceEffect {
 
         private int roundsRemaining = EFFECT_DURATION_ROUNDS;
-        private boolean appliedThisRound = true;
+        private boolean inTeleportRound = true;
 
         @Override
         public boolean canMove() {
@@ -54,8 +54,8 @@ public interface PieceEffect {
 
         @Override
         public void endRound() {
-            if (appliedThisRound) {
-                appliedThisRound = false;
+            if (inTeleportRound) {
+                inTeleportRound = false;
             } else if (roundsRemaining > 0) {
                 roundsRemaining--;
             }

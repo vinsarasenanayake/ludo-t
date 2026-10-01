@@ -88,8 +88,6 @@ class ConsoleReporterTest {
     @Test
     void pieceMovedAndCapture() {
         Piece red1 = new Piece(Colour.RED, 1);
-        red1.enterBoard(Direction.CLOCKWISE);
-        red1.moveTo(Position.onTrack(30));
         Route route = Route.completed(Position.onTrack(26), Position.onTrack(30), 4, 0);
         reporter.onPieceMoved(red1, route, Direction.CLOCKWISE);
         reporter.onCapture(red1, new Piece(Colour.GREEN, 1), Position.onTrack(30));

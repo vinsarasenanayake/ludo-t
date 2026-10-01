@@ -45,16 +45,29 @@ class TeleporterTest {
         board.move(red1, Position.onTrack(30));
     }
 
-    // T-12: Alpha energises the piece on heads and makes it sick on tails
+    // T-11 + T-12: Alpha is cell 7, and heads energises the piece
     @Test
-    void alphaEffectDependsOnTheCoin() {
-        Piece red2 = new Piece(Colour.RED, 2);
-        board.enter(red2, Direction.CLOCKWISE);
+    void alphaOnHeadsEnergisesThePiece() {
         teleporterRolling(ALPHA_FACE, true).teleport(red1);
-        teleporterRolling(ALPHA_FACE, false).teleport(red2);
         assertEquals(Position.onTrack(7), red1.position());
         assertEquals(10, red1.adjustRoll(5));
-        assertEquals(2, red2.adjustRoll(5));
+    }
+
+    // T-12: Alpha on tails makes the piece sick
+    @Test
+    void alphaOnTailsMakesThePieceSick() {
+        teleporterRolling(ALPHA_FACE, false).teleport(red1);
+        assertEquals(2, red1.adjustRoll(5));
+    }
+
+    // A11: a teleport is not a move through the cells, so it does not capture a piece already on Alpha
+    @Test
+    void teleportDoesNotCaptureAPieceAlreadyThere() {
+        Piece green1 = new Piece(Colour.GREEN, 1);
+        board.enter(green1, Direction.CLOCKWISE);
+        board.move(green1, Position.onTrack(7));
+        teleporterRolling(ALPHA_FACE, true).teleport(red1);
+        assertEquals(Position.onTrack(7), green1.position());
     }
 
     // T-13: Beta sends the piece to a briefing, and the teleport is reported

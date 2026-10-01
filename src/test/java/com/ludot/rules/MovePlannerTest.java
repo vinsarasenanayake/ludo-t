@@ -40,13 +40,23 @@ class MovePlannerTest {
         green2 = new Piece(Colour.GREEN, 2);
     }
 
-    // R2: only a six lets a piece leave base, and every piece in base may be the one to enter at X
+    // R2 + R3: without a six a piece in base cannot move
     @Test
-    void onlyASixEntersTheBoard() {
+    void pieceInBaseCannotMoveWithoutASix() {
         assertTrue(planner.findOptions(List.of(red1), 5, NO_MYSTERY).isEmpty());
+    }
+
+    // R2: a six lets a piece leave base onto its X
+    @Test
+    void sixEntersThePieceOntoItsX() {
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 6, NO_MYSTERY));
         assertEquals(Type.ENTER_BOARD, option.type());
         assertEquals(Position.onTrack(26), option.destination());
+    }
+
+    // R2: every piece in base may be the one chosen to enter
+    @Test
+    void everyPieceInBaseMayEnter() {
         assertEquals(2, planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY).size());
     }
 
@@ -98,18 +108,33 @@ class MovePlannerTest {
         assertFalse(option.capturesAny());
     }
 
-    // R9 + T-7: only a piece that has captured turns into its home straight
+    // T-7: a piece with no capture carries on past its approach instead of turning home
     @Test
-    void onlyAPieceWithACaptureEntersHomeStraight() {
+    void pieceWithoutACaptureCarriesOnPastItsApproach() {
         placeOnTrack(red1, 23, Direction.CLOCKWISE);
-        placeOnTrack(red2, 22, Direction.CLOCKWISE);
-        red2.recordCapture();
-        assertEquals(Position.onTrack(26), onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY)).destination());
-        MoveOption afterCapture = onlyOption(planner.findOptions(List.of(red2), 4, NO_MYSTERY));
-        assertEquals(Position.inHomeStraight(1), afterCapture.destination());
+        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
+        assertEquals(Position.onTrack(26), option.destination());
     }
 
-    // T-1: counter-clockwise, only the second pass of the approach enters the home straight
+    // R9 + T-7: a piece that has captured turns into its home straight at the approach
+    @Test
+    void pieceWithACaptureTurnsIntoItsHomeStraight() {
+        placeOnTrack(red1, 22, Direction.CLOCKWISE);
+        red1.recordCapture();
+        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 4, NO_MYSTERY));
+        assertEquals(Position.inHomeStraight(1), option.destination());
+    }
+
+    // T-1: counter-clockwise, the first pass of the approach does not lead home
+    @Test
+    void counterClockwiseFirstPassDoesNotEnterHomeStraight() {
+        placeOnTrack(red1, 26, Direction.COUNTER_CLOCKWISE);
+        red1.recordCapture();
+        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 4, NO_MYSTERY));
+        assertEquals(Position.onTrack(22), option.destination());
+    }
+
+    // T-1: counter-clockwise, the second pass of the approach enters the home straight
     @Test
     void counterClockwiseSecondPassEntersHomeStraight() {
         placeOnTrack(red1, 25, Direction.COUNTER_CLOCKWISE);
@@ -117,17 +142,19 @@ class MovePlannerTest {
         red1.recordApproachPass();
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY));
         assertEquals(Position.inHomeStraight(1), option.destination());
-        placeOnTrack(red2, 26, Direction.COUNTER_CLOCKWISE);
-        red2.recordCapture();
-        MoveOption firstPass = onlyOption(planner.findOptions(List.of(red2), 4, NO_MYSTERY));
-        assertEquals(Position.onTrack(22), firstPass.destination());
     }
 
-    // R10: only the exact roll takes a piece home
+    // R10: the exact roll takes a piece from its home straight to home
     @Test
-    void onlyTheExactRollReachesHome() {
-        red1.moveTo(Position.inHomeStraight(2));
+    void exactRollReachesHome() {
+        board.move(red1, Position.inHomeStraight(2));
         assertEquals(Position.home(), onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY)).destination());
+    }
+
+    // R10: a roll that would go past home is not a legal move
+    @Test
+    void rollPastHomeIsNotAllowed() {
+        board.move(red1, Position.inHomeStraight(2));
         assertTrue(planner.findOptions(List.of(red1), 4, NO_MYSTERY).isEmpty());
     }
 
@@ -171,7 +198,7 @@ class MovePlannerTest {
     // Design: a home straight cell is never mistaken for the track cell with the same number
     @Test
     void homeStraightPieceDoesNotLeaveATrackBlock() {
-        red1.moveTo(Position.inHomeStraight(2));
+        board.move(red1, Position.inHomeStraight(2));
         placeOnTrack(red2, 2, Direction.CLOCKWISE);
         placeOnTrack(new Piece(Colour.RED, 3), 2, Direction.CLOCKWISE);
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 1, NO_MYSTERY));
@@ -250,7 +277,7 @@ class MovePlannerTest {
     // R10: a piece that has reached home has no move left
     @Test
     void pieceAtHomeHasNoMove() {
-        red1.moveTo(Position.home());
+        board.move(red1, Position.home());
         assertTrue(planner.findOptions(List.of(red1), 4, NO_MYSTERY).isEmpty());
     }
 

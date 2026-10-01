@@ -43,12 +43,14 @@ public final class TrackNavigator {
     }
 
     private int stepsToHomeFromTrack(Piece piece) {
-        int toApproach = distance(piece.position().index(), piece.colour().approachCell(), piece.direction());
+        int cell = piece.position().index();
+        int toApproach = distance(cell, piece.colour().approachCell(), piece.direction());
         int passesStillNeeded = Math.max(0, passesNeededToEnterHome(piece.direction()) - piece.approachPasses());
         if (passesStillNeeded == 0) {
             return toApproach + STEPS_FROM_APPROACH_TO_HOME;
         }
-        int firstArrival = toApproach == 0 ? TRACK_SIZE : toApproach;
-        return firstArrival + (passesStillNeeded - 1) * TRACK_SIZE + STEPS_FROM_APPROACH_TO_HOME;
+        int toNextPass = toApproach == 0 ? TRACK_SIZE : toApproach;
+        int extraLaps = passesStillNeeded - 1;
+        return toNextPass + extraLaps * TRACK_SIZE + STEPS_FROM_APPROACH_TO_HOME;
     }
 }

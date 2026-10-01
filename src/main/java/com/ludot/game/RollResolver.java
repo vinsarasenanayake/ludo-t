@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.ludot.board.BoardConstants.BLOCKADE_BREAK_DISTANCE;
-
 public final class RollResolver {
 
     private final MovePlanner planner;
@@ -36,7 +34,7 @@ public final class RollResolver {
     }
 
     Optional<GameCommand> breakAwayCommand(Piece piece) {
-        return planner.planSingleMove(piece, BLOCKADE_BREAK_DISTANCE, mysteryCells.current())
+        return planner.planBreakaway(piece, mysteryCells.current())
                 .filter(option -> !option.isFullyBlocked())
                 .map(commands::create);
     }

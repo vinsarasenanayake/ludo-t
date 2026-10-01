@@ -1,6 +1,6 @@
 package com.ludot;
 
-public final class  Main {
+public final class Main {
 
     static final class InvalidSeedException extends RuntimeException {
 

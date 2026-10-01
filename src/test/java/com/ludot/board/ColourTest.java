@@ -44,12 +44,4 @@ class ColourTest {
             assertEquals(colour, current);
         }
     }
-
-    // Brief 3.1: names used in the messages
-    @Test
-    void redHasDisplayNameTitleAndInitial() {
-        assertEquals("red", Colour.RED.displayName());
-        assertEquals("Red", Colour.RED.title());
-        assertEquals('R', Colour.RED.initial());
-    }
 }

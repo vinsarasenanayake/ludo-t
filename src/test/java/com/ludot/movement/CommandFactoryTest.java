@@ -44,16 +44,22 @@ class CommandFactoryTest {
     private final Piece green1 = new Piece(Colour.GREEN, 1);
     private final Piece green2 = new Piece(Colour.GREEN, 2);
 
-    // R2 + T-1: entering puts the piece on its X and shows the status; the coin sets the direction
+    // R2: entering puts the piece on its X and shows the player's status
     @Test
-    void enteringPlacesThePieceOnItsXWithTheCoinDirection() {
+    void enteringPlacesThePieceOnItsX() {
         GameCommand command = enter(red1, true);
         assertInstanceOf(EnterBoardCommand.class, command);
         assertEquals(Position.onTrack(26), red1.position());
-        assertEquals(Direction.CLOCKWISE, red1.direction());
         assertTrue(observer.hasEvent("entered R1"));
         assertTrue(command.showsPlayerStatus());
+    }
+
+    // T-1: after entering, heads means clockwise and tails means counter-clockwise
+    @Test
+    void coinTossDecidesTheDirectionOfAnEnteringPiece() {
+        enter(red1, true);
         enter(red2, false);
+        assertEquals(Direction.CLOCKWISE, red1.direction());
         assertEquals(Direction.COUNTER_CLOCKWISE, red2.direction());
         verify(coin, times(2)).tossHeads();
     }
@@ -155,6 +161,19 @@ class CommandFactoryTest {
         assertTrue(command.grantsBonusRoll());
     }
 
+    // T-3 + T-8: a block cannot capture a bigger block, so it stops in front of it
+    @Test
+    void blockStopsInFrontOfABiggerBlock() {
+        placeOnTrack(red1, 0);
+        placeOnTrack(red2, 0);
+        placeOnTrack(green1, 2);
+        placeOnTrack(green2, 2);
+        placeOnTrack(new Piece(Colour.GREEN, 3), 2);
+        moveBlock(6);
+        assertEquals(Position.onTrack(1), red1.position());
+        assertTrue(observer.hasEvent("moved before block RED 1"));
+    }
+
     // Design: the Null Object command only reports the ignored throw
     @Test
     void noMoveOnlyReportsTheIgnoredThrow() {
@@ -168,7 +187,7 @@ class CommandFactoryTest {
     // R10: the exact roll takes a piece from its home straight to home
     @Test
     void exactRollTakesThePieceHome() {
-        red1.moveTo(Position.inHomeStraight(2));
+        board.move(red1, Position.inHomeStraight(2));
         move(red1, 3);
         assertTrue(red1.isHome());
         assertTrue(observer.hasEvent("moved R1 to Home"));
@@ -205,18 +224,22 @@ class CommandFactoryTest {
         assertTrue(observer.hasEvent("teleport R1 BETA"));
     }
 
-    // T-15: landing on Alpha or Gamma by a normal move gives no effect
+    // T-15: landing on Alpha by a normal move gives no energised or sick effect
     @Test
-    void landingOnATeleportCellWithoutTeleportHasNoEffect() {
+    void landingOnAlphaWithoutTeleportHasNoEffect() {
         placeOnTrack(red1, 3);
         move(red1, 4);
         assertEquals(Position.onTrack(7), red1.position());
         assertEquals(4, red1.adjustRoll(4));
-        placeOnTrack(red2, 40);
-        move(red2, 4);
-        assertEquals(Position.onTrack(44), red2.position());
-        assertEquals(Direction.CLOCKWISE, red2.direction());
-        assertTrue(observer.events().stream().noneMatch(event -> event.startsWith("teleport")));
+    }
+
+    // T-15: landing on Gamma by a normal move does not reverse the piece
+    @Test
+    void landingOnGammaWithoutTeleportKeepsTheDirection() {
+        placeOnTrack(red1, 40);
+        move(red1, 4);
+        assertEquals(Position.onTrack(44), red1.position());
+        assertEquals(Direction.CLOCKWISE, red1.direction());
     }
 
     private GameCommand enter(Piece piece, boolean coinHeads) {

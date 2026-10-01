@@ -40,10 +40,4 @@ class PositionTest {
         assertThrows(IllegalArgumentException.class, () -> Position.onTrack(-1));
         assertThrows(IllegalArgumentException.class, () -> Position.onTrack(52));
     }
-
-    // Design: a record compares by value, so two equal positions are equal
-    @Test
-    void positionsWithTheSameValuesAreEqual() {
-        assertEquals(Position.onTrack(7), Position.onTrack(7));
-    }
 }

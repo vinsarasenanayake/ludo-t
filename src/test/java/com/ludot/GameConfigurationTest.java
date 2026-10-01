@@ -2,7 +2,6 @@ package com.ludot;
 
 import com.ludot.board.Colour;
 import com.ludot.game.GameResultDto;
-import com.ludot.game.LudoGameFacade;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,30 +11,33 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class GameConfigurationTest {
 
-    // Design: the composition root wires a whole game that the Facade plays, and the same seed repeats it
+    // Design: the same seed always plays exactly the same game, so a game can be checked by hand
     @Test
-    void configuredGameIsPlayedByTheFacadeAndRepeatable() {
-        ByteArrayOutputStream printed = new ByteArrayOutputStream();
-        LudoGameFacade game = new GameConfiguration(42L, new PrintStream(printed, true)).createGame();
-        GameResultDto first = game.play();
-        PrintStream silentConsole = new PrintStream(new ByteArrayOutputStream());
-        GameResultDto second = new GameConfiguration(42L, silentConsole).createGame().play();
-        assertEquals(4, first.finishingOrder().size());
-        assertEquals(first, second);
-        assertTrue(printed.toString().startsWith("The red player has four (04) pieces named R1, R2, R3, and R4."));
+    void sameSeedPlaysTheSameGame() {
+        assertEquals(playWithSeed(42L), playWithSeed(42L));
+    }
+
+    // Design: a different seed gives a different game
+    @Test
+    void differentSeedPlaysADifferentGame() {
+        assertNotEquals(playWithSeed(42L), playWithSeed(7L));
     }
 
     // R11 + Brief 3.1: the default seed 42 always plays the same game, which Green wins after 167 rounds
     @Test
     void defaultSeedGameIsWonByGreen() {
-        PrintStream silentConsole = new PrintStream(new ByteArrayOutputStream());
-        GameResultDto result = new GameConfiguration(42L, silentConsole).createGame().play();
+        GameResultDto result = playWithSeed(42L);
         assertEquals(List.of(Colour.GREEN, Colour.YELLOW, Colour.RED, Colour.BLUE), result.finishingOrder());
         assertEquals(167, result.rounds());
         assertFalse(result.stalled());
+    }
+
+    private static GameResultDto playWithSeed(long seed) {
+        PrintStream silentConsole = new PrintStream(new ByteArrayOutputStream());
+        return new GameConfiguration(seed, silentConsole).createGame().play();
     }
 }

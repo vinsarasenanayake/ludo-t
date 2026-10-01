@@ -40,17 +40,6 @@ class PieceTest {
         assertEquals(5, red1.adjustRoll(5));
     }
 
-    // T-12 + A1: energised moves double; sick moves half, rounded down, at least one cell
-    @Test
-    void effectsAdjustTheRoll() {
-        red1.applyEffect(new PieceEffect.Energised());
-        assertEquals(10, red1.adjustRoll(5));
-        red1.applyEffect(new PieceEffect.Sick());
-        assertEquals(3, red1.adjustRoll(6));
-        assertEquals(2, red1.adjustRoll(5));
-        assertEquals(1, red1.adjustRoll(1));
-    }
-
     // T-12: an effect wears off after the next four rounds (Null Object takes over)
     @Test
     void expiredEffectIsReplacedByNoEffect() {

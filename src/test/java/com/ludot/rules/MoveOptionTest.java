@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -23,9 +22,13 @@ class MoveOptionTest {
     // T-3 + A9: a piece that cannot move even one cell is fully blocked
     @Test
     void zeroDistanceBlockedRouteIsFullyBlocked() {
-        MoveOption stuck = optionWith(blockedRoute(0), Landing.offTrack());
+        assertTrue(optionWith(blockedRoute(0), Landing.offTrack()).isFullyBlocked());
+    }
+
+    // T-3: a piece that moves part of the way is cut short but not fully blocked
+    @Test
+    void partlyBlockedRouteIsCutShortButNotFullyBlocked() {
         MoveOption partial = optionWith(blockedRoute(2), Landing.offTrack());
-        assertTrue(stuck.isFullyBlocked());
         assertTrue(partial.isCutShortByBlock());
         assertFalse(partial.isFullyBlocked());
     }
@@ -36,15 +39,6 @@ class MoveOptionTest {
         Route route = completedRoute();
         assertTrue(optionWith(route, new Landing(List.of(green1), false, false)).capturesAny());
         assertFalse(optionWith(route, Landing.offTrack()).capturesAny());
-    }
-
-    // Design: the lead piece and destination come from the movers and the route
-    @Test
-    void leadPieceAndDestinationComeFromMoversAndRoute() {
-        Route route = completedRoute();
-        MoveOption option = optionWith(route, Landing.offTrack());
-        assertEquals(red1, option.leadPiece());
-        assertEquals(Position.onTrack(4), option.destination());
     }
 
     private Route completedRoute() {

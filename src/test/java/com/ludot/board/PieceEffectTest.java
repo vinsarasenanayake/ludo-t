@@ -19,6 +19,24 @@ class PieceEffectTest {
         assertFalse(none.isExpired());
     }
 
+    // T-12: an energised piece moves double the roll
+    @Test
+    void energisedDoublesTheRoll() {
+        assertEquals(10, new PieceEffect.Energised().adjustRoll(5));
+    }
+
+    // T-12 + A1: a sick piece moves half the roll, rounded down
+    @Test
+    void sickHalvesTheRollRoundedDown() {
+        assertEquals(2, new PieceEffect.Sick().adjustRoll(5));
+    }
+
+    // A1: a sick piece that rolls a one still moves one cell
+    @Test
+    void sickPieceStillMovesAtLeastOneCell() {
+        assertEquals(1, new PieceEffect.Sick().adjustRoll(1));
+    }
+
     // T-12: in the fourth round after the teleport, an energised piece still moves double
     @Test
     void energisedStillWorksInTheFourthRoundAfterTheTeleport() {
