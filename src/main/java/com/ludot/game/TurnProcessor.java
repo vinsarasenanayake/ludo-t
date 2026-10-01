@@ -32,19 +32,18 @@ public final class TurnProcessor {
             applyRollToBriefedPieces(player, roll);
             consecutiveSixes = roll == ENTRY_ROLL ? consecutiveSixes + 1 : 0;
             if (consecutiveSixes == MAX_CONSECUTIVE_SIXES) {
-                listener.onRollIgnored(player.colour());
                 breakBlockades(player);
                 return;
             }
             GameCommand command = rollResolver.commandFor(player, roll);
             run(command, player);
-            rollAgain = roll == ENTRY_ROLL || command.grantsBonusRoll();
+            rollAgain = !command.endsTurn() && (roll == ENTRY_ROLL || command.grantsBonusRoll());
         }
     }
 
     private void breakBlockades(Player player) {
-        for (Piece piece : rollResolver.piecesToBreakAway(player)) {
-            rollResolver.breakAwayCommand(piece).ifPresent(command -> run(command, player));
+        for (RollResolver.Breakaway breakaway : rollResolver.breakaways(player)) {
+            rollResolver.breakAwayCommand(breakaway).ifPresent(command -> run(command, player));
         }
     }
 

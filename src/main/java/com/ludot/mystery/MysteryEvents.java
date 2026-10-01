@@ -1,6 +1,7 @@
 package com.ludot.mystery;
 
 import com.ludot.board.Piece;
+import com.ludot.board.Position;
 
 public interface MysteryEvents {
 
@@ -8,7 +9,7 @@ public interface MysteryEvents {
 
     void onMysteryCellSpawned(MysteryCell mysteryCell);
 
-    void onTeleport(Piece piece, MysteryCell.Destination destination);
+    void onTeleport(Piece piece, MysteryCell.Destination destination, Position location);
 
     void onEffectApplied(Piece piece, EffectNotice notice);
 }

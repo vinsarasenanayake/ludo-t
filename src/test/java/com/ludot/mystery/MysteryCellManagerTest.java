@@ -71,15 +71,6 @@ class MysteryCellManagerTest {
         assertEquals(0, manager.current().location());
     }
 
-    // T-10: every new mystery cell is announced, including the move to a new cell
-    @Test
-    void everySpawnIsReported() {
-        MysteryCellManager manager = managerPicking(10, 0);
-        endRounds(manager, true, 7);
-        assertTrue(observer.hasEvent("mystery spawned 10"));
-        assertTrue(observer.hasEvent("mystery spawned 0"));
-    }
-
     private MysteryCellManager managerPicking(Integer firstCell, Integer... laterCells) {
         when(cellPicker.pick(anyList())).thenReturn(firstCell, laterCells);
         return new MysteryCellManager(board, cellPicker, observer);

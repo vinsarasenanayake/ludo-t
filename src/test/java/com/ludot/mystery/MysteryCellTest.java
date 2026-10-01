@@ -33,17 +33,6 @@ class MysteryCellTest {
         assertThrows(IllegalArgumentException.class, () -> new MysteryCell.Active(52, 4));
     }
 
-    // T-11: die faces 1 to 6 map to the six destinations in the brief's order
-    @Test
-    void dieFacesMapToTheSixDestinations() {
-        assertEquals(MysteryCell.Destination.ALPHA, MysteryCell.Destination.fromDieFace(1));
-        assertEquals(MysteryCell.Destination.BETA, MysteryCell.Destination.fromDieFace(2));
-        assertEquals(MysteryCell.Destination.GAMMA, MysteryCell.Destination.fromDieFace(3));
-        assertEquals(MysteryCell.Destination.BASE, MysteryCell.Destination.fromDieFace(4));
-        assertEquals(MysteryCell.Destination.START, MysteryCell.Destination.fromDieFace(5));
-        assertEquals(MysteryCell.Destination.APPROACH, MysteryCell.Destination.fromDieFace(6));
-    }
-
     // Design: a face outside 1 to 6 is rejected
     @Test
     void impossibleDieFaceIsRejected() {

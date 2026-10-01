@@ -40,10 +40,10 @@ class ConsoleReporterTest {
         reporter.onTurnOrderDecided(List.of(Colour.YELLOW, Colour.BLUE, Colour.RED, Colour.GREEN));
         assertPrinted("The red player has four (04) pieces named R1, R2, R3, and R4." + NEW_LINE
                 + "Yellow player has the highest roll and will begin the game." + NEW_LINE
-                + "The order of a single round is Yellow, Blue, Red, and Green.");
+                + "The order of a single round is yellow, blue, red, and green.");
     }
 
-    // A5: the status line keeps the brief's exact wording
+    // Brief 3.1: the status line keeps the brief's exact wording
     @Test
     void statusLineKeepsTheBriefsWording() {
         reporter.onPlayerStatus(new PlayerStatusDto(Colour.RED, 1, 3, List.of()));
@@ -57,20 +57,20 @@ class ConsoleReporterTest {
                 new PlayerStatusDto.PieceLocation("R1", "30"), new PlayerStatusDto.PieceLocation("R2", "Base")));
         reporter.onRoundEnded(List.of(status), new MysteryCell.Active(17, 3));
         String summary = printed.toString();
-        assertTrue(summary.contains("Location of pieces Red"));
+        assertTrue(summary.contains("Location of pieces red"));
         assertTrue(summary.contains("Piece R1 -> 30"));
         assertTrue(summary.contains("Piece R2 -> Base"));
         assertTrue(summary.contains("The mystery cell is at 17 and will be at that location for the next 3 rounds."));
     }
 
-    // R11: the winner, the later places and the final ranking of all four players
+    // R11: only the winner is announced during the game, then the final ranking of all four players
     @Test
-    void winnerLaterPlacesAndFinalRanking() {
+    void onlyTheWinnerIsAnnouncedThenFinalRanking() {
         reporter.onPlayerFinished(Colour.RED, 1);
         reporter.onPlayerFinished(Colour.BLUE, 2);
         List<Colour> ranking = List.of(Colour.RED, Colour.BLUE, Colour.GREEN, Colour.YELLOW);
-        reporter.onGameOver(new GameResultDto(ranking, 90, false));
-        assertPrinted("Red player wins!!!" + NEW_LINE + "Blue player finishes in place 2." + NEW_LINE
+        reporter.onGameOver(new GameResultDto(ranking, 90));
+        assertPrinted("Red player wins!!!" + NEW_LINE
                 + "============================" + NEW_LINE + "Final results after 90 rounds" + NEW_LINE
                 + "============================" + NEW_LINE + "1st place: Red" + NEW_LINE
                 + "2nd place: Blue" + NEW_LINE + "3rd place: Green" + NEW_LINE + "4th place: Yellow");
@@ -92,10 +92,10 @@ class ConsoleReporterTest {
         reporter.onPieceMoved(red1, route, Direction.CLOCKWISE);
         reporter.onCapture(red1, new Piece(Colour.GREEN, 1), Position.onTrack(30));
         assertPrinted("Red moves piece R1 from location 26 to 30 by 4 units in clockwise direction." + NEW_LINE
-                + "Red piece R1 lands on square 30, captures Green piece G1, and returns it to the base.");
+                + "Red piece R1 lands on square 30, captures green piece G1, and returns it to the base.");
     }
 
-    // T-3 + A9: the three blocked-move messages
+    // T-3 + Brief 3.1: the three blocked-move messages
     @Test
     void blockedMoveMessages() {
         Piece red1 = new Piece(Colour.RED, 1);
@@ -103,7 +103,7 @@ class ConsoleReporterTest {
         reporter.onPieceBlocked(red1, Position.onTrack(26), blockage);
         reporter.onMovedBeforeBlock(Colour.RED, Position.onTrack(29));
         reporter.onBlockedThrowIgnored(Colour.RED);
-        assertPrinted("Red piece R1 is blocked from moving from 26 to 30 by Green piece G1." + NEW_LINE
+        assertPrinted("Red piece R1 is blocked from moving from 26 to 30 by green piece G1." + NEW_LINE
                 + "Red does not have other pieces in the board to move instead of the blocked piece. "
                 + "Moved the piece to square 29 which is the cell before the block." + NEW_LINE
                 + "Red does not have other pieces in the board to move instead of the blocked piece. "
@@ -115,24 +115,12 @@ class ConsoleReporterTest {
     void mysteryCellTeleportAndEffect() {
         Piece red1 = new Piece(Colour.RED, 1);
         reporter.onMysteryCellSpawned(new MysteryCell.Active(10, 4));
-        reporter.onTeleport(red1, MysteryCell.Destination.ALPHA);
+        reporter.onTeleport(red1, MysteryCell.Destination.ALPHA, Position.onTrack(7));
         reporter.onEffectApplied(red1, EffectNotice.SICK);
         assertPrinted("A mystery cell has spawned in location 10 and will be at this location for the next four rounds."
-                + NEW_LINE + "Red player lands on a mystery cell and is teleported to Alpha." + NEW_LINE
+                + NEW_LINE + "Red player lands on a mystery cell and is teleported to 7." + NEW_LINE
                 + "Red piece R1 teleported to Alpha." + NEW_LINE
                 + "Red piece R1 feels sick, and movement speed halves.");
-    }
-
-    // R2 + R4 + A8: the no-move, third-six and stalled-game messages
-    @Test
-    void ignoredThrowsAndStalledGame() {
-        reporter.onNoMovePossible(Colour.BLUE);
-        reporter.onRollIgnored(Colour.BLUE);
-        reporter.onGameStalled(50);
-        assertPrinted("Blue does not have other pieces in the board to move. "
-                + "Ignoring the throw and moving on to the next player." + NEW_LINE
-                + "Blue rolled six three times in a row. The roll is ignored and the dice passes to the next player."
-                + NEW_LINE + "No piece can move any more after 50 rounds (gridlock). The game ends here.");
     }
 
     // T-12 + T-13 + T-14: the other effect messages and the briefing return
@@ -146,11 +134,26 @@ class ConsoleReporterTest {
         reporter.onSentBackFromBriefing(blue2);
         assertPrinted("Blue piece B2 feels energized, and movement speed doubles." + NEW_LINE
                 + "Blue piece B2 attends briefing and cannot move for four rounds." + NEW_LINE
-                + "The Blue piece B2, which was moving clockwise, has changed to moving counterclockwise." + NEW_LINE
-                + "The Blue piece B2 is moving in a counterclockwise direction. "
+                + "The blue piece B2, which was moving clockwise, has changed to moving counterclockwise." + NEW_LINE
+                + "The blue piece B2 is moving in a counterclockwise direction. "
                 + "Teleporting to Beta from Gamma." + NEW_LINE
                 + "Blue piece B2 is movement-restricted and has rolled three consecutively. "
                 + "Teleporting piece B2 to base.");
+    }
+
+    // Brief 3.1: every opening roll is printed as "[colour] rolls <value>"
+    @Test
+    void openingRoll() {
+        reporter.onOpeningRoll(Colour.GREEN, 4);
+        assertPrinted("Green rolls 4");
+    }
+
+    // T-11: a teleport to base names Base as the location
+    @Test
+    void teleportToBaseNamesBase() {
+        reporter.onTeleport(new Piece(Colour.BLUE, 3), MysteryCell.Destination.BASE, Position.base());
+        assertPrinted("Blue player lands on a mystery cell and is teleported to Base." + NEW_LINE
+                + "Blue piece B3 teleported to Base.");
     }
 
     private void assertPrinted(String expected) {

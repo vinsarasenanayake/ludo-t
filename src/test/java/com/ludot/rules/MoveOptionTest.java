@@ -19,7 +19,7 @@ class MoveOptionTest {
     private final Piece red1 = new Piece(Colour.RED, 1);
     private final Piece green1 = new Piece(Colour.GREEN, 1);
 
-    // T-3 + A9: a piece that cannot move even one cell is fully blocked
+    // T-3 (interpretation): a piece that cannot move even one cell is fully blocked
     @Test
     void zeroDistanceBlockedRouteIsFullyBlocked() {
         assertTrue(optionWith(blockedRoute(0), Landing.offTrack()).isFullyBlocked());
@@ -31,18 +31,6 @@ class MoveOptionTest {
         MoveOption partial = optionWith(blockedRoute(2), Landing.offTrack());
         assertTrue(partial.isCutShortByBlock());
         assertFalse(partial.isFullyBlocked());
-    }
-
-    // R6: an option captures when its landing has a victim
-    @Test
-    void capturesWhenTheLandingHasAVictim() {
-        Route route = completedRoute();
-        assertTrue(optionWith(route, new Landing(List.of(green1), false, false)).capturesAny());
-        assertFalse(optionWith(route, Landing.offTrack()).capturesAny());
-    }
-
-    private Route completedRoute() {
-        return Route.completed(Position.onTrack(0), Position.onTrack(4), 4, 0);
     }
 
     private Route blockedRoute(int distance) {

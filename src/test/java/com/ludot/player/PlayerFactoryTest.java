@@ -64,18 +64,18 @@ class PlayerFactoryTest {
         assertSame(plainMove, red.chooseMove(List.of(formingBlock(red1), plainMove)));
     }
 
-    // Red (2.1.1): with no capture, a six must bring a piece to X, so a block formed there is unavoidable
+    // Red (2.1.1): Red avoids blocks, so it does not enter onto its own piece on X while another move exists
     @Test
-    void redEntersOnSixEvenWhenThatFormsABlock() {
-        MoveOption entry = enterFormingBlock(red3);
-        assertSame(entry, red.chooseMove(List.of(entry, move(red1))));
+    void redDoesNotEnterOntoItsOwnPieceWhenAnotherMoveExists() {
+        MoveOption otherMove = move(red1);
+        assertSame(otherMove, red.chooseMove(List.of(enterFormingBlock(red3), otherMove)));
     }
 
-    // Red (2.1.1): forms a block when it is unavoidable
+    // Red (2.1.1): entering onto its own piece is accepted when every move would form a block
     @Test
-    void redFormsABlockWhenItIsTheOnlyMove() {
-        MoveOption onlyMove = formingBlock(red1);
-        assertSame(onlyMove, red.chooseMove(List.of(onlyMove)));
+    void redEntersOntoItsOwnPieceWhenEveryMoveFormsABlock() {
+        MoveOption entry = enterFormingBlock(red3);
+        assertSame(entry, red.chooseMove(List.of(entry, formingBlock(red1))));
     }
 
     // Green (2.1.2): forming a block comes first, even before leaving base
@@ -99,26 +99,35 @@ class PlayerFactoryTest {
         assertSame(entry, green.chooseMove(List.of(move(green3), entry)));
     }
 
-    // Green (2.1.2): moves a piece outside the block before touching the block
+    // Green (2.1.2) + T-4: always attempts to move forward with the block move first
     @Test
-    void greenMovesAnotherPieceBeforeItsBlock() {
-        MoveOption otherPiece = move(green3);
-        List<MoveOption> options = List.of(leavingBlock(green1), blockMove(green1, green2), otherPiece);
-        assertSame(otherPiece, green.chooseMove(options));
-    }
-
-    // Green (2.1.2) + T-4: moves the whole block together rather than breaking it
-    @Test
-    void greenMovesTheBlockTogetherBeforeBreakingIt() {
+    void greenPrefersTheBlockMoveToMovingAnotherPiece() {
         MoveOption moveTogether = blockMove(green1, green2);
-        assertSame(moveTogether, green.chooseMove(List.of(leavingBlock(green1), moveTogether)));
+        List<MoveOption> options = List.of(leavingBlock(green1), move(green3), moveTogether);
+        assertSame(moveTogether, green.chooseMove(options));
     }
 
-    // Green (2.1.2): breaks its block only when nothing else can use the roll
+    // Green (2.1.2): with no block move, moves another piece rather than breaking its block
     @Test
-    void greenBreaksItsBlockOnlyAsALastResort() {
-        MoveOption breakAway = leavingBlock(green1);
-        assertSame(breakAway, green.chooseMove(List.of(breakAway)));
+    void greenMovesAnotherPieceBeforeBreakingItsBlock() {
+        MoveOption otherPiece = move(green3);
+        assertSame(otherPiece, green.chooseMove(List.of(leavingBlock(green1), otherPiece)));
+    }
+
+    // Green (2.1.2) + T-7: captures with a piece that still needs a capture to enter its home straight
+    @Test
+    void greenCapturesWithAPieceThatNeedsOne() {
+        MoveOption capture = capture(green3, red1);
+        assertSame(capture, green.chooseMove(List.of(move(green1), capture)));
+    }
+
+    // Green (2.1.2): no more captures than needed, so a piece that has already captured just moves on
+    @Test
+    void greenIgnoresACaptureItDoesNotNeed() {
+        green3.recordCapture();
+        board.move(green1, Position.inHomeStraight(1));
+        MoveOption closestToHome = move(green1);
+        assertSame(closestToHome, green.chooseMove(List.of(capture(green3, red1), closestToHome)));
     }
 
     // Yellow (2.1.3): a six always brings a piece out, keeping the base empty

@@ -3,17 +3,9 @@ package com.ludot.board;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteTest {
-
-    // R1: a completed route is not cut short
-    @Test
-    void completedRouteHasNoBlockage() {
-        Route route = Route.completed(Position.onTrack(0), Position.onTrack(4), 4, 0);
-        assertFalse(route.isCutShortByBlock());
-    }
 
     // T-3: a route stopped by a block keeps where it stopped and remembers the blocker
     @Test

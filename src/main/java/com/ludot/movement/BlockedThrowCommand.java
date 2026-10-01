@@ -31,4 +31,9 @@ final class BlockedThrowCommand implements GameCommand {
     public boolean showsPlayerStatus() {
         return false;
     }
+
+    @Override
+    public boolean endsTurn() {
+        return true;
+    }
 }

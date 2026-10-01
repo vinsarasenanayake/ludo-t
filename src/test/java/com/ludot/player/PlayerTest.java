@@ -52,7 +52,7 @@ class PlayerTest {
         assertEquals(new PlayerStatusDto.PieceLocation("R1", "26"), status.pieces().get(0));
     }
 
-    // A5: a piece in the home straight still counts as on the board
+    // Interpretation: a piece in the home straight still counts as on the board
     @Test
     void homeStraightPieceCountsAsOnTheBoard() {
         board.move(redPieces.get(0), Position.inHomeStraight(2));

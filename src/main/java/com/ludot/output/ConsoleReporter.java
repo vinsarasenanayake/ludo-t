@@ -19,9 +19,7 @@ public final class ConsoleReporter implements GameObserver {
 
     private static final String SEPARATOR = "============================";
     private static final int WINNING_PLACE = 1;
-    private static final int SINGLE_ROUND = 1;
     private static final String NO_OTHER_PIECE = "%s does not have other pieces in the board to move";
-    private static final String IGNORING_THROW = "Ignoring the throw and moving on to the next player.";
 
     private final PrintStream out;
 
@@ -43,8 +41,8 @@ public final class ConsoleReporter implements GameObserver {
 
     @Override
     public void onTurnOrderDecided(List<Colour> order) {
-        List<String> names = order.stream().map(Colour::title).toList();
-        print("%s player has the highest roll and will begin the game.", names.get(0));
+        List<String> names = order.stream().map(Colour::displayName).toList();
+        print("%s player has the highest roll and will begin the game.", order.get(0).title());
         print("The order of a single round is %s, and %s.",
                 String.join(", ", names.subList(0, names.size() - 1)), names.get(names.size() - 1));
     }
@@ -52,12 +50,6 @@ public final class ConsoleReporter implements GameObserver {
     @Override
     public void onDiceRolled(Colour colour, int value) {
         print("%s player rolled %d.", colour.title(), value);
-    }
-
-    @Override
-    public void onRollIgnored(Colour colour) {
-        print("%s rolled six three times in a row. The roll is ignored and the dice passes to the next player.",
-                colour.title());
     }
 
     @Override
@@ -88,7 +80,8 @@ public final class ConsoleReporter implements GameObserver {
         Piece blocker = blockage.blockingPiece();
         print("%s piece %s is blocked from moving from %s to %s by %s piece %s.",
                 piece.colour().title(), piece.name(), from.describe(piece.colour()),
-                blockage.intendedDestination().describe(piece.colour()), blocker.colour().title(), blocker.name());
+                blockage.intendedDestination().describe(piece.colour()), blocker.colour().displayName(),
+                blocker.name());
     }
 
     @Override
@@ -99,26 +92,22 @@ public final class ConsoleReporter implements GameObserver {
     }
 
     @Override
-    public void onNoMovePossible(Colour colour) {
-        print(NO_OTHER_PIECE + ". " + IGNORING_THROW, colour.title());
-    }
-
-    @Override
     public void onBlockedThrowIgnored(Colour colour) {
-        print(NO_OTHER_PIECE + " instead of the blocked piece. " + IGNORING_THROW, colour.title());
+        print(NO_OTHER_PIECE + " instead of the blocked piece. Ignoring the throw and moving on to the next player.",
+                colour.title());
     }
 
     @Override
     public void onCapture(Piece attacker, Piece victim, Position cell) {
         print("%s piece %s lands on square %s, captures %s piece %s, and returns it to the base.",
                 attacker.colour().title(), attacker.name(), cell.describe(attacker.colour()),
-                victim.colour().title(), victim.name());
+                victim.colour().displayName(), victim.name());
     }
 
     @Override
-    public void onTeleport(Piece piece, MysteryCell.Destination destination) {
+    public void onTeleport(Piece piece, MysteryCell.Destination destination, Position location) {
         String colour = piece.colour().title();
-        print("%s player lands on a mystery cell and is teleported to %s.", colour, destination.displayName());
+        print("%s player lands on a mystery cell and is teleported to %s.", colour, location.describe(piece.colour()));
         print("%s piece %s teleported to %s.", colour, piece.name(), destination.displayName());
     }
 
@@ -131,9 +120,9 @@ public final class ConsoleReporter implements GameObserver {
             case SICK -> print("%s piece %s feels sick, and movement speed halves.", colour, name);
             case BRIEFING -> print("%s piece %s attends briefing and cannot move for four rounds.", colour, name);
             case DIRECTION_REVERSED -> print("The %s piece %s, which was moving clockwise, has changed to "
-                    + "moving counterclockwise.", colour, name);
+                    + "moving counterclockwise.", piece.colour().displayName(), name);
             case SENT_TO_BETA -> print("The %s piece %s is moving in a counterclockwise direction. "
-                    + "Teleporting to Beta from Gamma.", colour, name);
+                    + "Teleporting to Beta from Gamma.", piece.colour().displayName(), name);
         }
     }
 
@@ -148,16 +137,14 @@ public final class ConsoleReporter implements GameObserver {
         for (PlayerStatusDto status : statuses) {
             printStatus(status);
             print(SEPARATOR);
-            print("Location of pieces %s", status.colour().title());
+            print("Location of pieces %s", status.colour().displayName());
             print(SEPARATOR);
             status.pieces().forEach(piece -> print("Piece %s -> %s.", piece.pieceName(), piece.location()));
         }
         if (mysteryCell.isActive()) {
             int rounds = mysteryCell.roundsRemaining();
-            print("The mystery cell is at %d and will be at that location for the next %d %s.",
-                    mysteryCell.location(), rounds, rounds == SINGLE_ROUND ? "round" : "rounds");
-        } else {
-            print("There is no mystery cell on the board.");
+            print("The mystery cell is at %d and will be at that location for the next %d rounds.",
+                    mysteryCell.location(), rounds);
         }
         out.println();
     }
@@ -166,14 +153,7 @@ public final class ConsoleReporter implements GameObserver {
     public void onPlayerFinished(Colour colour, int place) {
         if (place == WINNING_PLACE) {
             print("%s player wins!!!", colour.title());
-        } else {
-            print("%s player finishes in place %d.", colour.title(), place);
         }
-    }
-
-    @Override
-    public void onGameStalled(int rounds) {
-        print("No piece can move any more after %d rounds (gridlock). The game ends here.", rounds);
     }
 
     @Override
@@ -184,9 +164,6 @@ public final class ConsoleReporter implements GameObserver {
         List<Colour> ranking = result.finishingOrder();
         for (int place = 1; place <= ranking.size(); place++) {
             print("%s place: %s", ordinal(place), ranking.get(place - 1).title());
-        }
-        if (result.stalled()) {
-            print("Players who did not reach home are listed in turn order.");
         }
     }
 

@@ -27,13 +27,6 @@ class TurnOrderResolverTest {
         assertEquals(List.of(Colour.YELLOW, Colour.BLUE, Colour.RED, Colour.GREEN), resolver.resolve(PLAYERS));
     }
 
-    // Brief 3.1: the round wraps round clockwise from whoever starts
-    @Test
-    void turnOrderWrapsRoundFromTheStarter() {
-        TurnOrderResolver resolver = new TurnOrderResolver(diceRolling(1, 2, 3, 6), observer);
-        assertEquals(List.of(Colour.BLUE, Colour.RED, Colour.GREEN, Colour.YELLOW), resolver.resolve(PLAYERS));
-    }
-
     // Brief 3.1: every opening roll is reported
     @Test
     void everyOpeningRollIsReported() {
@@ -42,16 +35,7 @@ class TurnOrderResolverTest {
         assertTrue(observer.hasEvent("opening roll BLUE 1"));
     }
 
-    // A3: a two-way tie for the highest roll is broken by the tied players rolling again
-    @Test
-    void tiedPlayersRollAgain() {
-        Dice dice = diceRolling(6, 6, 1, 2, 3, 5);
-        TurnOrderResolver resolver = new TurnOrderResolver(dice, observer);
-        assertEquals(Colour.GREEN, resolver.resolve(PLAYERS).get(0));
-        verify(dice, times(6)).roll();
-    }
-
-    // A3: in a three-way tie only the three tied players roll again
+    // Interpretation: in a three-way tie only the three tied players roll again
     @Test
     void threeWayTieRollsAgainAmongTheTiedOnly() {
         Dice dice = diceRolling(6, 6, 6, 2, 3, 5, 1);

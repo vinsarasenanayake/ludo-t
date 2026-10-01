@@ -18,7 +18,6 @@ import static com.ludot.random.RandomMocks.coinLanding;
 import static com.ludot.random.RandomMocks.diceRolling;
 import static com.ludot.random.RandomMocks.pickerChoosing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameEngineTest {
@@ -41,7 +40,6 @@ class GameEngineTest {
         TurnProcessor turns = wiring.turnProcessor(random, random, mysteryCells);
         GameResultDto result = new GameEngine(players, turns, mysteryCells, observer).run(TURN_ORDER);
         assertEquals(4, result.finishingOrder().size());
-        assertFalse(result.stalled());
         assertTrue(observer.hasEvent("finished " + result.finishingOrder().get(0) + " 1"));
     }
 
@@ -53,13 +51,18 @@ class GameEngineTest {
         assertEquals(result.rounds(), summaries);
     }
 
-    // A8: a game in which no piece can ever move stops after 50 unchanged rounds
+    // Interpretation: a game in which no piece can ever move stops after 50 unchanged rounds
     @Test
     void gameWithoutProgressIsStalled() {
         GameResultDto result = stalledGame();
-        assertTrue(result.stalled());
         assertEquals(FIRST_ROUND + UNCHANGED_ROUNDS_BEFORE_STALL, result.rounds());
-        assertTrue(observer.hasEvent("stalled " + result.rounds()));
+    }
+
+    // R11 (interpretation): a stalled game gives no place to a player who never got all its pieces home
+    @Test
+    void stalledGameDoesNotRankUnfinishedPlayers() {
+        GameResultDto result = stalledGame();
+        assertTrue(result.finishingOrder().isEmpty());
     }
 
     private GameResultDto stalledGame() {

@@ -46,11 +46,6 @@ public final class RecordingObserver implements GameObserver {
     }
 
     @Override
-    public void onRollIgnored(Colour colour) {
-        events.add("roll ignored " + colour);
-    }
-
-    @Override
     public void onSentBackFromBriefing(Piece piece) {
         events.add("briefing return " + piece.name());
     }
@@ -76,11 +71,6 @@ public final class RecordingObserver implements GameObserver {
     }
 
     @Override
-    public void onNoMovePossible(Colour colour) {
-        events.add("no move " + colour);
-    }
-
-    @Override
     public void onBlockedThrowIgnored(Colour colour) {
         events.add("blocked throw ignored " + colour);
     }
@@ -96,7 +86,7 @@ public final class RecordingObserver implements GameObserver {
     }
 
     @Override
-    public void onTeleport(Piece piece, MysteryCell.Destination destination) {
+    public void onTeleport(Piece piece, MysteryCell.Destination destination, Position location) {
         events.add("teleport " + piece.name() + " " + destination);
     }
 
@@ -118,11 +108,6 @@ public final class RecordingObserver implements GameObserver {
     @Override
     public void onPlayerFinished(Colour colour, int place) {
         events.add("finished " + colour + " " + place);
-    }
-
-    @Override
-    public void onGameStalled(int rounds) {
-        events.add("stalled " + rounds);
     }
 
     @Override

@@ -7,4 +7,7 @@ import java.util.List;
 interface PlayerStrategy {
 
     MoveOption chooseMove(List<MoveOption> options);
+
+    default void onRoundEnded() {
+    }
 }

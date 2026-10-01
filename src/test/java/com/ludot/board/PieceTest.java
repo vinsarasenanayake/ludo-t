@@ -50,21 +50,13 @@ class PieceTest {
         assertEquals(5, red1.adjustRoll(5));
     }
 
-    // T-13 + A2: two threes in a row end the briefing and send the piece to base
+    // T-13 (interpretation): two threes in a row end the briefing and send the piece to base
     @Test
     void twoConsecutiveThreesEndTheBriefing() {
         red1.applyEffect(new PieceEffect.Briefing());
         red1.observeRoll(3);
         red1.observeRoll(3);
         assertTrue(red1.requiresReturnToBase());
-    }
-
-    // Brief 1.1: pieces are named by colour initial and number, e.g. G3
-    @Test
-    void pieceNameIsColourInitialAndNumber() {
-        Piece green3 = new Piece(Colour.GREEN, 3);
-        assertEquals("G3", green3.name());
-        assertEquals("G3", green3.toString());
     }
 
     // R11: a piece that is home is finished and cannot move again

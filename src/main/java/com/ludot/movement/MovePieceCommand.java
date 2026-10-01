@@ -1,11 +1,13 @@
 package com.ludot.movement;
 
 import com.ludot.board.Board;
+import com.ludot.board.Direction;
 import com.ludot.board.Piece;
 import com.ludot.board.Position;
 import com.ludot.mystery.Teleporter;
 import com.ludot.rules.MoveOption;
 
+/** Moves a single piece, or every piece of a block together (Rule T-4), along the planned route. */
 final class MovePieceCommand extends MoveCommand {
 
     MovePieceCommand(MoveOption option, Board board, Teleporter teleporter, MoveEvents listener) {
@@ -14,14 +16,17 @@ final class MovePieceCommand extends MoveCommand {
 
     @Override
     public void execute() {
-        Piece piece = option().leadPiece();
-        Position from = piece.position();
-        option().route().blockage().ifPresent(blockage -> listener().onPieceBlocked(piece, from, blockage));
-        board().move(piece, option().destination());
+        Direction travelDirection = option().leadPiece().direction();
+        for (Piece piece : option().movers()) {
+            Position from = piece.position();
+            option().route().blockage().ifPresent(blockage -> listener().onPieceBlocked(piece, from, blockage));
+            board().move(piece, option().destination());
+            if (!option().isCutShortByBlock()) {
+                listener().onPieceMoved(piece, option().route(), travelDirection);
+            }
+        }
         if (option().isCutShortByBlock()) {
-            listener().onMovedBeforeBlock(piece.colour(), option().destination());
-        } else {
-            listener().onPieceMoved(piece, option().route(), piece.direction());
+            listener().onMovedBeforeBlock(option().leadPiece().colour(), option().destination());
         }
         land();
     }

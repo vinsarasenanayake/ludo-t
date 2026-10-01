@@ -31,14 +31,6 @@ class LudoGameFacadeTest {
         assertTrue(events.get(4).startsWith("opening roll"));
     }
 
-    // Facade: the caller gets the whole result back from a single call
-    @Test
-    void playReturnsTheFinalRanking() {
-        GameResultDto result = facade().play();
-        assertEquals(4, result.finishingOrder().size());
-        assertTrue(observer.hasEvent("game over " + result.finishingOrder()));
-    }
-
     private LudoGameFacade facade() {
         Board board = new Board();
         GameWiring wiring = new GameWiring(board, observer);

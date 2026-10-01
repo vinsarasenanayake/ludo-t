@@ -18,7 +18,6 @@ import static com.ludot.random.RandomMocks.coinLanding;
 import static com.ludot.random.RandomMocks.diceRolling;
 import static com.ludot.random.RandomMocks.pickerChoosing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,7 +43,6 @@ class TurnProcessorTest {
     void thirdSixIsIgnored() {
         Dice dice = diceRolling(6, 6, 6);
         turnsRolling(dice).playTurn(red);
-        assertTrue(observer.hasEvent("roll ignored RED"));
         verify(dice, times(3)).roll();
     }
 
@@ -53,7 +51,6 @@ class TurnProcessorTest {
     void twoSixesThenAnotherNumberEndTheTurnNormally() {
         turnsRolling(6, 6, 3).playTurn(red);
         assertEquals(3, countRolls());
-        assertFalse(observer.hasEvent("roll ignored RED"));
     }
 
     // R2 + Brief 3.1: a six moves a piece from base to X and the new status is shown
@@ -68,7 +65,8 @@ class TurnProcessorTest {
     @Test
     void noLegalMoveIgnoresTheThrow() {
         turnsRolling(4).playTurn(red);
-        assertTrue(observer.hasEvent("no move RED"));
+        assertEquals(1, countRolls());
+        assertTrue(red.pieces().stream().allMatch(Piece::isInBase));
     }
 
     // R6 + T-2: a capture gives the player another roll
@@ -84,7 +82,7 @@ class TurnProcessorTest {
         assertEquals(2, countRolls());
     }
 
-    // T-13 + A2: two threes in a row send a briefed piece to base, even across two turns
+    // T-13 (interpretation): two threes in a row send a briefed piece to base, even across two turns
     @Test
     void twoThreesSendTheBriefedPieceToBase() {
         Piece red1 = red.pieces().get(0);
@@ -95,6 +93,38 @@ class TurnProcessorTest {
         turns.playTurn(red);
         assertTrue(red1.isInBase());
         assertTrue(observer.hasEvent("briefing return R1"));
+    }
+
+    // R4 + R7: a six that cannot be used is ignored and the dice passes on, with no extra roll
+    @Test
+    void unusableSixEndsTheTurn() {
+        Piece green1 = green.pieces().get(0);
+        Piece green2 = green.pieces().get(1);
+        board.enter(green1, Direction.CLOCKWISE);
+        board.enter(green2, Direction.CLOCKWISE);
+        board.move(green1, Position.onTrack(26));
+        board.move(green2, Position.onTrack(26));
+        turnsRolling(6, 1).playTurn(red);
+        assertEquals(1, countRolls());
+        assertTrue(observer.hasEvent("blocked throw ignored RED"));
+    }
+
+    // R4 + T-6: on the third six a player with a blockade breaks it
+    @Test
+    void thirdSixBreaksTheBlockade() {
+        Piece red1 = red.pieces().get(0);
+        Piece red2 = red.pieces().get(1);
+        Piece red3 = red.pieces().get(2);
+        board.enter(red1, Direction.CLOCKWISE);
+        board.enter(red2, Direction.CLOCKWISE);
+        board.move(red1, Position.onTrack(30));
+        board.move(red2, Position.onTrack(30));
+        board.enter(red3, Direction.CLOCKWISE);
+        board.move(red3, Position.onTrack(10));
+        board.move(red.pieces().get(3), Position.home());
+        turnsRolling(6, 6, 6).playTurn(red);
+        assertEquals(Position.onTrack(30), red1.position());
+        assertEquals(Position.onTrack(36), red2.position());
     }
 
     private TurnProcessor turnsRolling(Integer... rolls) {

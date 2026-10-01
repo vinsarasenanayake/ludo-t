@@ -10,6 +10,8 @@ public final class TrackNavigator {
     private static final int STEPS_FROM_APPROACH_TO_HOME = HOME_STRAIGHT_LENGTH + 1;
     private static final int CLOCKWISE_PASSES_TO_ENTER_HOME = 1;
     private static final int COUNTER_CLOCKWISE_PASSES_TO_ENTER_HOME = 2;
+    // T-7: a piece with no capture cannot turn into its home straight, so it is counted a lap further away
+    private static final int LAP_WITHOUT_CAPTURE = TRACK_SIZE;
 
     public int step(int cell, Direction direction) {
         return move(cell, 1, direction);
@@ -43,6 +45,10 @@ public final class TrackNavigator {
     }
 
     private int stepsToHomeFromTrack(Piece piece) {
+        return geometricStepsToHome(piece) + (piece.hasCaptured() ? 0 : LAP_WITHOUT_CAPTURE);
+    }
+
+    private int geometricStepsToHome(Piece piece) {
         int cell = piece.position().index();
         int toApproach = distance(cell, piece.colour().approachCell(), piece.direction());
         int passesStillNeeded = Math.max(0, passesNeededToEnterHome(piece.direction()) - piece.approachPasses());

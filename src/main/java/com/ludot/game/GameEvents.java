@@ -24,16 +24,12 @@ public interface GameEvents {
 
         void onPlayerFinished(Colour colour, int place);
 
-        void onGameStalled(int rounds);
-
         void onGameOver(GameResultDto result);
     }
 
     interface Turns {
 
         void onDiceRolled(Colour colour, int value);
-
-        void onRollIgnored(Colour colour);
 
         void onPlayerStatus(PlayerStatusDto status);
 

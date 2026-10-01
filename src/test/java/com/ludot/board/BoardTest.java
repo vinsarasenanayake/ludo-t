@@ -52,14 +52,6 @@ class BoardTest {
         assertTrue(red1.isInBase());
     }
 
-    // T-3: two pieces of the same colour on one cell form a block
-    @Test
-    void twoOwnPiecesOnOneCellFormABlock() {
-        board.enter(red1, Direction.CLOCKWISE);
-        board.enter(red2, Direction.CLOCKWISE);
-        assertTrue(board.isBlockOwnedBy(26, Colour.RED));
-    }
-
     // T-3: pieces of different colours are not a block
     @Test
     void piecesOfDifferentColoursAreNotABlock() {

@@ -51,6 +51,11 @@ public final class Player {
         return strategy.chooseMove(options);
     }
 
+    public void endRound() {
+        pieces.forEach(Piece::endRound);
+        strategy.onRoundEnded();
+    }
+
     public PlayerStatusDto status() {
         List<PlayerStatusDto.PieceLocation> locations = pieces.stream()
                 .map(piece -> new PlayerStatusDto.PieceLocation(piece.name(), piece.position().describe(colour)))

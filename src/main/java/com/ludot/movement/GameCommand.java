@@ -7,4 +7,8 @@ public interface GameCommand {
     boolean grantsBonusRoll();
 
     boolean showsPlayerStatus();
+
+    default boolean endsTurn() {
+        return false;
+    }
 }

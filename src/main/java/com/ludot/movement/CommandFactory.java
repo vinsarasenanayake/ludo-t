@@ -1,7 +1,6 @@
 package com.ludot.movement;
 
 import com.ludot.board.Board;
-import com.ludot.board.Colour;
 import com.ludot.mystery.Teleporter;
 import com.ludot.random.Coin;
 import com.ludot.rules.MoveOption;
@@ -26,12 +25,11 @@ public final class CommandFactory {
         }
         return switch (option.type()) {
             case ENTER_BOARD -> new EnterBoardCommand(option, board, coin, teleporter, listener);
-            case MOVE_PIECE -> new MovePieceCommand(option, board, teleporter, listener);
-            case MOVE_BLOCK -> new MoveBlockCommand(option, board, teleporter, listener);
+            case MOVE_PIECE, MOVE_BLOCK -> new MovePieceCommand(option, board, teleporter, listener);
         };
     }
 
-    public GameCommand createNoMove(Colour colour) {
-        return new NullMoveCommand(colour, listener);
+    public GameCommand createNoMove() {
+        return new NullMoveCommand();
     }
 }

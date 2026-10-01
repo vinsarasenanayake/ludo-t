@@ -1,20 +1,10 @@
 package com.ludot.movement;
 
-import com.ludot.board.Colour;
-
+/** Null Object: used when no piece can move with the roll, so the throw is simply ignored. */
 final class NullMoveCommand implements GameCommand {
-
-    private final Colour colour;
-    private final MoveEvents listener;
-
-    NullMoveCommand(Colour colour, MoveEvents listener) {
-        this.colour = colour;
-        this.listener = listener;
-    }
 
     @Override
     public void execute() {
-        listener.onNoMovePossible(colour);
     }
 
     @Override
@@ -25,5 +15,10 @@ final class NullMoveCommand implements GameCommand {
     @Override
     public boolean showsPlayerStatus() {
         return false;
+    }
+
+    @Override
+    public boolean endsTurn() {
+        return true;
     }
 }

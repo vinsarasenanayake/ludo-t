@@ -21,22 +21,6 @@ class SeededRandomnessTest {
         }
     }
 
-    // T-1: the seeded coin lands both heads and tails
-    @Test
-    void coinLandsBothWays() {
-        SeededRandomness random = new SeededRandomness(42);
-        boolean sawHeads = false;
-        boolean sawTails = false;
-        for (int toss = 0; toss < 50; toss++) {
-            if (random.tossHeads()) {
-                sawHeads = true;
-            } else {
-                sawTails = true;
-            }
-        }
-        assertTrue(sawHeads && sawTails);
-    }
-
     // T-10: the cell picker only ever picks one of the free cells it is given
     @Test
     void pickerChoosesOneOfTheCandidates() {

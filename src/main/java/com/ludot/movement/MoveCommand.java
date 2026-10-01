@@ -1,6 +1,7 @@
 package com.ludot.movement;
 
 import com.ludot.board.Board;
+import com.ludot.board.Direction;
 import com.ludot.board.Piece;
 import com.ludot.mystery.Teleporter;
 import com.ludot.rules.MoveOption;
@@ -38,13 +39,14 @@ abstract class MoveCommand implements GameCommand {
 
     @Override
     public boolean showsPlayerStatus() {
-        return option.capturesAny();
+        return grantsBonusRoll();
     }
 
     protected void land() {
+        Direction travelDirection = option.leadPiece().direction();
         for (Piece piece : option.movers()) {
-            for (int pass = 0; pass < option.route().approachPassesGained(); pass++) {
-                piece.recordApproachPass();
+            if (piece.direction() == travelDirection) {
+                recordApproachPasses(piece);
             }
         }
         if (option.capturesAny()) {
@@ -52,6 +54,12 @@ abstract class MoveCommand implements GameCommand {
         }
         if (option.landsOnMysteryCell()) {
             option.movers().forEach(teleporter::teleport);
+        }
+    }
+
+    private void recordApproachPasses(Piece piece) {
+        for (int pass = 0; pass < option.route().approachPassesGained(); pass++) {
+            piece.recordApproachPass();
         }
     }
 

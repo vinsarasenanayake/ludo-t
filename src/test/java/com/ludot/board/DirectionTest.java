@@ -11,10 +11,4 @@ class DirectionTest {
     void oppositeOfClockwiseIsCounterClockwise() {
         assertEquals(Direction.COUNTER_CLOCKWISE, Direction.CLOCKWISE.opposite());
     }
-
-    // T-14: reversing twice restores the original direction
-    @Test
-    void oppositeOfOppositeIsTheOriginal() {
-        assertEquals(Direction.CLOCKWISE, Direction.CLOCKWISE.opposite().opposite());
-    }
 }

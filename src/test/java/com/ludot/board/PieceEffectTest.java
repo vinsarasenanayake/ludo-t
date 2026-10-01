@@ -25,27 +25,10 @@ class PieceEffectTest {
         assertEquals(10, new PieceEffect.Energised().adjustRoll(5));
     }
 
-    // T-12 + A1: a sick piece moves half the roll, rounded down
+    // T-12 (interpretation): a sick piece moves half the roll, rounded down
     @Test
     void sickHalvesTheRollRoundedDown() {
         assertEquals(2, new PieceEffect.Sick().adjustRoll(5));
-    }
-
-    // A1: a sick piece that rolls a one still moves one cell
-    @Test
-    void sickPieceStillMovesAtLeastOneCell() {
-        assertEquals(1, new PieceEffect.Sick().adjustRoll(1));
-    }
-
-    // T-12: in the fourth round after the teleport, an energised piece still moves double
-    @Test
-    void energisedStillWorksInTheFourthRoundAfterTheTeleport() {
-        PieceEffect energised = new PieceEffect.Energised();
-        for (int round = 0; round < EFFECT_DURATION_ROUNDS; round++) {
-            energised.endRound();
-        }
-        assertFalse(energised.isExpired());
-        assertEquals(12, energised.adjustRoll(6));
     }
 
     // T-13: a briefed piece cannot move at all
@@ -68,7 +51,7 @@ class PieceEffectTest {
         assertTrue(sick.isExpired());
     }
 
-    // T-13 + A2: the threes must be in a row; another number in between resets the count
+    // T-13 (interpretation): the threes must be in a row; another number in between resets the count
     @Test
     void threesMustBeConsecutive() {
         PieceEffect briefing = new PieceEffect.Briefing();

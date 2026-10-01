@@ -47,6 +47,21 @@ abstract class MoveRule implements PlayerStrategy {
         }
     }
 
+    static final class EnterFromBaseWithoutFormingBlock extends MoveRule {
+
+        EnterFromBaseWithoutFormingBlock(PlayerStrategy next) {
+            super(next);
+        }
+
+        @Override
+        protected Optional<MoveOption> trySelect(List<MoveOption> options) {
+            return options.stream()
+                    .filter(option -> option.type() == Type.ENTER_BOARD)
+                    .filter(option -> !option.formsBlock())
+                    .findFirst();
+        }
+    }
+
     static final class FormBlock extends MoveRule {
 
         FormBlock(PlayerStrategy next) {
@@ -85,6 +100,22 @@ abstract class MoveRule implements PlayerStrategy {
             return options.stream()
                     .filter(MoveOption::capturesAny)
                     .filter(option -> !option.leadPiece().hasCaptured())
+                    .findFirst();
+        }
+    }
+
+    static final class CaptureNeededWithoutBreakingBlock extends MoveRule {
+
+        CaptureNeededWithoutBreakingBlock(PlayerStrategy next) {
+            super(next);
+        }
+
+        @Override
+        protected Optional<MoveOption> trySelect(List<MoveOption> options) {
+            return options.stream()
+                    .filter(MoveOption::capturesAny)
+                    .filter(option -> !option.leadPiece().hasCaptured())
+                    .filter(option -> !option.leavesBlock())
                     .findFirst();
         }
     }

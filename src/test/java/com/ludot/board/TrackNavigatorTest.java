@@ -34,8 +34,21 @@ class TrackNavigatorTest {
         Piece counterClockwise = new Piece(Colour.YELLOW, 2);
         clockwise.enterBoard(Direction.CLOCKWISE);
         counterClockwise.enterBoard(Direction.COUNTER_CLOCKWISE);
+        clockwise.recordCapture();
+        counterClockwise.recordCapture();
         assertEquals(56, navigator.stepsToHome(clockwise));
         assertEquals(60, navigator.stepsToHome(counterClockwise));
+    }
+
+    // T-7: a piece with no capture cannot turn home at its approach, so it is a lap further from home
+    @Test
+    void pieceWithoutACaptureIsALapFurtherFromHome() {
+        Piece nextToApproach = new Piece(Colour.YELLOW, 1);
+        nextToApproach.enterBoard(Direction.CLOCKWISE);
+        nextToApproach.moveTo(Position.onTrack(49));
+        assertEquals(59, navigator.stepsToHome(nextToApproach));
+        nextToApproach.recordCapture();
+        assertEquals(7, navigator.stepsToHome(nextToApproach));
     }
 
     // R1 + T-1: distance is counted in the piece's own direction

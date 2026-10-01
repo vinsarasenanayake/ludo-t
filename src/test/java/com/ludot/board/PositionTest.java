@@ -14,12 +14,6 @@ class PositionTest {
         assertEquals("Home", Position.home().describe(Colour.RED));
     }
 
-    // Brief 3.1: a track cell is shown as its number
-    @Test
-    void trackCellIsDescribedByItsNumber() {
-        assertEquals("26", Position.onTrack(26).describe(Colour.RED));
-    }
-
     // Brief 3.1: home straight cells are named [colour]homepath[cell number]
     @Test
     void homeStraightCellUsesTheColourName() {

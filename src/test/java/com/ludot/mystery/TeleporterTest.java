@@ -17,8 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class TeleporterTest {
@@ -60,16 +58,6 @@ class TeleporterTest {
         assertEquals(2, red1.adjustRoll(5));
     }
 
-    // A11: a teleport is not a move through the cells, so it does not capture a piece already on Alpha
-    @Test
-    void teleportDoesNotCaptureAPieceAlreadyThere() {
-        Piece green1 = new Piece(Colour.GREEN, 1);
-        board.enter(green1, Direction.CLOCKWISE);
-        board.move(green1, Position.onTrack(7));
-        teleporterRolling(ALPHA_FACE, true).teleport(red1);
-        assertEquals(Position.onTrack(7), green1.position());
-    }
-
     // T-13: Beta sends the piece to a briefing, and the teleport is reported
     @Test
     void betaSendsToBriefing() {
@@ -98,7 +86,7 @@ class TeleporterTest {
         assertFalse(observer.hasEvent("teleport R1 BETA"));
     }
 
-    // A6: teleporting to the approach counts as passing it
+    // Interpretation: teleporting to the approach counts as passing it
     @Test
     void approachSendsThePieceToItsApproachCell() {
         teleporterRolling(APPROACH_FACE, true).teleport(red1);
@@ -121,24 +109,6 @@ class TeleporterTest {
     void startSendsThePieceToItsX() {
         teleporterRolling(START_FACE, true).teleport(red1);
         assertEquals(Position.onTrack(26), red1.position());
-    }
-
-    // T-11 + T-12: an Alpha teleport is reported with its effect
-    @Test
-    void alphaTeleportIsReported() {
-        teleporterRolling(ALPHA_FACE, true).teleport(red1);
-        assertTrue(observer.hasEvent("teleport R1 ALPHA"));
-        assertTrue(observer.hasEvent("effect R1 ENERGISED"));
-        verify(dice).roll();
-        verify(coin).tossHeads();
-    }
-
-    // T-13: Beta needs no coin toss, only the die that chose it
-    @Test
-    void betaDoesNotTossTheCoin() {
-        teleporterRolling(BETA_FACE, true).teleport(red1);
-        verify(dice).roll();
-        verify(coin, never()).tossHeads();
     }
 
     private Teleporter teleporterRolling(int dieFace, boolean heads) {

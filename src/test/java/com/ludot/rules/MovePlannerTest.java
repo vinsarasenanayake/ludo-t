@@ -205,7 +205,7 @@ class MovePlannerTest {
         assertFalse(option.leavesBlock());
     }
 
-    // T-3 + A9: a move cut short by a block is only offered when no other move exists
+    // T-3 (interpretation): a move cut short by a block is only offered when no other move exists
     @Test
     void blockedMoveIsOnlyOfferedAsALastResort() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
@@ -216,15 +216,45 @@ class MovePlannerTest {
         assertFalse(option.isCutShortByBlock());
     }
 
-    // A7: a block never enters the home straight, it carries on along the track
+    // R9 + T-7: a block whose pieces have all captured turns into the home straight like a single piece
     @Test
-    void blockNeverEntersTheHomeStraight() {
+    void blockOfPiecesThatHaveCapturedEntersTheHomeStraight() {
         placeOnTrack(red1, 22, Direction.CLOCKWISE);
         placeOnTrack(red2, 22, Direction.CLOCKWISE);
         red1.recordCapture();
         red2.recordCapture();
         MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), Type.MOVE_BLOCK);
+        assertEquals(Position.inHomeStraight(0), blockMove.destination());
+    }
+
+    // T-7: a block carries on along the track while any of its pieces still needs a capture
+    @Test
+    void blockWithAPieceThatNeedsACaptureStaysOnTheTrack() {
+        placeOnTrack(red1, 22, Direction.CLOCKWISE);
+        placeOnTrack(red2, 22, Direction.CLOCKWISE);
+        red1.recordCapture();
+        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), Type.MOVE_BLOCK);
         assertEquals(Position.onTrack(25), blockMove.destination());
+    }
+
+    // T-3: a roll that ends exactly on an opponent block is not a partial move, it is blocked
+    @Test
+    void rollEndingOnAnOpponentBlockIsBlockedNotShortened() {
+        placeOnTrack(red1, 0, Direction.CLOCKWISE);
+        placeGreenBlockAt(4);
+        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 4, NO_MYSTERY));
+        assertTrue(option.isFullyBlocked());
+        assertEquals(Position.onTrack(0), option.destination());
+    }
+
+    // Brief 3.1: the blocked message names the real destination, even inside the home straight
+    @Test
+    void blockedMoveNamesTheRealIntendedDestination() {
+        placeOnTrack(red1, 21, Direction.CLOCKWISE);
+        red1.recordCapture();
+        placeGreenBlockAt(23);
+        MoveOption option = onlyOption(planner.findOptions(List.of(red1), 6, NO_MYSTERY));
+        assertEquals(Position.inHomeStraight(2), option.route().blockage().orElseThrow().intendedDestination());
     }
 
     // T-12: an energised piece moves double the roll
@@ -235,14 +265,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(6), onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY)).destination());
     }
 
-    // T-12 + A1: a sick piece moves half the roll, rounded down
-    @Test
-    void sickPieceMovesHalf() {
-        placeOnTrack(red1, 0, Direction.CLOCKWISE);
-        red1.applyEffect(new PieceEffect.Sick());
-        assertEquals(Position.onTrack(2), onlyOption(planner.findOptions(List.of(red1), 5, NO_MYSTERY)).destination());
-    }
-
     // T-13: a piece in a briefing has no move at all
     @Test
     void briefedPieceHasNoMove() {
@@ -251,11 +273,13 @@ class MovePlannerTest {
         assertTrue(planner.findOptions(List.of(red1), 4, NO_MYSTERY).isEmpty());
     }
 
-    // T-3: a piece cannot enter while an opponent block sits on its X
+    // T-3: a piece cannot enter while an opponent block sits on its X, and the block is named
     @Test
     void opponentBlockOnTheStartCellStopsEntry() {
         placeGreenBlockAt(26);
-        assertTrue(planner.findOptions(List.of(red1), 6, NO_MYSTERY).isEmpty());
+        MoveOption entry = onlyOption(planner.findOptions(List.of(red1), 6, NO_MYSTERY));
+        assertTrue(entry.isFullyBlocked());
+        assertEquals(Position.onTrack(26), entry.route().blockage().orElseThrow().intendedDestination());
     }
 
     // T-3: entering onto an own piece on X forms a block

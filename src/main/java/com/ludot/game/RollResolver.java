@@ -16,6 +16,12 @@ import java.util.Optional;
 
 public final class RollResolver {
 
+    // T-6: the leaving pieces share six units between them. Unequal shares stop them landing together again.
+    private static final List<List<Integer>> BREAKAWAY_SHARES = List.of(List.of(6), List.of(4, 2), List.of(3, 2, 1));
+
+    record Breakaway(Piece piece, int steps) {
+    }
+
     private final MovePlanner planner;
     private final CommandFactory commands;
     private final MysteryCellManager mysteryCells;
@@ -29,27 +35,35 @@ public final class RollResolver {
     GameCommand commandFor(Player player, int roll) {
         List<MoveOption> options = planner.findOptions(player.pieces(), roll, mysteryCells.current());
         return options.isEmpty()
-                ? commands.createNoMove(player.colour())
+                ? commands.createNoMove()
                 : commands.create(player.chooseMove(options));
     }
 
-    Optional<GameCommand> breakAwayCommand(Piece piece) {
-        return planner.planBreakaway(piece, mysteryCells.current())
-                .filter(option -> !option.isFullyBlocked())
+    List<Breakaway> breakaways(Player player) {
+        List<Breakaway> breakaways = new ArrayList<>();
+        for (List<Piece> blockade : blockadesOf(player)) {
+            List<Piece> leavers = blockade.subList(1, blockade.size());
+            List<Integer> shares = BREAKAWAY_SHARES.get(leavers.size() - 1);
+            for (int index = 0; index < leavers.size(); index++) {
+                breakaways.add(new Breakaway(leavers.get(index), shares.get(index)));
+            }
+        }
+        return breakaways;
+    }
+
+    Optional<GameCommand> breakAwayCommand(Breakaway breakaway) {
+        return planner.planPieceMove(breakaway.piece(), breakaway.steps(), mysteryCells.current())
+                .filter(option -> !option.isCutShortByBlock())
                 .map(commands::create);
     }
 
-    List<Piece> piecesToBreakAway(Player player) {
+    private static List<List<Piece>> blockadesOf(Player player) {
         Map<Integer, List<Piece>> piecesByCell = new LinkedHashMap<>();
         for (Piece piece : player.pieces()) {
             if (piece.isOnTrack()) {
                 piecesByCell.computeIfAbsent(piece.position().index(), cell -> new ArrayList<>()).add(piece);
             }
         }
-        List<Piece> breakaways = new ArrayList<>();
-        for (List<Piece> piecesOnCell : piecesByCell.values()) {
-            breakaways.addAll(piecesOnCell.subList(1, piecesOnCell.size()));
-        }
-        return breakaways;
+        return piecesByCell.values().stream().filter(pieces -> pieces.size() > 1).toList();
     }
 }

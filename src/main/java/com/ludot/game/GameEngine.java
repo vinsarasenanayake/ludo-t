@@ -1,7 +1,6 @@
 package com.ludot.game;
 
 import com.ludot.board.Colour;
-import com.ludot.board.Piece;
 import com.ludot.mystery.MysteryCellManager;
 import com.ludot.player.Player;
 import com.ludot.player.PlayerStatusDto;
@@ -44,12 +43,10 @@ public final class GameEngine {
             unchangedRounds = statuses.equals(previousStatuses) ? unchangedRounds + 1 : 0;
             previousStatuses = statuses;
         }
-        boolean stalled = !isOver(finishingOrder);
-        if (stalled) {
-            listener.onGameStalled(rounds);
+        if (isOver(finishingOrder)) {
+            turnOrder.stream().filter(colour -> !finishingOrder.contains(colour)).forEach(finishingOrder::add);
         }
-        turnOrder.stream().filter(colour -> !finishingOrder.contains(colour)).forEach(finishingOrder::add);
-        GameResultDto result = new GameResultDto(finishingOrder, rounds, stalled);
+        GameResultDto result = new GameResultDto(finishingOrder, rounds);
         listener.onGameOver(result);
         return result;
     }
@@ -69,7 +66,7 @@ public final class GameEngine {
     }
 
     private List<PlayerStatusDto> endRound(List<Colour> turnOrder) {
-        players.values().forEach(player -> player.pieces().forEach(Piece::endRound));
+        players.values().forEach(Player::endRound);
         mysteryCells.endRound(players.values().stream().anyMatch(Player::hasPieceOnTrack));
         List<PlayerStatusDto> statuses = turnOrder.stream().map(colour -> players.get(colour).status()).toList();
         listener.onRoundEnded(statuses, mysteryCells.current());

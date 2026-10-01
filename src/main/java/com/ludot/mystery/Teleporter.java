@@ -34,47 +34,60 @@ public final class Teleporter {
 
     public void teleport(Piece piece) {
         Destination destination = Destination.fromDieFace(dice.roll());
-        listener.onTeleport(piece, destination);
+        Position location = locationOf(destination, piece);
+        listener.onTeleport(piece, destination, location);
         switch (destination) {
-            case ALPHA -> sendToAlpha(piece);
-            case BETA -> sendToBeta(piece);
-            case GAMMA -> sendToGamma(piece);
+            case ALPHA -> sendToAlpha(piece, location);
+            case BETA -> sendToBeta(piece, location);
+            case GAMMA -> sendToGamma(piece, location);
             case BASE -> board.sendToBase(piece);
-            case START -> board.move(piece, Position.onTrack(piece.colour().startCell()));
-            case APPROACH -> sendToApproach(piece);
+            case START -> board.move(piece, location);
+            case APPROACH -> sendToApproach(piece, location);
         }
     }
 
-    private void sendToAlpha(Piece piece) {
-        board.move(piece, Position.onTrack(teleportCell(ALPHA_OFFSET)));
+    private Position locationOf(Destination destination, Piece piece) {
+        return switch (destination) {
+            case ALPHA -> teleportCell(ALPHA_OFFSET);
+            case BETA -> teleportCell(BETA_OFFSET);
+            case GAMMA -> teleportCell(GAMMA_OFFSET);
+            case BASE -> Position.base();
+            case START -> Position.onTrack(piece.colour().startCell());
+            case APPROACH -> Position.onTrack(piece.colour().approachCell());
+        };
+    }
+
+    private void sendToAlpha(Piece piece, Position alpha) {
+        board.move(piece, alpha);
         boolean energised = coin.tossHeads();
         piece.applyEffect(energised ? new PieceEffect.Energised() : new PieceEffect.Sick());
         listener.onEffectApplied(piece, energised ? EffectNotice.ENERGISED : EffectNotice.SICK);
     }
 
-    private void sendToBeta(Piece piece) {
-        board.move(piece, Position.onTrack(teleportCell(BETA_OFFSET)));
+    private void sendToBeta(Piece piece, Position beta) {
+        board.move(piece, beta);
         piece.applyEffect(new PieceEffect.Briefing());
         listener.onEffectApplied(piece, EffectNotice.BRIEFING);
     }
 
-    private void sendToGamma(Piece piece) {
-        board.move(piece, Position.onTrack(teleportCell(GAMMA_OFFSET)));
+    private void sendToGamma(Piece piece, Position gamma) {
+        board.move(piece, gamma);
         if (piece.direction() == Direction.CLOCKWISE) {
             piece.reverseDirection();
             listener.onEffectApplied(piece, EffectNotice.DIRECTION_REVERSED);
             return;
         }
         listener.onEffectApplied(piece, EffectNotice.SENT_TO_BETA);
-        sendToBeta(piece);
+        sendToBeta(piece, teleportCell(BETA_OFFSET));
     }
 
-    private void sendToApproach(Piece piece) {
-        board.move(piece, Position.onTrack(piece.colour().approachCell()));
+    private void sendToApproach(Piece piece, Position approach) {
+        board.move(piece, approach);
         piece.recordApproachPass();
     }
 
-    private int teleportCell(int offsetFromYellowApproach) {
-        return navigator.move(Colour.YELLOW.approachCell(), offsetFromYellowApproach, Direction.CLOCKWISE);
+    private Position teleportCell(int offsetFromYellowApproach) {
+        int cell = navigator.move(Colour.YELLOW.approachCell(), offsetFromYellowApproach, Direction.CLOCKWISE);
+        return Position.onTrack(cell);
     }
 }
