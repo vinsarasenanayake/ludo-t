@@ -111,7 +111,7 @@ class TeleporterTest {
         assertEquals(Position.onTrack(26), red1.position());
     }
 
-    // Teleport arrival does not capture
+    // T-11: teleport arrival does not capture
     @Test
     void teleportArrivalDoesNotCapture() {
         Piece green1 = new Piece(Colour.GREEN, 1);
