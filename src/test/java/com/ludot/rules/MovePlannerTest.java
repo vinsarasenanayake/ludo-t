@@ -171,9 +171,19 @@ class MovePlannerTest {
     void blockMovesByRollDividedBySize() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
         placeOnTrack(red2, 0, Direction.CLOCKWISE);
-        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), Type.MOVE_BLOCK);
+        MoveOption blockMove = blockMoveIn(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY));
         assertEquals(Position.onTrack(3), blockMove.destination());
         assertEquals(2, blockMove.movers().size());
+    }
+
+    // T-4 (interpretation): an energised piece in a block does not double the block move
+    @Test
+    void blockMoveIgnoresPieceEffects() {
+        placeOnTrack(red1, 0, Direction.CLOCKWISE);
+        placeOnTrack(red2, 0, Direction.CLOCKWISE);
+        red1.applyEffect(new PieceEffect.Energised());
+        MoveOption blockMove = blockMoveIn(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY));
+        assertEquals(Position.onTrack(3), blockMove.destination());
     }
 
     // T-4: an opposite-direction block moves the way of the piece furthest from home
@@ -181,7 +191,7 @@ class MovePlannerTest {
     void mixedBlockMovesTheWayOfThePieceFurthestFromHome() {
         placeOnTrack(red1, 30, Direction.CLOCKWISE);
         placeOnTrack(red2, 30, Direction.COUNTER_CLOCKWISE);
-        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 4, NO_MYSTERY), Type.MOVE_BLOCK);
+        MoveOption blockMove = blockMoveIn(planner.findOptions(List.of(red1, red2), 4, NO_MYSTERY));
         assertEquals(Position.onTrack(28), blockMove.destination());
     }
 
@@ -191,7 +201,7 @@ class MovePlannerTest {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
         placeOnTrack(red2, 0, Direction.CLOCKWISE);
         placeGreenBlockAt(3);
-        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), Type.MOVE_BLOCK);
+        MoveOption blockMove = blockMoveIn(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY));
         assertEquals(2, blockMove.landing().victims().size());
     }
 
@@ -223,7 +233,7 @@ class MovePlannerTest {
         placeOnTrack(red2, 22, Direction.CLOCKWISE);
         red1.recordCapture();
         red2.recordCapture();
-        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), Type.MOVE_BLOCK);
+        MoveOption blockMove = blockMoveIn(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY));
         assertEquals(Position.inHomeStraight(0), blockMove.destination());
     }
 
@@ -233,7 +243,7 @@ class MovePlannerTest {
         placeOnTrack(red1, 22, Direction.CLOCKWISE);
         placeOnTrack(red2, 22, Direction.CLOCKWISE);
         red1.recordCapture();
-        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY), Type.MOVE_BLOCK);
+        MoveOption blockMove = blockMoveIn(planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY));
         assertEquals(Position.onTrack(25), blockMove.destination());
     }
 
@@ -331,7 +341,7 @@ class MovePlannerTest {
         placeOnTrack(red1, 10, Direction.CLOCKWISE);
         placeOnTrack(red2, 10, Direction.CLOCKWISE);
         placeOnTrack(green1, 10, Direction.CLOCKWISE);
-        MoveOption blockMove = optionOfType(planner.findOptions(List.of(red1, red2), 4, NO_MYSTERY), Type.MOVE_BLOCK);
+        MoveOption blockMove = blockMoveIn(planner.findOptions(List.of(red1, red2), 4, NO_MYSTERY));
         assertEquals(List.of(red1, red2), blockMove.movers());
     }
 
@@ -354,13 +364,13 @@ class MovePlannerTest {
 
     private MoveOption onlyOption(List<MoveOption> options) {
         assertEquals(1, options.size(), "expected exactly one option but got " + options);
-        return options.get(0);
+        return options.getFirst();
     }
 
-    private MoveOption optionOfType(List<MoveOption> options, Type type) {
+    private MoveOption blockMoveIn(List<MoveOption> options) {
         return options.stream()
-                .filter(option -> option.type() == type)
+                .filter(option -> option.type() == Type.MOVE_BLOCK)
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("no " + type + " option in " + options));
+                .orElseThrow(() -> new AssertionError("no block move in " + options));
     }
 }

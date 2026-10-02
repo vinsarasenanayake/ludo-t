@@ -111,6 +111,16 @@ class TeleporterTest {
         assertEquals(Position.onTrack(26), red1.position());
     }
 
+    @Test
+    void teleportArrivalDoesNotCapture() {
+        Piece green1 = new Piece(Colour.GREEN, 1);
+        board.enter(green1, Direction.CLOCKWISE);
+        board.move(green1, Position.onTrack(26));
+        teleporterRolling(START_FACE, true).teleport(red1);
+        assertEquals(Position.onTrack(26), red1.position());
+        assertEquals(Position.onTrack(26), green1.position());
+    }
+
     private Teleporter teleporterRolling(int dieFace, boolean heads) {
         when(dice.roll()).thenReturn(dieFace);
         when(coin.tossHeads()).thenReturn(heads);
