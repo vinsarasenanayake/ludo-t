@@ -7,7 +7,7 @@ import com.ludot.board.Position;
 import com.ludot.mystery.Teleporter;
 import com.ludot.rules.MoveOption;
 
-/** Moves a single piece, or every piece of a block together (Rule T-4), along the planned route. */
+// Moves one piece, or a whole block together (T-4)
 final class MovePieceCommand extends MoveCommand {
 
     MovePieceCommand(MoveOption option, Board board, Teleporter teleporter, MoveEvents listener) {
@@ -25,6 +25,7 @@ final class MovePieceCommand extends MoveCommand {
                 listener().onPieceMoved(piece, option().route(), travelDirection);
             }
         }
+        // T-3: report the stop before the block
         if (option().isCutShortByBlock()) {
             listener().onMovedBeforeBlock(option().leadPiece().colour(), option().destination());
         }

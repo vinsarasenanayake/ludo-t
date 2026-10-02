@@ -13,13 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GameConfigurationTest {
 
-    // Design: the same seed always plays exactly the same game, so a game can be checked by hand
+    // The same seed always plays the same game
     @Test
     void sameSeedPlaysTheSameGame() {
         assertEquals(playWithSeed(42L), playWithSeed(42L));
     }
 
-    // Regression snapshot: the default seed 42 always plays the same game, which Green wins after 220 rounds
+    // Seed 42: Green wins and the game ends after 220 rounds
     @Test
     void defaultSeedGameMatchesItsRecordedResult() {
         GameResultDto result = playWithSeed(42L);

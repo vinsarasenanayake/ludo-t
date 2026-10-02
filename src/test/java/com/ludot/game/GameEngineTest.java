@@ -32,7 +32,7 @@ class GameEngineTest {
     private final PlayerFactory playerFactory = new PlayerFactory(new TrackNavigator());
     private final List<Player> players = Arrays.stream(Colour.values()).map(playerFactory::createPlayer).toList();
 
-    // R11: a full seeded game ends once three players are home, and ranks all four
+    // R11: a full game ranks all four
     @Test
     void fullGameRanksAllFourPlayers() {
         SeededRandomness random = new SeededRandomness(1);
@@ -40,10 +40,10 @@ class GameEngineTest {
         TurnProcessor turns = wiring.turnProcessor(random, random, mysteryCells);
         GameResultDto result = new GameEngine(players, turns, mysteryCells, observer).run(TURN_ORDER);
         assertEquals(4, result.finishingOrder().size());
-        assertTrue(observer.hasEvent("finished " + result.finishingOrder().get(0) + " 1"));
+        assertTrue(observer.hasEvent("finished " + result.finishingOrder().getFirst() + " 1"));
     }
 
-    // Brief 3.1: the piece locations are shown after every round
+    // Every round ends with a summary
     @Test
     void everyRoundEndsWithASummary() {
         GameResultDto result = stalledGame();
@@ -51,20 +51,21 @@ class GameEngineTest {
         assertEquals(result.rounds(), summaries);
     }
 
-    // Interpretation: a game in which no piece can ever move stops after 50 unchanged rounds
+    // Stops after 50 unchanged rounds
     @Test
     void gameWithoutProgressIsStalled() {
         GameResultDto result = stalledGame();
         assertEquals(FIRST_ROUND + UNCHANGED_ROUNDS_BEFORE_STALL, result.rounds());
     }
 
-    // R11 (interpretation): a stalled game gives no place to a player who never got all its pieces home
+    // R11: a stalled game ranks no one
     @Test
     void stalledGameDoesNotRankUnfinishedPlayers() {
         GameResultDto result = stalledGame();
         assertTrue(result.finishingOrder().isEmpty());
     }
 
+    // Only ones are rolled, so no piece leaves base
     private GameResultDto stalledGame() {
         MysteryCellManager mysteryCells = wiring.mysteryCells(pickerChoosing(0));
         TurnProcessor turns = wiring.turnProcessor(diceRolling(1), coinLanding(true), mysteryCells);

@@ -3,6 +3,7 @@ package com.ludot.board;
 import static com.ludot.board.BoardConstants.HOME_STRAIGHT_LENGTH;
 import static com.ludot.board.BoardConstants.TRACK_SIZE;
 
+// Where a piece is: base, track, home straight, or home
 public record Position(Zone zone, int index) {
 
     private static final int NO_INDEX = -1;

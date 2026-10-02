@@ -11,6 +11,7 @@ import com.ludot.random.Coin;
 import com.ludot.random.Dice;
 import com.ludot.rules.MovePlanner;
 
+// Builds real game parts around the chosen random sources
 final class GameWiring {
 
     private final Board board;

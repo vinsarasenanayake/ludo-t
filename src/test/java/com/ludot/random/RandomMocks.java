@@ -6,11 +6,13 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+// Mocked dice, coin, and cell picker with fixed results
 public final class RandomMocks {
 
     private RandomMocks() {
     }
 
+    // Returns the given rolls in order
     public static Dice diceRolling(Integer... rolls) {
         Dice dice = mock(Dice.class);
         when(dice.roll()).thenReturn(rolls[0], Arrays.copyOfRange(rolls, 1, rolls.length));

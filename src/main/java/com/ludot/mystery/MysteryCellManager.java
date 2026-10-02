@@ -9,6 +9,7 @@ import java.util.List;
 import static com.ludot.board.BoardConstants.MYSTERY_LIFETIME_ROUNDS;
 import static com.ludot.board.BoardConstants.MYSTERY_SPAWN_DELAY_ROUNDS;
 
+// T-10: spawns, counts down, and moves the mystery cell
 public final class MysteryCellManager {
 
     private static final int NO_PREVIOUS_LOCATION = -1;
@@ -31,6 +32,7 @@ public final class MysteryCellManager {
         return current;
     }
 
+    // Counts down an active cell, or waits to spawn the first one
     public void endRound(boolean anyPieceOnTrack) {
         if (current.isActive()) {
             current = current.afterOneRound();
@@ -49,7 +51,9 @@ public final class MysteryCellManager {
 
     private void spawn() {
         List<Integer> candidates = new ArrayList<>(board.emptyCellIndexes());
+        // Never the cell it has just left
         candidates.remove(Integer.valueOf(previousLocation));
+        // No empty cell, so no mystery cell this time
         if (candidates.isEmpty()) {
             current = MysteryCell.None.INSTANCE;
             return;

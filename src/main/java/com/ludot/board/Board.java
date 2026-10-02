@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 
 import static com.ludot.board.BoardConstants.TRACK_SIZE;
 
+// The 52 track cells; a list per cell because T-3 allows several pieces
 public final class Board {
 
     private static final int MINIMUM_BLOCK_SIZE = 2;
@@ -29,6 +30,7 @@ public final class Board {
                 .toList();
     }
 
+    // T-3: two own pieces make a block
     public boolean isBlockOwnedBy(int index, Colour colour) {
         long ownPieces = cells.get(index).stream().filter(piece -> piece.colour() == colour).count();
         return ownPieces >= MINIMUM_BLOCK_SIZE;
@@ -51,6 +53,7 @@ public final class Board {
         cells.get(piece.position().index()).add(piece);
     }
 
+    // Home straight and home live in the piece's Position, not here
     public void move(Piece piece, Position destination) {
         leaveCurrentCell(piece);
         piece.moveTo(destination);

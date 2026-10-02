@@ -21,6 +21,7 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 
+// Builds and wires every object of the game in one place
 public final class GameConfiguration {
 
     private final long seed;
@@ -32,6 +33,7 @@ public final class GameConfiguration {
     }
 
     public LudoGameFacade createGame() {
+        // One seeded source acts as the dice, coin, and cell picker
         SeededRandomness random = new SeededRandomness(seed);
         ConsoleReporter reporter = new ConsoleReporter(out);
         Board board = new Board();

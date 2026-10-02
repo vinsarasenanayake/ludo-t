@@ -16,6 +16,7 @@ import static com.ludot.board.BoardConstants.ALPHA_OFFSET;
 import static com.ludot.board.BoardConstants.BETA_OFFSET;
 import static com.ludot.board.BoardConstants.GAMMA_OFFSET;
 
+// T-11 to T-14: rolls the destination and applies its effect
 public final class Teleporter {
 
     private final Board board;
@@ -36,6 +37,7 @@ public final class Teleporter {
         Destination destination = Destination.fromDieFace(dice.roll());
         Position location = locationOf(destination, piece);
         listener.onTeleport(piece, destination, location);
+        // A plain move: no capture or block check on arrival
         switch (destination) {
             case ALPHA -> sendToAlpha(piece, location);
             case BETA -> sendToBeta(piece, location);
@@ -57,6 +59,7 @@ public final class Teleporter {
         };
     }
 
+    // T-12: heads energised, tails sick
     private void sendToAlpha(Piece piece, Position alpha) {
         board.move(piece, alpha);
         boolean energised = coin.tossHeads();
@@ -70,6 +73,7 @@ public final class Teleporter {
         listener.onEffectApplied(piece, EffectNotice.BRIEFING);
     }
 
+    // T-14: clockwise turns round; counter-clockwise goes on to Beta
     private void sendToGamma(Piece piece, Position gamma) {
         board.move(piece, gamma);
         if (piece.direction() == Direction.CLOCKWISE) {
@@ -81,11 +85,13 @@ public final class Teleporter {
         sendToBeta(piece, teleportCell(BETA_OFFSET));
     }
 
+    // R9: counts as passing the approach
     private void sendToApproach(Piece piece, Position approach) {
         board.move(piece, approach);
         piece.recordApproachPass();
     }
 
+    // T-11: counted from Yellow's approach cell
     private Position teleportCell(int offsetFromYellowApproach) {
         int cell = navigator.move(Colour.YELLOW.approachCell(), offsetFromYellowApproach, Direction.CLOCKWISE);
         return Position.onTrack(cell);

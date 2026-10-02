@@ -21,11 +21,13 @@ public final class TurnOrderResolver {
 
     List<Colour> resolve(List<Colour> colours) {
         List<Colour> contenders = colours;
+        // Only the tied highest players roll again
         while (contenders.size() > 1) {
             contenders = highestRollers(contenders);
         }
         List<Colour> order = new ArrayList<>();
-        Colour current = contenders.get(0);
+        Colour current = contenders.getFirst();
+        // Then play goes clockwise from the winner
         for (int turn = 0; turn < colours.size(); turn++) {
             order.add(current);
             current = current.nextClockwise();

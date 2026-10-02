@@ -11,14 +11,14 @@ class TrackNavigatorTest {
 
     private final TrackNavigator navigator = new TrackNavigator();
 
-    // R8: the track wraps round, 51 to 0 clockwise and 0 to 51 counter-clockwise
+    // R8: the track wraps both ways
     @Test
     void movementWrapsRoundTheBoard() {
         assertEquals(0, navigator.step(51, Direction.CLOCKWISE));
         assertEquals(51, navigator.step(0, Direction.COUNTER_CLOCKWISE));
     }
 
-    // T-11: Alpha, Beta, Gamma are cells 7, 25, 44 counted from Yellow's approach
+    // T-11: Alpha, Beta, Gamma are 7, 25, 44
     @Test
     void teleportCellsAreCountedFromYellowApproach() {
         int yellowApproach = Colour.YELLOW.approachCell();
@@ -27,7 +27,7 @@ class TrackNavigatorTest {
         assertEquals(44, navigator.move(yellowApproach, GAMMA_OFFSET, Direction.CLOCKWISE));
     }
 
-    // T-1: counter-clockwise needs a full extra lap before the home straight
+    // T-1: counter-clockwise is further from home
     @Test
     void counterClockwisePieceIsFurtherFromHome() {
         Piece clockwise = new Piece(Colour.YELLOW, 1);
@@ -40,7 +40,7 @@ class TrackNavigatorTest {
         assertEquals(60, navigator.stepsToHome(counterClockwise));
     }
 
-    // T-7: a piece with no capture cannot turn home at its approach, so it is a lap further from home
+    // T-7: no capture adds a lap
     @Test
     void pieceWithoutACaptureIsALapFurtherFromHome() {
         Piece nextToApproach = new Piece(Colour.YELLOW, 1);
@@ -51,14 +51,14 @@ class TrackNavigatorTest {
         assertEquals(7, navigator.stepsToHome(nextToApproach));
     }
 
-    // R1 + T-1: distance is counted in the piece's own direction
+    // R1 + T-1: distance depends on direction
     @Test
     void distanceDependsOnDirection() {
         assertEquals(4, navigator.distance(10, 14, Direction.CLOCKWISE));
         assertEquals(48, navigator.distance(10, 14, Direction.COUNTER_CLOCKWISE));
     }
 
-    // R10: steps to home for a piece in base, at home and in the home straight
+    // R10: steps to home off the track
     @Test
     void stepsToHomeOffTheTrack() {
         Piece inBase = new Piece(Colour.RED, 1);

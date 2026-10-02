@@ -18,14 +18,14 @@ class PieceTest {
         red1 = new Piece(Colour.RED, 1);
     }
 
-    // Design: a custom exception stops a piece entering the board twice
+    // Cannot enter the board twice
     @Test
     void enteringWhenAlreadyOnTheBoardIsRejected() {
         red1.enterBoard(Direction.CLOCKWISE);
         assertThrows(Piece.IllegalMoveException.class, () -> red1.enterBoard(Direction.CLOCKWISE));
     }
 
-    // T-9: a captured piece loses all its information
+    // T-9: capture resets everything
     @Test
     void returnToBaseResetsEverything() {
         red1.enterBoard(Direction.COUNTER_CLOCKWISE);
@@ -40,7 +40,7 @@ class PieceTest {
         assertEquals(5, red1.adjustRoll(5));
     }
 
-    // T-12: an effect wears off after the next four rounds (Null Object takes over)
+    // T-12: the effect wears off
     @Test
     void expiredEffectIsReplacedByNoEffect() {
         red1.applyEffect(new PieceEffect.Energised());
@@ -50,7 +50,7 @@ class PieceTest {
         assertEquals(5, red1.adjustRoll(5));
     }
 
-    // T-13 (interpretation): two threes in a row end the briefing and send the piece to base
+    // T-13: two threes end the briefing
     @Test
     void twoConsecutiveThreesEndTheBriefing() {
         red1.applyEffect(new PieceEffect.Briefing());
@@ -59,7 +59,7 @@ class PieceTest {
         assertTrue(red1.requiresReturnToBase());
     }
 
-    // R11: a piece that is home is finished and cannot move again
+    // R11: a home piece cannot move
     @Test
     void pieceAtHomeCannotMoveAgain() {
         red1.moveTo(Position.home());

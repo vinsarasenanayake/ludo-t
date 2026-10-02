@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SeededRandomnessTest {
 
-    // Design: dice stay within 1 to 6 and the same seed repeats the same rolls, so games can be replayed
+    // Rolls stay 1 to 6 and repeat per seed
     @Test
     void seededDiceAreValidAndRepeatable() {
         SeededRandomness first = new SeededRandomness(42);
@@ -21,7 +21,7 @@ class SeededRandomnessTest {
         }
     }
 
-    // T-10: the cell picker only ever picks one of the free cells it is given
+    // T-10: picks only a free cell
     @Test
     void pickerChoosesOneOfTheCandidates() {
         SeededRandomness random = new SeededRandomness(7);

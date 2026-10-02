@@ -13,6 +13,7 @@ import com.ludot.player.PlayerStatusDto;
 import java.util.ArrayList;
 import java.util.List;
 
+// Test spy: records each event as a short line of text
 public final class RecordingObserver implements GameObserver {
 
     private final List<String> events = new ArrayList<>();

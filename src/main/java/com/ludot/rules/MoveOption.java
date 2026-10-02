@@ -6,10 +6,12 @@ import com.ludot.board.Route;
 
 import java.util.List;
 
+// One legal move: who moves, the route, and the landing
 public record MoveOption(Type type, List<Piece> movers, Route route, Landing landing, boolean leavesBlock) {
 
     public enum Type { ENTER_BOARD, MOVE_PIECE, MOVE_BLOCK }
 
+    // What happens where the move lands
     public record Landing(List<Piece> victims, boolean formsBlock, boolean onMysteryCell) {
 
         public Landing {
@@ -26,7 +28,7 @@ public record MoveOption(Type type, List<Piece> movers, Route route, Landing lan
     }
 
     public Piece leadPiece() {
-        return movers.get(0);
+        return movers.getFirst();
     }
 
     public Position destination() {
@@ -49,6 +51,7 @@ public record MoveOption(Type type, List<Piece> movers, Route route, Landing lan
         return route.isCutShortByBlock();
     }
 
+    // T-3: blocked without moving a single cell
     public boolean isFullyBlocked() {
         return isCutShortByBlock() && route.distance() == 0;
     }

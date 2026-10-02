@@ -7,7 +7,6 @@ import com.ludot.board.Position;
 import com.ludot.board.Route;
 import com.ludot.game.GameResultDto;
 import com.ludot.mystery.MysteryCell;
-import com.ludot.mystery.MysteryEvents.EffectNotice;
 import com.ludot.player.PlayerStatusDto;
 
 import java.io.PrintStream;
@@ -15,6 +14,7 @@ import java.util.List;
 
 import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
+// Prints every game event to the console
 public final class ConsoleReporter implements GameObserver {
 
     private static final String SEPARATOR = "============================";
@@ -42,9 +42,9 @@ public final class ConsoleReporter implements GameObserver {
     @Override
     public void onTurnOrderDecided(List<Colour> order) {
         List<String> names = order.stream().map(Colour::displayName).toList();
-        print("%s player has the highest roll and will begin the game.", order.get(0).title());
+        print("%s player has the highest roll and will begin the game.", order.getFirst().title());
         print("The order of a single round is %s, and %s.",
-                String.join(", ", names.subList(0, names.size() - 1)), names.get(names.size() - 1));
+                String.join(", ", names.subList(0, names.size() - 1)), names.getLast());
     }
 
     @Override
@@ -151,6 +151,7 @@ public final class ConsoleReporter implements GameObserver {
 
     @Override
     public void onPlayerFinished(Colour colour, int place) {
+        // R11: only the winner is announced during the game
         if (place == WINNING_PLACE) {
             print("%s player wins!!!", colour.title());
         }
@@ -183,6 +184,6 @@ public final class ConsoleReporter implements GameObserver {
     }
 
     private void print(String format, Object... values) {
-        out.println(String.format(format, values));
+        out.printf((format) + "%n", values);
     }
 }

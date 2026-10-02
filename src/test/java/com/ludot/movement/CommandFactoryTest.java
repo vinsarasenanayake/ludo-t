@@ -44,7 +44,7 @@ class CommandFactoryTest {
     private final Piece green1 = new Piece(Colour.GREEN, 1);
     private final Piece green2 = new Piece(Colour.GREEN, 2);
 
-    // R2: entering puts the piece on its X and shows the player's status
+    // R2: enters onto X and shows status
     @Test
     void enteringPlacesThePieceOnItsX() {
         GameCommand command = enter(red1, true);
@@ -54,7 +54,7 @@ class CommandFactoryTest {
         assertTrue(command.showsPlayerStatus());
     }
 
-    // T-1: after entering, heads means clockwise and tails means counter-clockwise
+    // T-1: heads clockwise, tails counter-clockwise
     @Test
     void coinTossDecidesTheDirectionOfAnEnteringPiece() {
         enter(red1, true);
@@ -64,7 +64,7 @@ class CommandFactoryTest {
         verify(coin, times(2)).tossHeads();
     }
 
-    // R6 + T-2: entering onto an opponent captures it and earns a bonus roll
+    // R6 + T-2: entering captures and gives a bonus
     @Test
     void enteringOntoAnOpponentCapturesIt() {
         placeOnTrack(green1, 26);
@@ -73,7 +73,7 @@ class CommandFactoryTest {
         assertTrue(command.grantsBonusRoll());
     }
 
-    // R1 + T-1: a plain move reaches its destination and records passing the approach
+    // R1 + T-1: moves and records the approach pass
     @Test
     void plainMoveReachesTheDestination() {
         placeOnTrack(red1, 22);
@@ -86,7 +86,7 @@ class CommandFactoryTest {
         assertFalse(command.showsPlayerStatus());
     }
 
-    // R6 + T-2: a capture sends the victim to base and earns a bonus roll
+    // R6 + T-2: capture sends to base and gives a bonus
     @Test
     void captureSendsVictimToBaseAndGivesBonus() {
         placeOnTrack(red1, 26);
@@ -99,7 +99,7 @@ class CommandFactoryTest {
         assertTrue(observer.hasEvent("capture R1 G1"));
     }
 
-    // T-3: a blocked piece is reported and stops before the block
+    // T-3: stops before the block and reports it
     @Test
     void blockedMoveIsReported() {
         placeOnTrack(red1, 0);
@@ -111,7 +111,7 @@ class CommandFactoryTest {
         assertTrue(observer.hasEvent("moved before block RED 3"));
     }
 
-    // T-3: a piece stuck right in front of a block reports it, and the throw is ignored
+    // T-3: fully blocked, so the throw is ignored
     @Test
     void fullyBlockedPieceIgnoresTheThrow() {
         placeOnTrack(red1, 3);
@@ -124,7 +124,7 @@ class CommandFactoryTest {
         assertFalse(command.grantsBonusRoll());
     }
 
-    // T-11: landing on the mystery cell teleports the piece
+    // T-11: mystery cell teleports the piece
     @Test
     void landingOnMysteryCellTeleports() {
         placeOnTrack(red1, 26);
@@ -134,7 +134,7 @@ class CommandFactoryTest {
         assertEquals(Position.onTrack(25), red1.position());
     }
 
-    // T-4: every piece of the block moves together
+    // T-4: the whole block moves together
     @Test
     void everyPieceOfTheBlockMoves() {
         placeOnTrack(red1, 0);
@@ -146,7 +146,7 @@ class CommandFactoryTest {
         assertTrue(board.isBlockOwnedBy(3, Colour.RED));
     }
 
-    // T-8: capturing a block counts as a capture for every capturing piece
+    // T-8: every capturing piece is credited
     @Test
     void capturingABlockCountsForEveryPiece() {
         placeOnTrack(red1, 0);
@@ -161,7 +161,7 @@ class CommandFactoryTest {
         assertTrue(command.grantsBonusRoll());
     }
 
-    // T-3 + T-8: a block cannot capture a bigger block, so it stops in front of it
+    // T-3 + T-8: stops before a bigger block
     @Test
     void blockStopsInFrontOfABiggerBlock() {
         placeOnTrack(red1, 0);
@@ -174,7 +174,7 @@ class CommandFactoryTest {
         assertTrue(observer.hasEvent("moved before block RED 1"));
     }
 
-    // Null Object: with no legal move the command does nothing, so the throw is simply ignored
+    // No-move command does nothing
     @Test
     void noMoveCommandDoesNothing() {
         GameCommand command = execute(factory(true).createNoMove());
@@ -184,7 +184,7 @@ class CommandFactoryTest {
         assertFalse(command.showsPlayerStatus());
     }
 
-    // R10: the exact roll takes a piece from its home straight to home
+    // R10: exact roll takes the piece home
     @Test
     void exactRollTakesThePieceHome() {
         board.move(red1, Position.inHomeStraight(2));
@@ -193,7 +193,7 @@ class CommandFactoryTest {
         assertTrue(observer.hasEvent("moved R1 to Home"));
     }
 
-    // T-3: a counter-clockwise piece stops on the other side of the block
+    // T-3: counter-clockwise stops on the far side
     @Test
     void counterClockwisePieceStopsOnTheOtherSideOfTheBlock() {
         placeOnTrack(red1, 8, Direction.COUNTER_CLOCKWISE);
@@ -204,7 +204,7 @@ class CommandFactoryTest {
         assertTrue(observer.hasEvent("moved before block RED 5"));
     }
 
-    // R2 + T-11: a piece entering onto the mystery cell is teleported at once
+    // R2 + T-11: entering onto the mystery cell teleports
     @Test
     void enteringOntoTheMysteryCellTeleports() {
         MoveOption entry = option(List.of(red1), 6, Type.ENTER_BOARD, new MysteryCell.Active(26, 4));
@@ -214,7 +214,7 @@ class CommandFactoryTest {
         assertTrue(observer.hasEvent("teleport R1 BETA"));
     }
 
-    // T-15: landing on Alpha by a normal move gives no energised or sick effect
+    // T-15: walking onto Alpha has no effect
     @Test
     void landingOnAlphaWithoutTeleportHasNoEffect() {
         placeOnTrack(red1, 3);
@@ -223,7 +223,7 @@ class CommandFactoryTest {
         assertEquals(4, red1.adjustRoll(4));
     }
 
-    // T-15: landing on Gamma by a normal move does not reverse the piece
+    // T-15: walking onto Gamma keeps the direction
     @Test
     void landingOnGammaWithoutTeleportKeepsTheDirection() {
         placeOnTrack(red1, 40);
@@ -232,7 +232,7 @@ class CommandFactoryTest {
         assertEquals(Direction.CLOCKWISE, red1.direction());
     }
 
-    // T-1 + T-4: in a mixed block moving counter-clockwise, only the counter-clockwise piece passes its approach
+    // T-1 + T-4: only pieces moving their own way pass
     @Test
     void approachPassIsOnlyCreditedToPiecesMovingTheirOwnWay() {
         placeOnTrack(red1, 26, Direction.CLOCKWISE);
@@ -243,7 +243,7 @@ class CommandFactoryTest {
         assertEquals(1, red2.approachPasses());
     }
 
-    // R7: the no-move and blocked commands end the turn, so even a six gives no further roll
+    // R7: ignored throws end the turn
     @Test
     void ignoredThrowsEndTheTurn() {
         placeOnTrack(red1, 3);
@@ -253,7 +253,7 @@ class CommandFactoryTest {
         assertTrue(factory(true).createNoMove().endsTurn());
     }
 
-    // R4: a normal move leaves the turn open, so a six still earns the next roll
+    // R4: a normal move keeps the turn open
     @Test
     void normalMoveDoesNotEndTheTurn() {
         placeOnTrack(red1, 10);

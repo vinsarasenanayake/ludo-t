@@ -31,7 +31,7 @@ class MysteryCellManagerTest {
         observer = new RecordingObserver();
     }
 
-    // T-10: no mystery cell while no piece is on the track
+    // T-10: none while the track is empty
     @Test
     void noMysteryCellWhileNoPieceIsOnTheTrack() {
         MysteryCellManager manager = managerPicking(10);
@@ -39,7 +39,7 @@ class MysteryCellManagerTest {
         assertFalse(manager.current().isActive());
     }
 
-    // T-10: spawns only after two further rounds with pieces on the track
+    // T-10: spawns after two rounds
     @Test
     void spawnsAfterTwoRounds() {
         MysteryCellManager manager = managerPicking(10);
@@ -50,7 +50,7 @@ class MysteryCellManagerTest {
         assertTrue(observer.hasEvent("mystery spawned 10"));
     }
 
-    // T-10: only spawns on a cell with no pieces
+    // T-10: spawns on an empty cell only
     @Test
     void spawnsOnlyOnAnEmptyCell() {
         board.enter(new Piece(Colour.RED, 1), Direction.CLOCKWISE);
@@ -60,7 +60,7 @@ class MysteryCellManagerTest {
         assertEquals(0, manager.current().location());
     }
 
-    // T-10: stays for four rounds, then moves to a different cell
+    // T-10: moves after four rounds
     @Test
     void staysForFourRoundsThenRelocates() {
         MysteryCellManager manager = managerPicking(10, 0);

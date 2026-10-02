@@ -6,6 +6,7 @@ import com.ludot.board.Piece;
 import com.ludot.board.Position;
 import com.ludot.board.Route;
 
+// Move events for the reporter
 public interface MoveEvents {
 
     void onPieceEntered(Piece piece);

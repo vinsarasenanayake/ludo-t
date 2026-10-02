@@ -9,6 +9,7 @@ import com.ludot.rules.MoveOption.Type;
 
 import java.util.List;
 
+// Ready-made move options for testing player choices
 final class MoveOptions {
 
     private static final Landing PLAIN = new Landing(List.of(), false, false);
@@ -38,6 +39,7 @@ final class MoveOptions {
         return single(piece, ONTO_OWN_PIECE, false);
     }
 
+    // Leaves one block to form another
     static MoveOption movingBlockToBlock(Piece piece) {
         return single(piece, ONTO_OWN_PIECE, true);
     }
@@ -63,6 +65,7 @@ final class MoveOptions {
         return new MoveOption(Type.MOVE_PIECE, List.of(piece), stay(piece), landing, leavesBlock);
     }
 
+    // Only the landing matters, so the route stays in place
     private static Route stay(Piece piece) {
         return Route.completed(piece.position(), piece.position(), 1, 0);
     }

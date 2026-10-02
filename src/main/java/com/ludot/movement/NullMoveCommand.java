@@ -1,6 +1,6 @@
 package com.ludot.movement;
 
-/** Null Object: used when no piece can move with the roll, so the throw is simply ignored. */
+// Null Object: no legal move, so the throw is ignored
 final class NullMoveCommand implements GameCommand {
 
     @Override

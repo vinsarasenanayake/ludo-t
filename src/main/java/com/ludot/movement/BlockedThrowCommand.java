@@ -3,6 +3,7 @@ package com.ludot.movement;
 import com.ludot.board.Piece;
 import com.ludot.rules.MoveOption;
 
+// T-3: every move is blocked, so the throw is ignored
 final class BlockedThrowCommand implements GameCommand {
 
     private final MoveOption option;

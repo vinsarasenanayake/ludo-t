@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ColourTest {
 
-    // R9: the approach cell is two cells before X, wrapping round for Yellow
+    // R9: approach is two cells before X
     @Test
     void approachCellIsTwoCellsBeforeTheStart() {
         assertEquals(50, Colour.YELLOW.approachCell());
@@ -15,7 +15,7 @@ class ColourTest {
         assertEquals(37, Colour.GREEN.approachCell());
     }
 
-    // Brief 1.1: play passes clockwise, so after Red comes Green
+    // Play passes clockwise
     @Test
     void nextColourFollowsTheClockwiseOrder() {
         assertEquals(Colour.GREEN, Colour.RED.nextClockwise());

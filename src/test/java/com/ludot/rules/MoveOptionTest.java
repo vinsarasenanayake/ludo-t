@@ -19,13 +19,13 @@ class MoveOptionTest {
     private final Piece red1 = new Piece(Colour.RED, 1);
     private final Piece green1 = new Piece(Colour.GREEN, 1);
 
-    // T-3 (interpretation): a piece that cannot move even one cell is fully blocked
+    // T-3: no step taken is fully blocked
     @Test
     void zeroDistanceBlockedRouteIsFullyBlocked() {
         assertTrue(optionWith(blockedRoute(0), Landing.offTrack()).isFullyBlocked());
     }
 
-    // T-3: a piece that moves part of the way is cut short but not fully blocked
+    // T-3: part of the way is cut short
     @Test
     void partlyBlockedRouteIsCutShortButNotFullyBlocked() {
         MoveOption partial = optionWith(blockedRoute(2), Landing.offTrack());

@@ -20,14 +20,14 @@ class TurnOrderResolverTest {
 
     private final RecordingObserver observer = new RecordingObserver();
 
-    // Brief 3.1: the highest opening roll starts, then play goes clockwise
+    // Highest roll starts, then clockwise
     @Test
     void highestRollerStartsAndOrderIsClockwise() {
         TurnOrderResolver resolver = new TurnOrderResolver(diceRolling(2, 3, 6, 1), observer);
         assertEquals(List.of(Colour.YELLOW, Colour.BLUE, Colour.RED, Colour.GREEN), resolver.resolve(PLAYERS));
     }
 
-    // Brief 3.1: every opening roll is reported
+    // Every opening roll is reported
     @Test
     void everyOpeningRollIsReported() {
         new TurnOrderResolver(diceRolling(2, 3, 6, 1), observer).resolve(PLAYERS);
@@ -35,7 +35,7 @@ class TurnOrderResolverTest {
         assertTrue(observer.hasEvent("opening roll BLUE 1"));
     }
 
-    // Interpretation: in a three-way tie only the three tied players roll again
+    // Only tied players roll again
     @Test
     void threeWayTieRollsAgainAmongTheTiedOnly() {
         Dice dice = diceRolling(6, 6, 6, 2, 3, 5, 1);

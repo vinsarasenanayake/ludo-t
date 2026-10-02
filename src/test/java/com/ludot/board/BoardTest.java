@@ -24,14 +24,14 @@ class BoardTest {
         green1 = new Piece(Colour.GREEN, 1);
     }
 
-    // R2: entering puts the piece on its colour's start cell X
+    // R2: enters on its start cell X
     @Test
     void enteringPutsPieceOnItsStartCell() {
         board.enter(red1, Direction.CLOCKWISE);
         assertEquals(List.of(red1), board.occupantsAt(26));
     }
 
-    // R1: moving updates both cells and the piece
+    // R1: moving updates both cells
     @Test
     void movingUpdatesBothCellsAndThePiece() {
         board.enter(red1, Direction.CLOCKWISE);
@@ -41,7 +41,7 @@ class BoardTest {
         assertEquals(Position.onTrack(30), red1.position());
     }
 
-    // R6 + T-9: a piece sent to base leaves the board and loses its information
+    // R6 + T-9: sent to base and reset
     @Test
     void sendingToBaseEmptiesTheCellAndResetsThePiece() {
         board.enter(red1, Direction.CLOCKWISE);
@@ -52,7 +52,7 @@ class BoardTest {
         assertTrue(red1.isInBase());
     }
 
-    // T-3: pieces of different colours are not a block
+    // T-3: mixed colours are not a block
     @Test
     void piecesOfDifferentColoursAreNotABlock() {
         board.enter(red1, Direction.CLOCKWISE);
@@ -62,7 +62,7 @@ class BoardTest {
         assertFalse(board.isOpponentBlockAt(26, Colour.YELLOW));
     }
 
-    // T-3: a piece of another colour on the same cell does not dissolve a block
+    // T-3: an opponent does not break a block
     @Test
     void blockSurvivesAnOpponentPieceOnTheSameCell() {
         board.enter(red1, Direction.CLOCKWISE);
@@ -74,7 +74,7 @@ class BoardTest {
         assertFalse(board.isOpponentBlockAt(26, Colour.RED));
     }
 
-    // R6: only opponent pieces on a cell can be captured
+    // R6: only opponents can be captured
     @Test
     void opponentsAtListsOnlyOtherColours() {
         board.enter(red1, Direction.CLOCKWISE);
@@ -83,7 +83,7 @@ class BoardTest {
         assertEquals(List.of(green1), board.opponentsAt(26, Colour.RED));
     }
 
-    // T-10: the mystery cell may only use empty cells
+    // T-10: only empty cells are free
     @Test
     void emptyCellsExcludeOccupiedOnes() {
         assertEquals(52, board.emptyCellIndexes().size());

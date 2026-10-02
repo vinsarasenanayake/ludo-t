@@ -5,6 +5,7 @@ import com.ludot.mystery.Teleporter;
 import com.ludot.random.Coin;
 import com.ludot.rules.MoveOption;
 
+// Factory Method: picks the right command for a move option
 public final class CommandFactory {
 
     private final Board board;
@@ -20,6 +21,7 @@ public final class CommandFactory {
     }
 
     public GameCommand create(MoveOption option) {
+        // Checked first: a blocked entry is still ENTER_BOARD
         if (option.isFullyBlocked()) {
             return new BlockedThrowCommand(option, listener);
         }

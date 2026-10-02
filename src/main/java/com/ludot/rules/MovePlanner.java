@@ -22,6 +22,7 @@ import java.util.Set;
 import static com.ludot.board.BoardConstants.ENTRY_ROLL;
 import static com.ludot.board.BoardConstants.HOME_STRAIGHT_LENGTH;
 
+// Finds every legal move for a roll
 public final class MovePlanner {
 
     private static final int SINGLE_PIECE = 1;
@@ -56,6 +57,7 @@ public final class MovePlanner {
         return traceRoute(walk).map(route -> toOption(walk, route, mysteryCell));
     }
 
+    // T-3: a move cut short by a block is a last resort
     private List<MoveOption> withoutBlockedMovesIfOthersExist(List<MoveOption> options) {
         List<MoveOption> fullMoves = options.stream().filter(option -> !option.isCutShortByBlock()).toList();
         if (!fullMoves.isEmpty()) {
@@ -70,6 +72,7 @@ public final class MovePlanner {
             return Optional.empty();
         }
         int startCell = piece.colour().startCell();
+        // T-3: an opponent block on X stops entry
         if (board.isOpponentBlockAt(startCell, piece.colour())) {
             return Optional.of(blockedEntry(piece, startCell));
         }
@@ -79,7 +82,7 @@ public final class MovePlanner {
     }
 
     private MoveOption blockedEntry(Piece piece, int startCell) {
-        Piece blocker = blockingPieces(startCell, piece.colour()).get(0);
+        Piece blocker = blockingPieces(startCell, piece.colour()).getFirst();
         Route route = Route.completed(Position.base(), Position.base(), NO_STEPS, 0)
                 .stoppedBy(new Route.Blockage(Position.onTrack(startCell), blocker));
         return new MoveOption(Type.ENTER_BOARD, List.of(piece), route, Landing.offTrack(), false);
@@ -89,7 +92,8 @@ public final class MovePlanner {
         List<MoveOption> options = new ArrayList<>();
         for (int cellIndex : ownBlockCells(pieces)) {
             List<Piece> block = furthestFromHomeFirst(ownPiecesAt(cellIndex, pieces));
-            Piece leader = block.get(0);
+            Piece leader = block.getFirst();
+            // T-4: roll divided by block size, ignoring effects
             int distance = roll / block.size();
             boolean everyPieceCanMove = block.stream().allMatch(Piece::canMove);
             if (distance > 0 && everyPieceCanMove) {
@@ -100,6 +104,7 @@ public final class MovePlanner {
         return options;
     }
 
+    // Follows the full path, then stops at the first block
     private Optional<Route> traceRoute(Walk walk) {
         List<Position> path = pathIgnoringBlocks(walk);
         if (path.isEmpty()) {
@@ -138,11 +143,12 @@ public final class MovePlanner {
     }
 
     private Route stopBeforeBlock(Walk walk, List<Position> path, int blockStep) {
+        // Landing on a block is blocked, not shortened
         boolean wouldLandOnBlock = blockStep == path.size();
         int stepsTaken = wouldLandOnBlock ? NO_STEPS : blockStep - 1;
         Position blockCell = path.get(blockStep - 1);
-        Piece blockingPiece = blockingPieces(blockCell.index(), walk.leader().colour()).get(0);
-        Position intended = path.get(path.size() - 1);
+        Piece blockingPiece = blockingPieces(blockCell.index(), walk.leader().colour()).getFirst();
+        Position intended = path.getLast();
         return routeAlong(walk, path, stepsTaken).stoppedBy(new Route.Blockage(intended, blockingPiece));
     }
 
@@ -154,6 +160,7 @@ public final class MovePlanner {
             int nextStep = current.index() + 1;
             return Optional.of(nextStep < HOME_STRAIGHT_LENGTH ? Position.inHomeStraight(nextStep) : Position.home());
         }
+        // R9 + T-7: turn home only if every mover may
         boolean atOwnApproach = current.index() == walk.leader().colour().approachCell();
         if (atOwnApproach && everyMoverMayEnterHomeStraight(walk, passesGained)) {
             return Optional.of(Position.inHomeStraight(0));
@@ -166,6 +173,7 @@ public final class MovePlanner {
                 .allMatch(mover -> isAllowedIntoHomeStraight(mover, walk.passesCreditedTo(mover, passesGained)));
     }
 
+    // T-7 + T-1: needs a capture and enough approach passes
     private boolean isAllowedIntoHomeStraight(Piece piece, int passesGained) {
         int passes = piece.approachPasses() + passesGained;
         return piece.hasCaptured() && passes >= navigator.passesNeededToEnterHome(piece.direction());
@@ -177,6 +185,7 @@ public final class MovePlanner {
             return false;
         }
         int movingGroupSize = walk.movers().size();
+        // T-8: only an equal block can capture a block
         boolean canCaptureBlock = isFinalStep && movingGroupSize > SINGLE_PIECE
                 && blockingPieces(next.index(), moverColour).size() == movingGroupSize;
         return !canCaptureBlock;
@@ -197,7 +206,7 @@ public final class MovePlanner {
     }
 
     private Landing landingAt(int cellIndex, List<Piece> movers, MysteryCell mysteryCell) {
-        Colour colour = movers.get(0).colour();
+        Colour colour = movers.getFirst().colour();
         List<Piece> victims = findVictims(colour, cellIndex, movers.size());
         boolean formsBlock = board.occupantsAt(cellIndex).stream()
                 .anyMatch(piece -> piece.colour() == colour && !movers.contains(piece));
@@ -234,18 +243,20 @@ public final class MovePlanner {
                 .toList();
     }
 
+    // T-4: the piece furthest from home leads and sets the direction
     private List<Piece> furthestFromHomeFirst(List<Piece> block) {
         Piece furthestFromHome = Collections.max(block, Comparator.comparingInt(navigator::stepsToHome));
         List<Piece> ordered = new ArrayList<>(block);
         ordered.remove(furthestFromHome);
-        ordered.add(0, furthestFromHome);
+        ordered.addFirst(furthestFromHome);
         return ordered;
     }
 
+    // One planned walk: who moves, which way, and how far
     private record Walk(Type type, List<Piece> movers, Direction direction, int steps) {
 
         Piece leader() {
-            return movers.get(0);
+            return movers.getFirst();
         }
 
         Position start() {

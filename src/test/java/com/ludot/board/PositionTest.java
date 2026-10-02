@@ -7,28 +7,28 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PositionTest {
 
-    // Brief 3.1: base and home are shown by name
+    // Base and home are shown by name
     @Test
     void baseAndHomeAreDescribedByName() {
         assertEquals("Base", Position.base().describe(Colour.RED));
         assertEquals("Home", Position.home().describe(Colour.RED));
     }
 
-    // Brief 3.1: home straight cells are named [colour]homepath[cell number]
+    // Home straight cells use the colour name
     @Test
     void homeStraightCellUsesTheColourName() {
         assertEquals("redhomepath2", Position.inHomeStraight(2).describe(Colour.RED));
         assertEquals("bluehomepath0", Position.inHomeStraight(0).describe(Colour.BLUE));
     }
 
-    // Design: a home straight has only five cells, 0 to 4
+    // Home straight cells are 0 to 4 only
     @Test
     void homeStraightStepOutsideZeroToFourIsRejected() {
         assertThrows(IllegalArgumentException.class, () -> Position.inHomeStraight(5));
         assertThrows(IllegalArgumentException.class, () -> Position.inHomeStraight(-1));
     }
 
-    // Design: track cells outside 0 to 51 are rejected
+    // Track cells are 0 to 51 only
     @Test
     void trackCellOutsideTheBoardIsRejected() {
         assertThrows(IllegalArgumentException.class, () -> Position.onTrack(-1));

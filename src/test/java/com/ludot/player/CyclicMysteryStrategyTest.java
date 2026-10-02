@@ -27,7 +27,7 @@ class CyclicMysteryStrategyTest {
     private final Piece blue3 = onBoard(3, Direction.COUNTER_CLOCKWISE);
     private final Piece blue4 = onBoard(4, Direction.COUNTER_CLOCKWISE);
 
-    // Blue (2.1.4): B1 is moved in the first round and B2 is considered in the next
+    // Blue: B1 this round, B2 the next
     @Test
     void movesTheNextPieceInTheNextRound() {
         MoveOption first = move(blue1);
@@ -37,7 +37,7 @@ class CyclicMysteryStrategyTest {
         assertSame(second, blue.chooseMove(List.of(move(blue1), second)));
     }
 
-    // Blue (2.1.4): a bonus roll in the same round keeps to the piece scheduled for that round
+    // Blue: a bonus roll keeps the same piece
     @Test
     void bonusRollInTheSameRoundKeepsTheScheduledPiece() {
         MoveOption first = move(blue1);
@@ -45,14 +45,14 @@ class CyclicMysteryStrategyTest {
         assertSame(first, blue.chooseMove(List.of(move(blue2), first)));
     }
 
-    // Blue (2.1.4) (interpretation): a scheduled piece that cannot move is skipped for the next one in the cycle
+    // Blue: skips a piece that cannot move
     @Test
     void skipsAPieceWithNoMove() {
         MoveOption third = move(blue3);
         assertSame(third, blue.chooseMove(List.of(move(blue4), third)));
     }
 
-    // Blue (2.1.4): after B4 the cycle starts again at B1
+    // Blue: after B4 comes B1
     @Test
     void cycleWrapsRoundFromB4ToB1() {
         endRounds(3);
@@ -60,15 +60,14 @@ class CyclicMysteryStrategyTest {
         assertSame(wrapped, blue.chooseMove(List.of(move(blue2), wrapped)));
     }
 
-    // Blue (2.1.4): a clockwise piece that would land on the mystery cell gives way to another piece
+    // Blue: clockwise avoids the mystery cell
     @Test
     void clockwisePieceAvoidsTheMysteryCell() {
         MoveOption safe = move(blue2);
         assertSame(safe, blue.chooseMove(List.of(ontoMystery(blue1), safe)));
     }
 
-    // Blue (2.1.4): with real planner options, a counter-clockwise B3 gives way to a counter-clockwise B4
-    // that lands on the mystery cell
+    // Blue: counter-clockwise prefers the mystery cell
     @Test
     void plannedCounterClockwiseMoveOntoTheMysteryCellIsPreferred() {
         board.move(blue3, Position.onTrack(40));

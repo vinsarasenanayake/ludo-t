@@ -33,7 +33,7 @@ class RollResolverTest {
     private final RollResolver resolver =
             wiring.rollResolver(diceRolling(1), coinLanding(true), wiring.mysteryCells(pickerChoosing(0)));
 
-    // T-6: every piece of a blockade but one leaves, sharing six units so that no two land together again
+    // T-6: leavers share six and split up
     @Test
     void breakawayPiecesShareSixUnitsAndDoNotReformTheBlockade() {
         Piece red1 = enterRed(0, Direction.CLOCKWISE);
@@ -44,7 +44,7 @@ class RollResolverTest {
                 List.of(red1.position(), red2.position(), red3.position()));
     }
 
-    // T-5 + T-6: a single breakaway piece moves all six units in its own original direction
+    // T-5 + T-6: one leaver moves six its own way
     @Test
     void breakawayPieceMovesSixInItsOwnDirection() {
         enterRed(0, Direction.CLOCKWISE);
@@ -53,7 +53,7 @@ class RollResolverTest {
         assertEquals(Position.onTrack(20), red2.position());
     }
 
-    // T-6 (interpretation): a breakaway is exactly six cells, even for an energised piece
+    // T-6: energised still moves exactly six
     @Test
     void energisedPieceStillBreaksAwayExactlySix() {
         enterRed(0, Direction.CLOCKWISE);
@@ -63,16 +63,16 @@ class RollResolverTest {
         assertEquals(Position.onTrack(32), red2.position());
     }
 
-    // T-6 + T-3: a breakaway piece whose six units would be cut short by a block stays where it is
+    // T-6 + T-3: a cut-short leaver stays put
     @Test
     void breakawayPieceThatWouldBeCutShortStaysInPlace() {
         enterRed(0, Direction.CLOCKWISE);
         enterRed(1, Direction.CLOCKWISE);
-        placeGreenBlockAt(30);
+        placeGreenBlockAt();
         assertTrue(breakawayCommands().isEmpty());
     }
 
-    // T-6: the blockade must be broken, so landing on an own piece is accepted when nothing else works
+    // T-6: may land on an own piece if needed
     @Test
     void breakawayMayLandOnAnOwnPieceWhenThatIsTheOnlyWayOut() {
         enterRed(0, Direction.CLOCKWISE);
@@ -82,7 +82,7 @@ class RollResolverTest {
         assertEquals(Position.onTrack(32), red2.position());
     }
 
-    // T-6: a player without a blockade has nothing to break
+    // T-6: no blockade, nothing to break
     @Test
     void noBlockadeMeansNoBreakaway() {
         enterRed(0, Direction.CLOCKWISE);
@@ -95,10 +95,10 @@ class RollResolverTest {
         return piece;
     }
 
-    private void placeGreenBlockAt(int cell) {
+    private void placeGreenBlockAt() {
         for (Piece piece : green.pieces().subList(0, 2)) {
             board.enter(piece, Direction.CLOCKWISE);
-            board.move(piece, Position.onTrack(cell));
+            board.move(piece, Position.onTrack(30));
         }
     }
 

@@ -9,12 +9,7 @@ import java.util.Optional;
 
 import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
-/**
- * Blue (2.1.4): one piece is scheduled per round, B1 in one round, B2 in the next and so on. If the
- * scheduled piece cannot move, the next piece in the cycle is used. A counter-clockwise piece prefers
- * any counter-clockwise move onto the mystery cell; a clockwise piece swaps to another move rather
- * than land on the mystery cell.
- */
+// Blue: one piece per round, B1, then B2, and so on
 final class CyclicMysteryStrategy implements PlayerStrategy {
 
     private int scheduledPieceNumber = 1;
@@ -22,17 +17,20 @@ final class CyclicMysteryStrategy implements PlayerStrategy {
     @Override
     public MoveOption chooseMove(List<MoveOption> options) {
         List<MoveOption> inCycleOrder = options.stream().sorted(byPlaceInCycle()).toList();
-        MoveOption scheduled = inCycleOrder.get(0);
+        MoveOption scheduled = inCycleOrder.getFirst();
+        // The scheduled piece's direction decides: seek or avoid the mystery cell
         return scheduled.leadPiece().direction() == Direction.COUNTER_CLOCKWISE
                 ? counterClockwiseMoveOntoMystery(inCycleOrder).orElse(scheduled)
                 : moveAvoidingMystery(scheduled, inCycleOrder);
     }
 
+    // B1 -> B2 -> B3 -> B4 -> B1
     @Override
     public void onRoundEnded() {
         scheduledPieceNumber = scheduledPieceNumber % PIECES_PER_PLAYER + 1;
     }
 
+    // The scheduled piece first, then the rest in cycle order
     private Comparator<MoveOption> byPlaceInCycle() {
         return Comparator.comparingInt(
                 option -> Math.floorMod(option.leadPiece().number() - scheduledPieceNumber, PIECES_PER_PLAYER));
