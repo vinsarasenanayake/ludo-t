@@ -86,6 +86,7 @@ public interface PieceEffect {
 
         @Override
         public int adjustRoll(int roll) {
+            // Rounded down, so a 1 gives no move
             return roll / SPEED_DIVISOR;
         }
     }

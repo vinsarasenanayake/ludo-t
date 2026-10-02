@@ -14,8 +14,8 @@ public final class Piece {
     private final int number;
     private Position position;
     private Direction direction;
-    private int captureCount;
-    private int approachPasses;
+    private int captureCount;       // T-7: needs a capture before going home
+    private int approachPasses;     // T-1: counter-clockwise needs two passes
     private PieceEffect effect;
 
     public Piece(Colour colour, int number) {

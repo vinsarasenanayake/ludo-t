@@ -8,6 +8,7 @@ import java.util.List;
 public record GameResultDto(List<Colour> finishingOrder, int rounds) {
 
     public GameResultDto {
+        // Copied so the result cannot change later
         finishingOrder = List.copyOf(finishingOrder);
     }
 }
