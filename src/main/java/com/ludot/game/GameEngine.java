@@ -12,6 +12,7 @@ import java.util.Map;
 
 public final class GameEngine {
 
+    // Ends a stuck game after 50 rounds with no change
     private static final int STALLED_ROUND_LIMIT = 50;
 
     private final Map<Colour, Player> players = new EnumMap<>(Colour.class);
@@ -43,6 +44,7 @@ public final class GameEngine {
             unchangedRounds = statuses.equals(previousStatuses) ? unchangedRounds + 1 : 0;
             previousStatuses = statuses;
         }
+        // R11: the last player left takes the final place
         if (isOver(finishingOrder)) {
             turnOrder.stream().filter(colour -> !finishingOrder.contains(colour)).forEach(finishingOrder::add);
         }
@@ -67,12 +69,14 @@ public final class GameEngine {
 
     private List<PlayerStatusDto> endRound(List<Colour> turnOrder) {
         players.values().forEach(Player::endRound);
+        // T-10: counting starts once a piece is on the track
         mysteryCells.endRound(players.values().stream().anyMatch(Player::hasPieceOnTrack));
         List<PlayerStatusDto> statuses = turnOrder.stream().map(colour -> players.get(colour).status()).toList();
         listener.onRoundEnded(statuses, mysteryCells.current());
         return statuses;
     }
 
+    // R11: the game ends when three players have finished
     private boolean isOver(List<Colour> finishingOrder) {
         return finishingOrder.size() >= players.size() - 1;
     }

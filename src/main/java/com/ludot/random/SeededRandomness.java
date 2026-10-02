@@ -3,6 +3,7 @@ package com.ludot.random;
 import java.util.List;
 import java.util.Random;
 
+// One seeded Random behind all three, so a seed replays the same game
 public final class SeededRandomness implements Dice, Coin, CellPicker {
 
     private static final int DICE_FACES = 6;

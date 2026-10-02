@@ -5,6 +5,7 @@ import com.ludot.mystery.Teleporter;
 import com.ludot.random.Coin;
 import com.ludot.rules.MoveOption;
 
+// Factory Method: picks the right command for a move option
 public final class CommandFactory {
 
     private final Board board;

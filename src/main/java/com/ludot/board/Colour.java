@@ -4,6 +4,7 @@ import static com.ludot.board.BoardConstants.APPROACH_OFFSET_FROM_START;
 import static com.ludot.board.BoardConstants.TRACK_SIZE;
 
 public enum Colour {
+    // Start cell X of each colour, counted from Yellow's X (cell 0)
     RED("red", 26),
     GREEN("green", 39),
     YELLOW("yellow", 0),
@@ -33,10 +34,12 @@ public enum Colour {
         return startCell;
     }
 
+    // Two cells before X; wraps for Yellow (0 -> 50)
     public int approachCell() {
         return Math.floorMod(startCell - APPROACH_OFFSET_FROM_START, TRACK_SIZE);
     }
 
+    // The dice passes clockwise (Brief 1.1)
     public Colour nextClockwise() {
         return switch (this) {
             case YELLOW -> BLUE;

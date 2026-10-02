@@ -2,6 +2,7 @@ package com.ludot.mystery;
 
 import static com.ludot.board.BoardConstants.TRACK_SIZE;
 
+// T-10: the mystery cell, or None while there is none
 public interface MysteryCell {
 
     boolean isActive();
@@ -14,6 +15,7 @@ public interface MysteryCell {
 
     MysteryCell afterOneRound();
 
+    // Null Object and Singleton: no mystery cell on the board
     enum None implements MysteryCell {
         INSTANCE;
 
@@ -45,6 +47,7 @@ public interface MysteryCell {
         }
     }
 
+    // Immutable: each round returns a copy with one round less
     record Active(int location, int roundsRemaining) implements MysteryCell {
 
         public Active {
@@ -69,6 +72,7 @@ public interface MysteryCell {
         }
     }
 
+    // T-11: die faces 1 to 6, in this order
     enum Destination {
         ALPHA("Alpha"),
         BETA("Beta"),

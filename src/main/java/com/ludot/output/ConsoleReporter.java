@@ -15,10 +15,12 @@ import java.util.List;
 
 import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
+// Prints every event in the brief's wording (3.1)
 public final class ConsoleReporter implements GameObserver {
 
     private static final String SEPARATOR = "============================";
     private static final int WINNING_PLACE = 1;
+    // Shared start of the two blocked messages
     private static final String NO_OTHER_PIECE = "%s does not have other pieces in the board to move";
 
     private final PrintStream out;
@@ -151,6 +153,7 @@ public final class ConsoleReporter implements GameObserver {
 
     @Override
     public void onPlayerFinished(Colour colour, int place) {
+        // R11: only the winner is announced during the game
         if (place == WINNING_PLACE) {
             print("%s player wins!!!", colour.title());
         }
@@ -176,6 +179,7 @@ public final class ConsoleReporter implements GameObserver {
         };
     }
 
+    // Brief 3.1 wording, kept exactly as written
     private void printStatus(PlayerStatusDto status) {
         print("%s player now has %d/%d on pieces on the board and %d/%d pieces on the base.",
                 status.colour().title(), status.piecesOnBoard(), PIECES_PER_PLAYER,

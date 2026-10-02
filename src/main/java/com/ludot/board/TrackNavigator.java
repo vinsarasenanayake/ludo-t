@@ -3,20 +3,25 @@ package com.ludot.board;
 import static com.ludot.board.BoardConstants.HOME_STRAIGHT_LENGTH;
 import static com.ludot.board.BoardConstants.TRACK_SIZE;
 
+// Track maths: wrapping, distances, and steps to home
 public final class TrackNavigator {
 
+    // A piece in base counts as furthest from home
     public static final int NOT_ON_BOARD = Integer.MAX_VALUE;
 
+    // Five home straight cells, then home
     private static final int STEPS_FROM_APPROACH_TO_HOME = HOME_STRAIGHT_LENGTH + 1;
+    // T-1: counter-clockwise needs two approach passes
     private static final int CLOCKWISE_PASSES_TO_ENTER_HOME = 1;
     private static final int COUNTER_CLOCKWISE_PASSES_TO_ENTER_HOME = 2;
-    // T-7: a piece with no capture cannot turn into its home straight, so it is counted a lap further away
+    // T-7: no capture yet means one extra lap
     private static final int LAP_WITHOUT_CAPTURE = TRACK_SIZE;
 
     public int step(int cell, Direction direction) {
         return move(cell, 1, direction);
     }
 
+    // R8: floorMod wraps the track both ways
     public int move(int cell, int steps, Direction direction) {
         return Math.floorMod(cell + steps * direction.stepSign(), TRACK_SIZE);
     }
@@ -55,6 +60,7 @@ public final class TrackNavigator {
         if (passesStillNeeded == 0) {
             return toApproach + STEPS_FROM_APPROACH_TO_HOME;
         }
+        // Already on the approach, so the next pass is a full lap away
         int toNextPass = toApproach == 0 ? TRACK_SIZE : toApproach;
         int extraLaps = passesStillNeeded - 1;
         return toNextPass + extraLaps * TRACK_SIZE + STEPS_FROM_APPROACH_TO_HOME;

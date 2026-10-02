@@ -26,6 +26,7 @@ public final class PlayerFactory {
         return new Player(colour, createStrategy(colour));
     }
 
+    // Each colour's rules from Brief 2.1, in priority order
     private PlayerStrategy createStrategy(Colour colour) {
         return switch (colour) {
             case RED -> new CaptureClosestToVictimHome(navigator,

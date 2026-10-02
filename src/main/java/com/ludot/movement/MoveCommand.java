@@ -6,6 +6,7 @@ import com.ludot.board.Piece;
 import com.ludot.mystery.Teleporter;
 import com.ludot.rules.MoveOption;
 
+// Shared base: subclasses move, then call land()
 abstract class MoveCommand implements GameCommand {
 
     private final MoveOption option;
@@ -32,19 +33,23 @@ abstract class MoveCommand implements GameCommand {
         return listener;
     }
 
+    // T-2: a capture gives another roll
     @Override
     public boolean grantsBonusRoll() {
         return option.capturesAny();
     }
 
+    // Status is shown after a capture
     @Override
     public boolean showsPlayerStatus() {
         return grantsBonusRoll();
     }
 
+    // Shared ending: approach passes, captures, then teleport
     protected void land() {
         Direction travelDirection = option.leadPiece().direction();
         for (Piece piece : option.movers()) {
+            // Only pieces moving the block's way count the pass
             if (piece.direction() == travelDirection) {
                 recordApproachPasses(piece);
             }
@@ -52,6 +57,7 @@ abstract class MoveCommand implements GameCommand {
         if (option.capturesAny()) {
             captureVictims();
         }
+        // Each piece rolls its own destination
         if (option.landsOnMysteryCell()) {
             option.movers().forEach(teleporter::teleport);
         }

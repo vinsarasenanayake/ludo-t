@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+// Chain of Responsibility: try this rule, else pass to the next
 abstract class MoveRule implements PlayerStrategy {
 
     private final PlayerStrategy next;
@@ -16,6 +17,7 @@ abstract class MoveRule implements PlayerStrategy {
         this.next = next;
     }
 
+    // Template Method: final, so each rule only writes trySelect
     @Override
     public final MoveOption chooseMove(List<MoveOption> options) {
         return trySelect(options).orElseGet(() -> next.chooseMove(options));
@@ -27,6 +29,7 @@ abstract class MoveRule implements PlayerStrategy {
         return Comparator.comparingInt(option -> navigator.stepsToHome(option.leadPiece()));
     }
 
+    // End of every chain, so a move is always chosen
     static final class FirstAvailable implements PlayerStrategy {
 
         @Override
@@ -120,6 +123,7 @@ abstract class MoveRule implements PlayerStrategy {
         }
     }
 
+    // Red: the victim closest to its own home
     static final class CaptureClosestToVictimHome extends MoveRule {
 
         private final TrackNavigator navigator;

@@ -2,6 +2,7 @@ package com.ludot;
 
 public final class Main {
 
+    // Thrown when the seed is not a whole number
     static final class InvalidSeedException extends RuntimeException {
 
         InvalidSeedException(String message, Throwable cause) {
@@ -9,6 +10,7 @@ public final class Main {
         }
     }
 
+    // Used when no seed is given
     private static final long DEFAULT_SEED = 42L;
 
     private Main() {

@@ -3,8 +3,10 @@ package com.ludot.board;
 import static com.ludot.board.BoardConstants.HOME_STRAIGHT_LENGTH;
 import static com.ludot.board.BoardConstants.TRACK_SIZE;
 
+// Where a piece is: base, track, home straight, or home
 public record Position(Zone zone, int index) {
 
+    // Base and home have no cell number
     private static final int NO_INDEX = -1;
 
     public enum Zone { BASE, TRACK, HOME_STRAIGHT, HOME }
@@ -51,6 +53,7 @@ public record Position(Zone zone, int index) {
         return zone == Zone.HOME;
     }
 
+    // Brief 3.1 names, for example "redhomepath2"
     public String describe(Colour owner) {
         return switch (zone) {
             case BASE -> "Base";

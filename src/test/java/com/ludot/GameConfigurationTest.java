@@ -19,7 +19,7 @@ class GameConfigurationTest {
         assertEquals(playWithSeed(42L), playWithSeed(42L));
     }
 
-    // Regression snapshot: the default seed 42 always plays the same game, which Green wins after 220 rounds
+    // Regression snapshot: seed 42 always gives this result; Green wins and the game ends after 220 rounds
     @Test
     void defaultSeedGameMatchesItsRecordedResult() {
         GameResultDto result = playWithSeed(42L);

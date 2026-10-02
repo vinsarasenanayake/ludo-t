@@ -2,6 +2,7 @@ package com.ludot.board;
 
 import static com.ludot.board.BoardConstants.EFFECT_DURATION_ROUNDS;
 
+// Each effect changes how a piece moves (T-12, T-13)
 public interface PieceEffect {
 
     int adjustRoll(int roll);
@@ -19,6 +20,7 @@ public interface PieceEffect {
         return false;
     }
 
+    // Null Object and Singleton: no effect
     enum None implements PieceEffect {
         INSTANCE;
 
@@ -42,6 +44,7 @@ public interface PieceEffect {
         }
     }
 
+    // Lasts the rest of the teleport round, then four full rounds
     abstract class Timed implements PieceEffect {
 
         private int roundsRemaining = EFFECT_DURATION_ROUNDS;
@@ -83,10 +86,12 @@ public interface PieceEffect {
 
         @Override
         public int adjustRoll(int roll) {
+            // Rounded down, so a 1 gives no move
             return roll / SPEED_DIVISOR;
         }
     }
 
+    // T-13: the piece cannot move while in a briefing
     final class Briefing extends Timed {
 
         private static final int RETURN_TRIGGER_ROLL = 3;
@@ -105,6 +110,7 @@ public interface PieceEffect {
             return false;
         }
 
+        // Counts threes in a row; any other roll resets it
         @Override
         public void observeRoll(int roll) {
             consecutiveTriggerRolls = roll == RETURN_TRIGGER_ROLL ? consecutiveTriggerRolls + 1 : 0;

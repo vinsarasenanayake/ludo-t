@@ -7,6 +7,7 @@ import com.ludot.player.PlayerStatusDto;
 
 import java.util.List;
 
+// Events split by area; each class uses only the ones it raises
 public interface GameEvents {
 
     interface TurnOrder {

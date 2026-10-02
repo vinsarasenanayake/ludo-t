@@ -4,6 +4,7 @@ import com.ludot.board.Colour;
 
 import java.util.List;
 
+// Facade: one call plays the whole game
 public final class LudoGameFacade {
 
     private final GameEngine engine;

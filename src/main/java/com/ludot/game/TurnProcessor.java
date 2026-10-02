@@ -31,12 +31,14 @@ public final class TurnProcessor {
             listener.onDiceRolled(player.colour(), roll);
             applyRollToBriefedPieces(player, roll);
             consecutiveSixes = roll == ENTRY_ROLL ? consecutiveSixes + 1 : 0;
+            // R4 + T-6: the third six breaks blockades and ends the turn
             if (consecutiveSixes == MAX_CONSECUTIVE_SIXES) {
                 breakBlockades(player);
                 return;
             }
             GameCommand command = rollResolver.commandFor(player, roll);
             run(command, player);
+            // R4 + T-2: a six or a capture rolls again, unless the throw was ignored
             rollAgain = !command.endsTurn() && (roll == ENTRY_ROLL || command.grantsBonusRoll());
         }
     }
@@ -54,6 +56,7 @@ public final class TurnProcessor {
         }
     }
 
+    // T-13: every roll counts towards a briefed piece's threes
     private void applyRollToBriefedPieces(Player player, int roll) {
         for (Piece piece : player.pieces()) {
             piece.observeRoll(roll);

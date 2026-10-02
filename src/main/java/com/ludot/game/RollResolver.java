@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+// Turns a roll into a command, and plans the T-6 breakaways
 public final class RollResolver {
 
-    // T-6: the leaving pieces share six units between them. Unequal shares stop them landing together again.
+    // T-6: unequal shares of six, so the leaving pieces split up
     private static final List<List<Integer>> BREAKAWAY_SHARES = List.of(List.of(6), List.of(4, 2), List.of(3, 2, 1));
 
     record Breakaway(Piece piece, int steps) {
@@ -34,6 +35,7 @@ public final class RollResolver {
 
     GameCommand commandFor(Player player, int roll) {
         List<MoveOption> options = planner.findOptions(player.pieces(), roll, mysteryCells.current());
+        // No legal move gives the Null Object command
         return options.isEmpty()
                 ? commands.createNoMove()
                 : commands.create(player.chooseMove(options));
@@ -42,6 +44,7 @@ public final class RollResolver {
     List<Breakaway> breakaways(Player player) {
         List<Breakaway> breakaways = new ArrayList<>();
         for (List<Piece> blockade : blockadesOf(player)) {
+            // The first piece stays; the others leave
             List<Piece> leavers = blockade.subList(1, blockade.size());
             List<Integer> shares = BREAKAWAY_SHARES.get(leavers.size() - 1);
             for (int index = 0; index < leavers.size(); index++) {
@@ -51,6 +54,7 @@ public final class RollResolver {
         return breakaways;
     }
 
+    // A breakaway cut short by a block stays where it is
     Optional<GameCommand> breakAwayCommand(Breakaway breakaway) {
         return planner.planPieceMove(breakaway.piece(), breakaway.steps(), mysteryCells.current())
                 .filter(option -> !option.isCutShortByBlock())

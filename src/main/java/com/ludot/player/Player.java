@@ -15,6 +15,7 @@ public final class Player {
     private final PlayerStrategy strategy;
     private final List<Piece> pieces = new ArrayList<>();
 
+    // Package-private: players come from PlayerFactory
     Player(Colour colour, PlayerStrategy strategy) {
         this.colour = colour;
         this.strategy = strategy;
@@ -27,6 +28,7 @@ public final class Player {
         return colour;
     }
 
+    // A copy, so callers cannot change the list
     public List<Piece> pieces() {
         return List.copyOf(pieces);
     }
@@ -35,6 +37,7 @@ public final class Player {
         return (int) pieces.stream().filter(Piece::isInBase).count();
     }
 
+    // A home straight piece still counts as on the board
     int piecesOnBoard() {
         return (int) pieces.stream().filter(piece -> piece.isOnTrack() || piece.isInHomeStraight()).count();
     }

@@ -1,5 +1,6 @@
 package com.ludot.board;
 
+// T-1: the coin toss sets the direction (+1 clockwise, -1 counter-clockwise)
 public enum Direction {
     CLOCKWISE(1, "clockwise"),
     COUNTER_CLOCKWISE(-1, "counterclockwise");
@@ -20,6 +21,7 @@ public enum Direction {
         return displayName;
     }
 
+    // Used by Gamma (T-14)
     public Direction opposite() {
         return this == CLOCKWISE ? COUNTER_CLOCKWISE : CLOCKWISE;
     }
