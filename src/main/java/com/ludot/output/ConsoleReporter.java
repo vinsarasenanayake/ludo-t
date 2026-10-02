@@ -143,7 +143,7 @@ public final class ConsoleReporter implements GameObserver {
         }
         if (mysteryCell.isActive()) {
             int rounds = mysteryCell.roundsRemaining();
-            print("The mystery cell is at %d and will be at that location for the next %d rounds.",
+            print("The mystery cell is at %d and will be at that location for the next %d values.",
                     mysteryCell.location(), rounds);
         }
         out.println();

@@ -60,7 +60,7 @@ class ConsoleReporterTest {
         assertTrue(summary.contains("Location of pieces red"));
         assertTrue(summary.contains("Piece R1 -> 30"));
         assertTrue(summary.contains("Piece R2 -> Base"));
-        assertTrue(summary.contains("The mystery cell is at 17 and will be at that location for the next 3 rounds."));
+        assertTrue(summary.contains("The mystery cell is at 17 and will be at that location for the next 3 values."));
     }
 
     // R11: only the winner is announced during the game, then the final ranking of all four players
