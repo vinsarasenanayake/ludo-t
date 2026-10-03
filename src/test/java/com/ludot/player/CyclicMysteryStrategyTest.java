@@ -63,13 +63,20 @@ class CyclicMysteryStrategyTest {
     }
 
     @Test
-    void plannedCounterClockwiseMoveOntoTheMysteryCellIsPreferred() {
+    void counterClockwisePiecePrefersItsOwnMoveOntoTheMysteryCell() {
+        endRounds(2);
+        MoveOption ontoMystery = ontoMystery(blue3);
+        assertSame(ontoMystery, blue.chooseMove(List.of(move(blue3), ontoMystery)));
+    }
+
+    @Test
+    void anotherPieceReachingTheMysteryCellDoesNotTakeTheTurn() {
         board.move(blue3, Position.onTrack(40));
         board.move(blue4, Position.onTrack(10));
         MovePlanner planner = new MovePlanner(board, new TrackNavigator());
         List<MoveOption> options = planner.findOptions(List.of(blue3, blue4), 4, new MysteryCell.Active(6, 4));
         endRounds(2);
-        assertSame(blue4, blue.chooseMove(options).leadPiece());
+        assertSame(blue3, blue.chooseMove(options).leadPiece());
     }
 
     private void endRounds(int rounds) {

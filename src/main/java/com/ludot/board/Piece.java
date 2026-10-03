@@ -1,9 +1,14 @@
 package com.ludot.board;
 
+import java.io.Serial;
+
 public final class Piece {
 
     // Guards against impossible moves
     public static final class IllegalMoveException extends RuntimeException {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
 
         public IllegalMoveException(String message) {
             super(message);

@@ -158,6 +158,11 @@ public final class ConsoleReporter implements GameObserver {
     }
 
     @Override
+    public void onGameStalled(int unchangedRounds) {
+        print("No piece has moved for %d rounds, so the game ends without the remaining places.", unchangedRounds);
+    }
+
+    @Override
     public void onGameOver(GameResultDto result) {
         print(SEPARATOR);
         print("Final results after %d rounds", result.rounds());
@@ -184,6 +189,6 @@ public final class ConsoleReporter implements GameObserver {
     }
 
     private void print(String format, Object... values) {
-        out.printf((format) + "%n", values);
+        out.printf(format + "%n", values);
     }
 }

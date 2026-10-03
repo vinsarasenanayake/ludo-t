@@ -5,7 +5,6 @@ import com.ludot.rules.MoveOption;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
@@ -20,7 +19,7 @@ final class CyclicMysteryStrategy implements PlayerStrategy {
         MoveOption scheduled = inCycleOrder.getFirst();
         // The scheduled piece's direction decides: seek or avoid the mystery cell
         return scheduled.leadPiece().direction() == Direction.COUNTER_CLOCKWISE
-                ? counterClockwiseMoveOntoMystery(inCycleOrder).orElse(scheduled)
+                ? scheduledMoveOntoMystery(scheduled, inCycleOrder)
                 : moveAvoidingMystery(scheduled, inCycleOrder);
     }
 
@@ -35,11 +34,13 @@ final class CyclicMysteryStrategy implements PlayerStrategy {
                 option -> Math.floorMod(option.leadPiece().number() - scheduledPieceNumber, PIECES_PER_PLAYER));
     }
 
-    private static Optional<MoveOption> counterClockwiseMoveOntoMystery(List<MoveOption> inCycleOrder) {
+    // Only the scheduled piece's own moves are considered
+    private static MoveOption scheduledMoveOntoMystery(MoveOption scheduled, List<MoveOption> inCycleOrder) {
         return inCycleOrder.stream()
+                .filter(option -> option.leadPiece() == scheduled.leadPiece())
                 .filter(MoveOption::landsOnMysteryCell)
-                .filter(option -> option.leadPiece().direction() == Direction.COUNTER_CLOCKWISE)
-                .findFirst();
+                .findFirst()
+                .orElse(scheduled);
     }
 
     private static MoveOption moveAvoidingMystery(MoveOption scheduled, List<MoveOption> inCycleOrder) {

@@ -25,6 +25,8 @@ public interface GameEvents {
 
         void onPlayerFinished(Colour colour, int place);
 
+        void onGameStalled(int unchangedRounds);
+
         void onGameOver(GameResultDto result);
     }
 

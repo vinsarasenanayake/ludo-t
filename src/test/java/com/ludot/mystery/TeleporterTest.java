@@ -104,6 +104,14 @@ class TeleporterTest {
     }
 
     @Test
+    void teleportToXKeepsTheDirectionAndApproachPasses() {
+        red1.recordApproachPass();
+        teleporterRolling(START_FACE, false).teleport(red1);
+        assertEquals(Direction.CLOCKWISE, red1.direction());
+        assertEquals(1, red1.approachPasses());
+    }
+
+    @Test
     void teleportArrivalDoesNotCapture() {
         Piece green1 = new Piece(Colour.GREEN, 1);
         board.enter(green1, Direction.CLOCKWISE);

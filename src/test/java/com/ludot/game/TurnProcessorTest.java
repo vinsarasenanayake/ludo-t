@@ -14,6 +14,8 @@ import com.ludot.random.Dice;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.ludot.random.RandomMocks.coinLanding;
 import static com.ludot.random.RandomMocks.diceRolling;
 import static com.ludot.random.RandomMocks.pickerChoosing;
@@ -116,6 +118,28 @@ class TurnProcessorTest {
         turnsRolling(6, 6, 6).playTurn(red);
         assertEquals(Position.onTrack(30), red1.position());
         assertEquals(Position.onTrack(36), red2.position());
+    }
+
+    // Energised pieces move 12 on a normal six, so only the breakaway reaches green
+    @Test
+    void captureWhileBreakingABlockadeGivesNoBonusRoll() {
+        Piece red1 = red.pieces().get(0);
+        Piece red2 = red.pieces().get(1);
+        Piece red3 = red.pieces().get(2);
+        Piece green1 = green.pieces().getFirst();
+        for (Piece piece : List.of(red1, red2)) {
+            board.enter(piece, Direction.CLOCKWISE);
+            board.move(piece, Position.onTrack(30));
+            piece.applyEffect(new PieceEffect.Energised());
+        }
+        board.enter(red3, Direction.CLOCKWISE);
+        board.move(red3, Position.onTrack(10));
+        board.move(red.pieces().get(3), Position.home());
+        board.enter(green1, Direction.CLOCKWISE);
+        board.move(green1, Position.onTrack(36));
+        turnsRolling(6, 6, 6, 1).playTurn(red);
+        assertTrue(green1.isInBase());
+        assertEquals(3, countRolls());
     }
 
     private TurnProcessor turnsRolling(Integer... rolls) {

@@ -53,6 +53,7 @@ class GameEngineTest {
     void gameWithoutProgressIsStalled() {
         GameResultDto result = stalledGame();
         assertEquals(FIRST_ROUND + UNCHANGED_ROUNDS_BEFORE_STALL, result.rounds());
+        assertTrue(observer.hasEvent("stalled after " + UNCHANGED_ROUNDS_BEFORE_STALL));
     }
 
     @Test

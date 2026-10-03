@@ -74,6 +74,19 @@ class PlayerFactoryTest {
     }
 
     @Test
+    void redMovesThePieceClosestToHomeWhenItCannotCapture() {
+        board.move(red2, Position.inHomeStraight(1));
+        MoveOption closestToHome = move(red2);
+        assertSame(closestToHome, red.chooseMove(List.of(move(red1), closestToHome)));
+    }
+
+    @Test
+    void greenMovesItsBlockBeforeANeededCapture() {
+        MoveOption moveTogether = blockMove(green1, green2);
+        assertSame(moveTogether, green.chooseMove(List.of(capture(green3, red1), moveTogether)));
+    }
+
+    @Test
     void greenPrefersFormingABlockToEntering() {
         MoveOption blockMaker = formingBlock(green1);
         assertSame(blockMaker, green.chooseMove(List.of(enter(green4), blockMaker)));

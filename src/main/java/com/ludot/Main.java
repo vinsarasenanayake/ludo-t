@@ -1,9 +1,14 @@
 package com.ludot;
 
+import java.io.Serial;
+
 public final class Main {
 
     // Thrown when the seed is not a whole number
     static final class InvalidSeedException extends RuntimeException {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
 
         InvalidSeedException(String message, Throwable cause) {
             super(message, cause);

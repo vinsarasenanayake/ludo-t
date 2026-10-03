@@ -73,6 +73,12 @@ class ConsoleReporterTest {
     }
 
     @Test
+    void stalledGameExplainsWhyItEnded() {
+        reporter.onGameStalled(50);
+        assertPrinted("No piece has moved for 50 rounds, so the game ends without the remaining places.");
+    }
+
+    @Test
     void diceRollAndPieceEntering() {
         reporter.onDiceRolled(Colour.RED, 5);
         reporter.onPieceEntered(new Piece(Colour.RED, 1));

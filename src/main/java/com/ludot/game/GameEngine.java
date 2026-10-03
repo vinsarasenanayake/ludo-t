@@ -47,6 +47,8 @@ public final class GameEngine {
         // R11: the last player left takes the final place
         if (isOver(finishingOrder)) {
             turnOrder.stream().filter(colour -> !finishingOrder.contains(colour)).forEach(finishingOrder::add);
+        } else {
+            listener.onGameStalled(STALLED_ROUND_LIMIT);
         }
         GameResultDto result = new GameResultDto(finishingOrder, rounds);
         listener.onGameOver(result);

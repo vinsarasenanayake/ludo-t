@@ -112,6 +112,11 @@ public final class RecordingObserver implements GameObserver {
     }
 
     @Override
+    public void onGameStalled(int unchangedRounds) {
+        events.add("stalled after " + unchangedRounds);
+    }
+
+    @Override
     public void onGameOver(GameResultDto result) {
         events.add("game over " + result.finishingOrder());
     }

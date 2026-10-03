@@ -106,6 +106,19 @@ class CommandFactoryTest {
     }
 
     @Test
+    void moveCutShortByABlockCanStillCapture() {
+        Piece yellow1 = new Piece(Colour.YELLOW, 1);
+        placeOnTrack(red1, 0);
+        placeOnTrack(yellow1, 3);
+        placeOnTrack(green1, 4);
+        placeOnTrack(green2, 4);
+        GameCommand command = move(red1, 6);
+        assertEquals(Position.onTrack(3), red1.position());
+        assertTrue(yellow1.isInBase());
+        assertTrue(command.grantsBonusRoll());
+    }
+
+    @Test
     void fullyBlockedPieceIgnoresTheThrow() {
         placeOnTrack(red1, 3);
         placeOnTrack(green1, 4);
