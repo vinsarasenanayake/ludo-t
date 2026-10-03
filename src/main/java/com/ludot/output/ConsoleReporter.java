@@ -15,7 +15,7 @@ import java.util.List;
 import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
 // Prints every game event to the console
-public final class ConsoleReporter implements GameObserver {
+public final class ConsoleReporter implements GameListener {
 
     private static final String SEPARATOR = "============================";
     private static final int WINNING_PLACE = 1;

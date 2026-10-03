@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Test spy: records each event as a short line of text
-public final class RecordingObserver implements GameObserver {
+public final class RecordingObserver implements GameListener {
 
     private final List<String> events = new ArrayList<>();
 
