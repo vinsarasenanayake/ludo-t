@@ -51,9 +51,7 @@ public final class MysteryCellManager {
 
     private void spawn() {
         List<Integer> candidates = new ArrayList<>(board.emptyCellIndexes());
-        // Never the cell it has just left
         candidates.remove(Integer.valueOf(previousLocation));
-        // No empty cell, so no mystery cell this time
         if (candidates.isEmpty()) {
             current = MysteryCell.None.INSTANCE;
             return;

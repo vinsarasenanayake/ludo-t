@@ -4,7 +4,6 @@ import static com.ludot.board.BoardConstants.APPROACH_OFFSET_FROM_START;
 import static com.ludot.board.BoardConstants.TRACK_SIZE;
 
 public enum Colour {
-    // Start cell X of each colour, counted from Yellow's X at cell 0
     RED("red", 26),
     GREEN("green", 39),
     YELLOW("yellow", 0),

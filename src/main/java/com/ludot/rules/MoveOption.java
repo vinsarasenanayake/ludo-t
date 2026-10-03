@@ -51,7 +51,6 @@ public record MoveOption(Type type, List<Piece> movers, Route route, Landing lan
         return route.isCutShortByBlock();
     }
 
-    // T-3: blocked without moving a single cell
     public boolean isFullyBlocked() {
         return isCutShortByBlock() && route.distance() == 0;
     }

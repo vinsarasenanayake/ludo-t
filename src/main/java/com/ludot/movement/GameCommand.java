@@ -1,6 +1,5 @@
 package com.ludot.movement;
 
-// Command: a move the turn can run and then ask about
 public interface GameCommand {
 
     void execute();

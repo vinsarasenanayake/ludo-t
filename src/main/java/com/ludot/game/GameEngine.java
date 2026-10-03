@@ -69,7 +69,6 @@ public final class GameEngine {
 
     private List<PlayerStatusDto> endRound(List<Colour> turnOrder) {
         players.values().forEach(Player::endRound);
-        // T-10: counting starts once a piece is on the track
         mysteryCells.endRound(players.values().stream().anyMatch(Player::hasPieceOnTrack));
         List<PlayerStatusDto> statuses = turnOrder.stream().map(colour -> players.get(colour).status()).toList();
         listener.onRoundEnded(statuses, mysteryCells.current());

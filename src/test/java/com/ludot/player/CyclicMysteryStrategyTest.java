@@ -27,7 +27,6 @@ class CyclicMysteryStrategyTest {
     private final Piece blue3 = onBoard(3, Direction.COUNTER_CLOCKWISE);
     private final Piece blue4 = onBoard(4, Direction.COUNTER_CLOCKWISE);
 
-    // Blue: B1 this round, B2 the next
     @Test
     void movesTheNextPieceInTheNextRound() {
         MoveOption first = move(blue1);
@@ -37,7 +36,6 @@ class CyclicMysteryStrategyTest {
         assertSame(second, blue.chooseMove(List.of(move(blue1), second)));
     }
 
-    // Blue: a bonus roll keeps the same piece
     @Test
     void bonusRollInTheSameRoundKeepsTheScheduledPiece() {
         MoveOption first = move(blue1);
@@ -45,14 +43,12 @@ class CyclicMysteryStrategyTest {
         assertSame(first, blue.chooseMove(List.of(move(blue2), first)));
     }
 
-    // Blue: skips a piece that cannot move
     @Test
     void skipsAPieceWithNoMove() {
         MoveOption third = move(blue3);
         assertSame(third, blue.chooseMove(List.of(move(blue4), third)));
     }
 
-    // Blue: after B4 comes B1
     @Test
     void cycleWrapsRoundFromB4ToB1() {
         endRounds(3);
@@ -60,14 +56,12 @@ class CyclicMysteryStrategyTest {
         assertSame(wrapped, blue.chooseMove(List.of(move(blue2), wrapped)));
     }
 
-    // Blue: clockwise avoids the mystery cell
     @Test
     void clockwisePieceAvoidsTheMysteryCell() {
         MoveOption safe = move(blue2);
         assertSame(safe, blue.chooseMove(List.of(ontoMystery(blue1), safe)));
     }
 
-    // Blue: counter-clockwise prefers the mystery cell
     @Test
     void plannedCounterClockwiseMoveOntoTheMysteryCellIsPreferred() {
         board.move(blue3, Position.onTrack(40));

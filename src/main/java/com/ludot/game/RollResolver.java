@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-// Turns a roll into a command, and plans the T-6 breakaways
 public final class RollResolver {
 
     // T-6: unequal shares of six, so the leaving pieces split up
@@ -44,7 +43,6 @@ public final class RollResolver {
     List<Breakaway> breakaways(Player player) {
         List<Breakaway> breakaways = new ArrayList<>();
         for (List<Piece> blockade : blockadesOf(player)) {
-            // The first piece stays; the others leave
             List<Piece> leavers = blockade.subList(1, blockade.size());
             List<Integer> shares = BREAKAWAY_SHARES.get(leavers.size() - 1);
             for (int index = 0; index < leavers.size(); index++) {

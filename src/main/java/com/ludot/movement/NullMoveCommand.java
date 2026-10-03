@@ -1,6 +1,5 @@
 package com.ludot.movement;
 
-// Null Object: no legal move, so the throw is ignored
 final class NullMoveCommand implements GameCommand {
 
     @Override

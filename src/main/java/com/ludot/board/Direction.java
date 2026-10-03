@@ -1,6 +1,5 @@
 package com.ludot.board;
 
-// T-1: the coin toss sets the direction
 public enum Direction {
     CLOCKWISE(1, "clockwise"),
     COUNTER_CLOCKWISE(-1, "counterclockwise");

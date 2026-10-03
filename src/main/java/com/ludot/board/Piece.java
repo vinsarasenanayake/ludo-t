@@ -68,7 +68,6 @@ public final class Piece {
         return captureCount > 0;
     }
 
-    // Package-private: only Board moves pieces, so the cells stay in step
     void enterBoard(Direction chosenDirection) {
         if (!isInBase()) {
             throw new IllegalMoveException(name() + " can only enter the board from base");
@@ -124,7 +123,6 @@ public final class Piece {
         }
     }
 
-    // T-9: a captured piece loses all its information
     void returnToBase() {
         position = Position.base();
         direction = Direction.CLOCKWISE;

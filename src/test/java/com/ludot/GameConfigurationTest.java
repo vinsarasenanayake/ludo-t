@@ -13,22 +13,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GameConfigurationTest {
 
-    // The same seed always plays the same game
     @Test
     void sameSeedPlaysTheSameGame() {
-        assertEquals(playWithSeed(42L), playWithSeed(42L));
+        assertEquals(playDefaultSeedGame(), playDefaultSeedGame());
     }
 
-    // Seed 42: Green wins and the game ends after 220 rounds
     @Test
     void defaultSeedGameMatchesItsRecordedResult() {
-        GameResultDto result = playWithSeed(42L);
+        GameResultDto result = playDefaultSeedGame();
         assertEquals(List.of(Colour.GREEN, Colour.YELLOW, Colour.BLUE, Colour.RED), result.finishingOrder());
         assertEquals(220, result.rounds());
     }
 
-    private static GameResultDto playWithSeed(long seed) {
+    private static GameResultDto playDefaultSeedGame() {
         PrintStream silentConsole = new PrintStream(new ByteArrayOutputStream());
-        return new GameConfiguration(seed, silentConsole).createGame().play();
+        return new GameConfiguration(42L, silentConsole).createGame().play();
     }
 }

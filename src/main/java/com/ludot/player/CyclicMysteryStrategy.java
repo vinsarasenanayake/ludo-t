@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import static com.ludot.board.BoardConstants.PIECES_PER_PLAYER;
 
-// Blue: one piece per round, B1, then B2, and so on
+// Blue: one piece per round
 final class CyclicMysteryStrategy implements PlayerStrategy {
 
     private int scheduledPieceNumber = 1;
@@ -24,7 +24,6 @@ final class CyclicMysteryStrategy implements PlayerStrategy {
                 : moveAvoidingMystery(scheduled, inCycleOrder);
     }
 
-    // B1 -> B2 -> B3 -> B4 -> B1
     @Override
     public void onRoundEnded() {
         scheduledPieceNumber = scheduledPieceNumber % PIECES_PER_PLAYER + 1;

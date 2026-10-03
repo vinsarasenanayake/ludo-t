@@ -40,13 +40,11 @@ class MovePlannerTest {
         green2 = new Piece(Colour.GREEN, 2);
     }
 
-    // R2 + R3: no six, no entry
     @Test
     void pieceInBaseCannotMoveWithoutASix() {
         assertTrue(planner.findOptions(List.of(red1), 5, NO_MYSTERY).isEmpty());
     }
 
-    // R2: a six enters onto X
     @Test
     void sixEntersThePieceOntoItsX() {
         MoveOption option = onlyOption(planner.findOptions(List.of(red1), 6, NO_MYSTERY));
@@ -54,13 +52,11 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(26), option.destination());
     }
 
-    // R2: any base piece can enter
     @Test
     void everyPieceInBaseMayEnter() {
         assertEquals(2, planner.findOptions(List.of(red1, red2), 6, NO_MYSTERY).size());
     }
 
-    // R1 + T-1: moves in its own direction
     @Test
     void pieceMovesByTheRollInItsDirection() {
         placeOnTrack(red1, 10, Direction.CLOCKWISE);
@@ -69,7 +65,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(36), onlyOption(planner.findOptions(List.of(red2), 4, NO_MYSTERY)).destination());
     }
 
-    // R5: jumps a single opponent
     @Test
     void pieceJumpsOverASingleOpponent() {
         board.enter(red1, Direction.CLOCKWISE);
@@ -79,7 +74,6 @@ class MovePlannerTest {
         assertFalse(option.capturesAny());
     }
 
-    // R6: landing captures
     @Test
     void landingOnAnOpponentCapturesIt() {
         board.enter(red1, Direction.CLOCKWISE);
@@ -88,7 +82,6 @@ class MovePlannerTest {
         assertEquals(List.of(green1), option.landing().victims());
     }
 
-    // R7 + T-3: own piece forms a block
     @Test
     void landingOnOwnPieceFormsABlock() {
         board.enter(red1, Direction.CLOCKWISE);
@@ -97,7 +90,6 @@ class MovePlannerTest {
         assertTrue(option.formsBlock());
     }
 
-    // T-3: stops before a block
     @Test
     void pieceStopsBeforeAnOpponentBlock() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
@@ -108,7 +100,6 @@ class MovePlannerTest {
         assertFalse(option.capturesAny());
     }
 
-    // T-7: no capture, no home
     @Test
     void pieceWithoutACaptureCarriesOnPastItsApproach() {
         placeOnTrack(red1, 23, Direction.CLOCKWISE);
@@ -116,7 +107,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(26), option.destination());
     }
 
-    // R9 + T-7: captured, so turns home
     @Test
     void pieceWithACaptureTurnsIntoItsHomeStraight() {
         placeOnTrack(red1, 22, Direction.CLOCKWISE);
@@ -125,7 +115,6 @@ class MovePlannerTest {
         assertEquals(Position.inHomeStraight(1), option.destination());
     }
 
-    // T-1: first pass does not turn home
     @Test
     void counterClockwiseFirstPassDoesNotEnterHomeStraight() {
         placeOnTrack(red1, 26, Direction.COUNTER_CLOCKWISE);
@@ -134,7 +123,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(22), option.destination());
     }
 
-    // T-1: second pass turns home
     @Test
     void counterClockwiseSecondPassEntersHomeStraight() {
         placeOnTrack(red1, 25, Direction.COUNTER_CLOCKWISE);
@@ -144,21 +132,18 @@ class MovePlannerTest {
         assertEquals(Position.inHomeStraight(1), option.destination());
     }
 
-    // R10: exact roll reaches home
     @Test
     void exactRollReachesHome() {
         board.move(red1, Position.inHomeStraight(2));
         assertEquals(Position.home(), onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY)).destination());
     }
 
-    // R10: cannot pass home
     @Test
     void rollPastHomeIsNotAllowed() {
         board.move(red1, Position.inHomeStraight(2));
         assertTrue(planner.findOptions(List.of(red1), 4, NO_MYSTERY).isEmpty());
     }
 
-    // T-11: mystery cell is flagged
     @Test
     void landingOnTheMysteryCellIsFlagged() {
         board.enter(red1, Direction.CLOCKWISE);
@@ -166,7 +151,6 @@ class MovePlannerTest {
         assertTrue(option.landsOnMysteryCell());
     }
 
-    // T-4: roll divided by block size
     @Test
     void blockMovesByRollDividedBySize() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
@@ -176,7 +160,6 @@ class MovePlannerTest {
         assertEquals(2, blockMove.movers().size());
     }
 
-    // T-4: effects ignored for blocks
     @Test
     void blockMoveIgnoresPieceEffects() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
@@ -186,7 +169,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(3), blockMove.destination());
     }
 
-    // T-4: follows piece furthest from home
     @Test
     void mixedBlockMovesTheWayOfThePieceFurthestFromHome() {
         placeOnTrack(red1, 30, Direction.CLOCKWISE);
@@ -195,7 +177,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(28), blockMove.destination());
     }
 
-    // T-8: captures an equal block
     @Test
     void blockCapturesSameSizeBlock() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
@@ -205,7 +186,6 @@ class MovePlannerTest {
         assertEquals(2, blockMove.landing().victims().size());
     }
 
-    // Home straight 2 is not track cell 2
     @Test
     void homeStraightPieceDoesNotLeaveATrackBlock() {
         board.move(red1, Position.inHomeStraight(2));
@@ -215,7 +195,6 @@ class MovePlannerTest {
         assertFalse(option.leavesBlock());
     }
 
-    // T-3: blocked move is a last resort
     @Test
     void blockedMoveIsOnlyOfferedAsALastResort() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
@@ -226,7 +205,6 @@ class MovePlannerTest {
         assertFalse(option.isCutShortByBlock());
     }
 
-    // R9 + T-7: captured block turns home
     @Test
     void blockOfPiecesThatHaveCapturedEntersTheHomeStraight() {
         placeOnTrack(red1, 22, Direction.CLOCKWISE);
@@ -237,7 +215,6 @@ class MovePlannerTest {
         assertEquals(Position.inHomeStraight(0), blockMove.destination());
     }
 
-    // T-7: block needs every capture
     @Test
     void blockWithAPieceThatNeedsACaptureStaysOnTheTrack() {
         placeOnTrack(red1, 22, Direction.CLOCKWISE);
@@ -247,7 +224,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(25), blockMove.destination());
     }
 
-    // T-3: ending on a block is blocked
     @Test
     void rollEndingOnAnOpponentBlockIsBlockedNotShortened() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
@@ -257,7 +233,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(0), option.destination());
     }
 
-    // Blocked message shows the real target
     @Test
     void blockedMoveNamesTheRealIntendedDestination() {
         placeOnTrack(red1, 21, Direction.CLOCKWISE);
@@ -267,7 +242,6 @@ class MovePlannerTest {
         assertEquals(Position.inHomeStraight(2), option.route().blockage().orElseThrow().intendedDestination());
     }
 
-    // T-12: energised moves double
     @Test
     void energisedPieceMovesDouble() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
@@ -275,7 +249,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(6), onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY)).destination());
     }
 
-    // T-13: briefed piece cannot move
     @Test
     void briefedPieceHasNoMove() {
         placeOnTrack(red1, 0, Direction.CLOCKWISE);
@@ -283,7 +256,6 @@ class MovePlannerTest {
         assertTrue(planner.findOptions(List.of(red1), 4, NO_MYSTERY).isEmpty());
     }
 
-    // T-3: block on X stops entry
     @Test
     void opponentBlockOnTheStartCellStopsEntry() {
         placeGreenBlockAt(26);
@@ -292,7 +264,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(26), entry.route().blockage().orElseThrow().intendedDestination());
     }
 
-    // T-3: entering onto own piece forms a block
     @Test
     void enteringOntoAnOwnPieceFormsABlock() {
         placeOnTrack(red2, 26, Direction.CLOCKWISE);
@@ -301,21 +272,18 @@ class MovePlannerTest {
         assertTrue(entry.formsBlock());
     }
 
-    // T-1 + R8: wraps past cell 0
     @Test
     void counterClockwisePieceWrapsPastZero() {
         placeOnTrack(red1, 1, Direction.COUNTER_CLOCKWISE);
         assertEquals(Position.onTrack(50), onlyOption(planner.findOptions(List.of(red1), 3, NO_MYSTERY)).destination());
     }
 
-    // R10: home piece cannot move
     @Test
     void pieceAtHomeHasNoMove() {
         board.move(red1, Position.home());
         assertTrue(planner.findOptions(List.of(red1), 4, NO_MYSTERY).isEmpty());
     }
 
-    // T-5: leaver keeps its own direction
     @Test
     void pieceLeavingABlockKeepsItsOwnDirection() {
         placeOnTrack(red1, 30, Direction.CLOCKWISE);
@@ -325,7 +293,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(28), singleMoveOf(red2, options).destination());
     }
 
-    // T-3: another colour does not open a block
     @Test
     void blockWithAnotherColourOnItStillStopsOthers() {
         placeGreenBlockAt(30);
@@ -335,7 +302,6 @@ class MovePlannerTest {
         assertEquals(Position.onTrack(29), option.destination());
     }
 
-    // T-4: block takes only own pieces
     @Test
     void blockMoveTakesOnlyOwnPieces() {
         placeOnTrack(red1, 10, Direction.CLOCKWISE);

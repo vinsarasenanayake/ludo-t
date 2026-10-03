@@ -27,7 +27,7 @@ public final class TurnOrderResolver {
         }
         List<Colour> order = new ArrayList<>();
         Colour current = contenders.getFirst();
-        // Then play goes clockwise from the winner
+        // Play goes clockwise from the winner
         for (int turn = 0; turn < colours.size(); turn++) {
             order.add(current);
             current = current.nextClockwise();

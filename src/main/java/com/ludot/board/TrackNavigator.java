@@ -58,7 +58,6 @@ public final class TrackNavigator {
         if (passesStillNeeded == 0) {
             return toApproach + STEPS_FROM_APPROACH_TO_HOME;
         }
-        // Already on the approach, so the next pass is a full lap away
         int toNextPass = toApproach == 0 ? TRACK_SIZE : toApproach;
         int extraLaps = passesStillNeeded - 1;
         return toNextPass + extraLaps * TRACK_SIZE + STEPS_FROM_APPROACH_TO_HOME;

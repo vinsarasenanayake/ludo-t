@@ -31,14 +31,12 @@ class TurnProcessorTest {
     private final Player red = playerFactory.createPlayer(Colour.RED);
     private final Player green = playerFactory.createPlayer(Colour.GREEN);
 
-    // R4: a six rolls again
     @Test
     void sixGivesAnotherRoll() {
         turnsRolling(6, 2).playTurn(red);
         assertEquals(2, countRolls());
     }
 
-    // R4: the third six ends the turn
     @Test
     void thirdSixIsIgnored() {
         Dice dice = diceRolling(6, 6, 6);
@@ -46,14 +44,12 @@ class TurnProcessorTest {
         verify(dice, times(3)).roll();
     }
 
-    // R4: two sixes then another number is normal
     @Test
     void twoSixesThenAnotherNumberEndTheTurnNormally() {
         turnsRolling(6, 6, 3).playTurn(red);
         assertEquals(3, countRolls());
     }
 
-    // R2: a six enters and shows status
     @Test
     void sixEntersAPieceAndShowsStatus() {
         turnsRolling(6, 1).playTurn(red);
@@ -61,7 +57,6 @@ class TurnProcessorTest {
         assertTrue(observer.hasEvent("status RED 1/3"));
     }
 
-    // R2: no six, throw ignored
     @Test
     void noLegalMoveIgnoresTheThrow() {
         turnsRolling(4).playTurn(red);
@@ -69,7 +64,6 @@ class TurnProcessorTest {
         assertTrue(red.pieces().stream().allMatch(Piece::isInBase));
     }
 
-    // R6 + T-2: a capture rolls again
     @Test
     void captureGivesAnotherRoll() {
         Piece red1 = red.pieces().getFirst();
@@ -82,7 +76,6 @@ class TurnProcessorTest {
         assertEquals(2, countRolls());
     }
 
-    // T-13: two threes across turns return it to base
     @Test
     void twoThreesSendTheBriefedPieceToBase() {
         Piece red1 = red.pieces().getFirst();
@@ -95,7 +88,6 @@ class TurnProcessorTest {
         assertTrue(observer.hasEvent("briefing return R1"));
     }
 
-    // R4 + R7: an unusable six ends the turn
     @Test
     void unusableSixEndsTheTurn() {
         Piece green1 = green.pieces().get(0);
@@ -109,7 +101,6 @@ class TurnProcessorTest {
         assertTrue(observer.hasEvent("blocked throw ignored RED"));
     }
 
-    // R4 + T-6: the third six breaks the blockade
     @Test
     void thirdSixBreaksTheBlockade() {
         Piece red1 = red.pieces().get(0);

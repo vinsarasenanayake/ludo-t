@@ -72,7 +72,7 @@ public interface MysteryCell {
         }
     }
 
-    // T-11: die faces 1 to 6, in this order
+    // T-11: dice faces 1 to 6, in this order
     enum Destination {
         ALPHA("Alpha"),
         BETA("Beta"),

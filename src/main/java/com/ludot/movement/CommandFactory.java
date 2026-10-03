@@ -21,7 +21,6 @@ public final class CommandFactory {
     }
 
     public GameCommand create(MoveOption option) {
-        // Checked first: a blocked entry is still ENTER_BOARD
         if (option.isFullyBlocked()) {
             return new BlockedThrowCommand(option, listener);
         }

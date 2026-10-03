@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteTest {
 
-    // T-3: keeps the stop and the blocker
     @Test
     void stoppedRouteKeepsTheBlockDetails() {
         Piece blocker = new Piece(Colour.GREEN, 1);

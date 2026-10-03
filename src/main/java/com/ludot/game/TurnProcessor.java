@@ -56,7 +56,6 @@ public final class TurnProcessor {
         }
     }
 
-    // T-13: every roll counts towards a briefed piece's threes
     private void applyRollToBriefedPieces(Player player, int roll) {
         for (Piece piece : player.pieces()) {
             piece.observeRoll(roll);

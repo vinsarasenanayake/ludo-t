@@ -32,7 +32,6 @@ class GameEngineTest {
     private final PlayerFactory playerFactory = new PlayerFactory(new TrackNavigator());
     private final List<Player> players = Arrays.stream(Colour.values()).map(playerFactory::createPlayer).toList();
 
-    // R11: a full game ranks all four
     @Test
     void fullGameRanksAllFourPlayers() {
         SeededRandomness random = new SeededRandomness(1);
@@ -43,7 +42,6 @@ class GameEngineTest {
         assertTrue(observer.hasEvent("finished " + result.finishingOrder().getFirst() + " 1"));
     }
 
-    // Every round ends with a summary
     @Test
     void everyRoundEndsWithASummary() {
         GameResultDto result = stalledGame();
@@ -51,14 +49,12 @@ class GameEngineTest {
         assertEquals(result.rounds(), summaries);
     }
 
-    // Stops after 50 unchanged rounds
     @Test
     void gameWithoutProgressIsStalled() {
         GameResultDto result = stalledGame();
         assertEquals(FIRST_ROUND + UNCHANGED_ROUNDS_BEFORE_STALL, result.rounds());
     }
 
-    // R11: a stalled game ranks no one
     @Test
     void stalledGameDoesNotRankUnfinishedPlayers() {
         GameResultDto result = stalledGame();

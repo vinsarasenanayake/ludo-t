@@ -37,7 +37,6 @@ public final class Teleporter {
         Destination destination = Destination.fromDieFace(dice.roll());
         Position location = locationOf(destination, piece);
         listener.onTeleport(piece, destination, location);
-        // A plain move: no capture or block check on arrival
         switch (destination) {
             case ALPHA -> sendToAlpha(piece, location);
             case BETA -> sendToBeta(piece, location);
@@ -59,7 +58,6 @@ public final class Teleporter {
         };
     }
 
-    // T-12: heads energised, tails sick
     private void sendToAlpha(Piece piece, Position alpha) {
         board.move(piece, alpha);
         boolean energised = coin.tossHeads();

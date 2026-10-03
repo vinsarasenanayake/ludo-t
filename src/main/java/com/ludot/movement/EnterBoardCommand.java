@@ -7,7 +7,6 @@ import com.ludot.mystery.Teleporter;
 import com.ludot.random.Coin;
 import com.ludot.rules.MoveOption;
 
-// R2: a six brings a piece out to X
 final class EnterBoardCommand extends MoveCommand {
 
     private final Coin coin;
@@ -20,7 +19,6 @@ final class EnterBoardCommand extends MoveCommand {
     @Override
     public void execute() {
         Piece piece = option().leadPiece();
-        // T-1: heads is clockwise, tails is counter-clockwise
         board().enter(piece, coin.tossHeads() ? Direction.CLOCKWISE : Direction.COUNTER_CLOCKWISE);
         listener().onPieceEntered(piece);
         land();

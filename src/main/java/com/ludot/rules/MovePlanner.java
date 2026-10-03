@@ -93,7 +93,6 @@ public final class MovePlanner {
         for (int cellIndex : ownBlockCells(pieces)) {
             List<Piece> block = furthestFromHomeFirst(ownPiecesAt(cellIndex, pieces));
             Piece leader = block.getFirst();
-            // T-4: roll divided by block size, ignoring effects
             int distance = roll / block.size();
             boolean everyPieceCanMove = block.stream().allMatch(Piece::canMove);
             if (distance > 0 && everyPieceCanMove) {
@@ -143,7 +142,7 @@ public final class MovePlanner {
     }
 
     private Route stopBeforeBlock(Walk walk, List<Position> path, int blockStep) {
-        // Landing on a block is blocked, not shortened
+        // Landing on a block is blocked
         boolean wouldLandOnBlock = blockStep == path.size();
         int stepsTaken = wouldLandOnBlock ? NO_STEPS : blockStep - 1;
         Position blockCell = path.get(blockStep - 1);
@@ -243,7 +242,6 @@ public final class MovePlanner {
                 .toList();
     }
 
-    // T-4: the piece furthest from home leads and sets the direction
     private List<Piece> furthestFromHomeFirst(List<Piece> block) {
         Piece furthestFromHome = Collections.max(block, Comparator.comparingInt(navigator::stepsToHome));
         List<Piece> ordered = new ArrayList<>(block);

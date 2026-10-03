@@ -43,7 +43,6 @@ class TeleporterTest {
         board.move(red1, Position.onTrack(30));
     }
 
-    // T-11 + T-12: Alpha on heads energises
     @Test
     void alphaOnHeadsEnergisesThePiece() {
         teleporterRolling(ALPHA_FACE, true).teleport(red1);
@@ -51,14 +50,12 @@ class TeleporterTest {
         assertEquals(10, red1.adjustRoll(5));
     }
 
-    // T-12: Alpha on tails makes it sick
     @Test
     void alphaOnTailsMakesThePieceSick() {
         teleporterRolling(ALPHA_FACE, false).teleport(red1);
         assertEquals(2, red1.adjustRoll(5));
     }
 
-    // T-13: Beta starts a briefing
     @Test
     void betaSendsToBriefing() {
         teleporterRolling(BETA_FACE, true).teleport(red1);
@@ -67,7 +64,6 @@ class TeleporterTest {
         assertTrue(observer.hasEvent("teleport R1 BETA"));
     }
 
-    // T-14: Gamma reverses a clockwise piece
     @Test
     void gammaReversesAClockwisePiece() {
         teleporterRolling(GAMMA_FACE, true).teleport(red1);
@@ -75,7 +71,6 @@ class TeleporterTest {
         assertEquals(Direction.COUNTER_CLOCKWISE, red1.direction());
     }
 
-    // T-14: Gamma sends counter-clockwise to Beta
     @Test
     void gammaSendsACounterClockwisePieceToBeta() {
         red1.reverseDirection();
@@ -86,7 +81,6 @@ class TeleporterTest {
         assertFalse(observer.hasEvent("teleport R1 BETA"));
     }
 
-    // Approach teleport counts as a pass
     @Test
     void approachSendsThePieceToItsApproachCell() {
         teleporterRolling(APPROACH_FACE, true).teleport(red1);
@@ -94,7 +88,6 @@ class TeleporterTest {
         assertEquals(1, red1.approachPasses());
     }
 
-    // T-11 + T-9: Base resets the piece
     @Test
     void baseSendsThePieceToBase() {
         red1.recordCapture();
@@ -104,14 +97,12 @@ class TeleporterTest {
         assertTrue(board.occupantsAt(30).isEmpty());
     }
 
-    // T-11: X sends it to its start cell
     @Test
     void startSendsThePieceToItsX() {
         teleporterRolling(START_FACE, true).teleport(red1);
         assertEquals(Position.onTrack(26), red1.position());
     }
 
-    // T-11: teleport arrival does not capture
     @Test
     void teleportArrivalDoesNotCapture() {
         Piece green1 = new Piece(Colour.GREEN, 1);

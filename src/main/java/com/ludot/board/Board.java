@@ -53,7 +53,6 @@ public final class Board {
         cells.get(piece.position().index()).add(piece);
     }
 
-    // Home straight and home live in the piece's Position, not here
     public void move(Piece piece, Position destination) {
         leaveCurrentCell(piece);
         piece.moveTo(destination);

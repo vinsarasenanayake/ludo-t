@@ -6,7 +6,6 @@ import com.ludot.board.Piece;
 import com.ludot.mystery.Teleporter;
 import com.ludot.rules.MoveOption;
 
-// Shared base: subclasses move, then call land()
 abstract class MoveCommand implements GameCommand {
 
     private final MoveOption option;
@@ -39,7 +38,6 @@ abstract class MoveCommand implements GameCommand {
         return option.capturesAny();
     }
 
-    // Status is shown after a capture
     @Override
     public boolean showsPlayerStatus() {
         return grantsBonusRoll();

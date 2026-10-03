@@ -33,7 +33,6 @@ class ConsoleReporterTest {
         reporter = new ConsoleReporter(new PrintStream(printed, true));
     }
 
-    // Messages before the game begins
     @Test
     void playerIntroductionAndTurnOrder() {
         reporter.onPlayerIntroduced(Colour.RED);
@@ -43,14 +42,12 @@ class ConsoleReporterTest {
                 + "The order of a single round is yellow, blue, red, and green.");
     }
 
-    // Status line keeps the exact wording
     @Test
     void statusLineKeepsTheBriefsWording() {
         reporter.onPlayerStatus(new PlayerStatusDto(Colour.RED, 1, 3, List.of()));
         assertPrinted("Red player now has 1/4 on pieces on the board and 3/4 pieces on the base.");
     }
 
-    // Round summary with locations and mystery cell
     @Test
     void roundSummaryListsPieceLocationsAndMysteryCell() {
         PlayerStatusDto status = new PlayerStatusDto(Colour.RED, 1, 3, List.of(
@@ -63,7 +60,6 @@ class ConsoleReporterTest {
         assertTrue(summary.contains("The mystery cell is at 17 and will be at that location for the next 3 values."));
     }
 
-    // R11: winner first, then the final ranking
     @Test
     void onlyTheWinnerIsAnnouncedThenFinalRanking() {
         reporter.onPlayerFinished(Colour.RED, 1);
@@ -76,7 +72,6 @@ class ConsoleReporterTest {
                 + "2nd place: Blue" + NEW_LINE + "3rd place: Green" + NEW_LINE + "4th place: Yellow");
     }
 
-    // R2: dice roll and entering messages
     @Test
     void diceRollAndPieceEntering() {
         reporter.onDiceRolled(Colour.RED, 5);
@@ -84,7 +79,6 @@ class ConsoleReporterTest {
         assertPrinted("Red player rolled 5." + NEW_LINE + "Red player moves piece R1 to the starting point.");
     }
 
-    // R1 + R6: move and capture messages
     @Test
     void pieceMovedAndCapture() {
         Piece red1 = new Piece(Colour.RED, 1);
@@ -95,7 +89,6 @@ class ConsoleReporterTest {
                 + "Red piece R1 lands on square 30, captures green piece G1, and returns it to the base.");
     }
 
-    // T-3: the three blocked messages
     @Test
     void blockedMoveMessages() {
         Piece red1 = new Piece(Colour.RED, 1);
@@ -110,7 +103,6 @@ class ConsoleReporterTest {
                 + "Ignoring the throw and moving on to the next player.");
     }
 
-    // T-10 + T-11 + T-12: spawn, teleport, and sick messages
     @Test
     void mysteryCellTeleportAndEffect() {
         Piece red1 = new Piece(Colour.RED, 1);
@@ -123,7 +115,6 @@ class ConsoleReporterTest {
                 + "Red piece R1 feels sick, and movement speed halves.");
     }
 
-    // T-12 + T-13 + T-14: the other effect messages
     @Test
     void otherEffectMessages() {
         Piece blue2 = new Piece(Colour.BLUE, 2);
@@ -141,14 +132,12 @@ class ConsoleReporterTest {
                 + "Teleporting piece B2 to base.");
     }
 
-    // Opening roll message
     @Test
     void openingRoll() {
         reporter.onOpeningRoll(Colour.GREEN, 4);
         assertPrinted("Green rolls 4");
     }
 
-    // T-11: teleport to base names Base
     @Test
     void teleportToBaseNamesBase() {
         reporter.onTeleport(new Piece(Colour.BLUE, 3), MysteryCell.Destination.BASE, Position.base());

@@ -7,7 +7,6 @@ import com.ludot.board.Position;
 import com.ludot.mystery.Teleporter;
 import com.ludot.rules.MoveOption;
 
-// Moves one piece, or a whole block together (T-4)
 final class MovePieceCommand extends MoveCommand {
 
     MovePieceCommand(MoveOption option, Board board, Teleporter teleporter, MoveEvents listener) {

@@ -11,14 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MainTest {
 
-    // A bad seed keeps the original error as its cause
     @Test
     void invalidSeedRaisesACustomException() {
         Main.InvalidSeedException error = assertThrows(Main.InvalidSeedException.class, () -> Main.parseSeed("abc"));
         assertInstanceOf(NumberFormatException.class, error.getCause());
     }
 
-    // A bad seed prints a message instead of crashing
     @Test
     void invalidSeedIsReportedOnTheErrorStream() {
         PrintStream originalError = System.err;
@@ -32,7 +30,6 @@ class MainTest {
         assertTrue(errors.toString().contains("The seed must be a whole number but was: abc"));
     }
 
-    // No arguments plays and prints a whole game
     @Test
     void runningWithoutArgumentsPrintsAWholeGame() {
         PrintStream originalOut = System.out;

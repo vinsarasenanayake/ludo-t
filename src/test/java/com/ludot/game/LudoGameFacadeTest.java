@@ -21,7 +21,6 @@ class LudoGameFacadeTest {
 
     private final RecordingObserver observer = new RecordingObserver();
 
-    // Introduces players, then decides the order
     @Test
     void playIntroducesPlayersThenDecidesTheOrder() {
         facade().play();

@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PieceEffectTest {
 
-    // No effect keeps the roll and never expires
     @Test
     void noEffectLeavesTheRollUnchanged() {
         PieceEffect none = PieceEffect.None.INSTANCE;
@@ -19,19 +18,16 @@ class PieceEffectTest {
         assertFalse(none.isExpired());
     }
 
-    // T-12: energised doubles the roll
     @Test
     void energisedDoublesTheRoll() {
         assertEquals(10, new PieceEffect.Energised().adjustRoll(5));
     }
 
-    // T-12: sick halves it, rounded down
     @Test
     void sickHalvesTheRollRoundedDown() {
         assertEquals(2, new PieceEffect.Sick().adjustRoll(5));
     }
 
-    // T-13: a briefed piece cannot move
     @Test
     void briefedPieceCannotMove() {
         PieceEffect briefing = new PieceEffect.Briefing();
@@ -39,7 +35,6 @@ class PieceEffectTest {
         assertEquals(0, briefing.adjustRoll(6));
     }
 
-    // T-12: lasts four rounds after teleport
     @Test
     void effectLastsExactlyFourMoreRounds() {
         PieceEffect sick = new PieceEffect.Sick();
@@ -51,7 +46,6 @@ class PieceEffectTest {
         assertTrue(sick.isExpired());
     }
 
-    // T-13: the threes must be in a row
     @Test
     void threesMustBeConsecutive() {
         PieceEffect briefing = new PieceEffect.Briefing();

@@ -33,7 +33,6 @@ class RollResolverTest {
     private final RollResolver resolver =
             wiring.rollResolver(diceRolling(1), coinLanding(true), wiring.mysteryCells(pickerChoosing(0)));
 
-    // T-6: leavers share six and split up
     @Test
     void breakawayPiecesShareSixUnitsAndDoNotReformTheBlockade() {
         Piece red1 = enterRed(0, Direction.CLOCKWISE);
@@ -44,7 +43,6 @@ class RollResolverTest {
                 List.of(red1.position(), red2.position(), red3.position()));
     }
 
-    // T-5 + T-6: one leaver moves six its own way
     @Test
     void breakawayPieceMovesSixInItsOwnDirection() {
         enterRed(0, Direction.CLOCKWISE);
@@ -53,7 +51,6 @@ class RollResolverTest {
         assertEquals(Position.onTrack(20), red2.position());
     }
 
-    // T-6: energised still moves exactly six
     @Test
     void energisedPieceStillBreaksAwayExactlySix() {
         enterRed(0, Direction.CLOCKWISE);
@@ -63,7 +60,6 @@ class RollResolverTest {
         assertEquals(Position.onTrack(32), red2.position());
     }
 
-    // T-6 + T-3: a cut-short leaver stays put
     @Test
     void breakawayPieceThatWouldBeCutShortStaysInPlace() {
         enterRed(0, Direction.CLOCKWISE);
@@ -72,7 +68,6 @@ class RollResolverTest {
         assertTrue(breakawayCommands().isEmpty());
     }
 
-    // T-6: may land on an own piece if needed
     @Test
     void breakawayMayLandOnAnOwnPieceWhenThatIsTheOnlyWayOut() {
         enterRed(0, Direction.CLOCKWISE);
@@ -82,7 +77,6 @@ class RollResolverTest {
         assertEquals(Position.onTrack(32), red2.position());
     }
 
-    // T-6: no blockade, nothing to break
     @Test
     void noBlockadeMeansNoBreakaway() {
         enterRed(0, Direction.CLOCKWISE);
