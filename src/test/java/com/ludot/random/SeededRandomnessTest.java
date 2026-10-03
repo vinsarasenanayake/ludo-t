@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SeededRandomnessTest {
 
-    // Rolls stay 1 to 6 and repeat per seed
     @Test
     void seededDiceAreValidAndRepeatable() {
         SeededRandomness first = new SeededRandomness(42);
@@ -21,7 +20,6 @@ class SeededRandomnessTest {
         }
     }
 
-    // T-10: picks only a free cell
     @Test
     void pickerChoosesOneOfTheCandidates() {
         SeededRandomness random = new SeededRandomness(7);
