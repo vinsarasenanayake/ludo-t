@@ -14,6 +14,7 @@ public final class Piece {
     private final int number;
     private Position position;
     private Direction direction;
+    private Direction originalDirection;
     private int captureCount;
     private int approachPasses;
     private PieceEffect effect;
@@ -42,6 +43,11 @@ public final class Piece {
 
     public Direction direction() {
         return direction;
+    }
+
+    // T-5, T-6: the direction set by the coin toss on X
+    public Direction originalDirection() {
+        return originalDirection;
     }
 
     public int approachPasses() {
@@ -74,6 +80,7 @@ public final class Piece {
         }
         position = Position.onTrack(colour.startCell());
         direction = chosenDirection;
+        originalDirection = chosenDirection;
     }
 
     void moveTo(Position destination) {
@@ -85,6 +92,10 @@ public final class Piece {
 
     public void reverseDirection() {
         direction = direction.opposite();
+    }
+
+    public void restoreOriginalDirection() {
+        direction = originalDirection;
     }
 
     public void recordCapture() {
@@ -126,6 +137,7 @@ public final class Piece {
     void returnToBase() {
         position = Position.base();
         direction = Direction.CLOCKWISE;
+        originalDirection = Direction.CLOCKWISE;
         captureCount = 0;
         approachPasses = 0;
         effect = PieceEffect.None.INSTANCE;

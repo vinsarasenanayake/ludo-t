@@ -294,6 +294,15 @@ class MovePlannerTest {
     }
 
     @Test
+    void reversedPieceLeavesABlockInItsOriginalDirection() {
+        placeOnTrack(red1, 30, Direction.CLOCKWISE);
+        red1.reverseDirection();
+        placeOnTrack(red2, 30, Direction.CLOCKWISE);
+        List<MoveOption> options = planner.findOptions(List.of(red1, red2), 2, NO_MYSTERY);
+        assertEquals(Position.onTrack(32), singleMoveOf(red1, options).destination());
+    }
+
+    @Test
     void blockWithAnotherColourOnItStillStopsOthers() {
         placeGreenBlockAt(30);
         placeOnTrack(new Piece(Colour.YELLOW, 1), 30, Direction.CLOCKWISE);

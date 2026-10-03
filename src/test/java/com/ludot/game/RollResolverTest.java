@@ -52,6 +52,16 @@ class RollResolverTest {
     }
 
     @Test
+    void reversedPieceBreaksAwayInItsOriginalDirection() {
+        enterRed(0, Direction.CLOCKWISE);
+        Piece red2 = enterRed(1, Direction.CLOCKWISE);
+        red2.reverseDirection();
+        breakAway();
+        assertEquals(Position.onTrack(32), red2.position());
+        assertEquals(Direction.CLOCKWISE, red2.direction());
+    }
+
+    @Test
     void energisedPieceStillBreaksAwayExactlySix() {
         enterRed(0, Direction.CLOCKWISE);
         Piece red2 = enterRed(1, Direction.CLOCKWISE);

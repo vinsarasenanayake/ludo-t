@@ -15,6 +15,10 @@ final class MovePieceCommand extends MoveCommand {
 
     @Override
     public void execute() {
+        // T-5, T-6: a piece leaving a block turns back to its original direction
+        if (option().leavesBlock()) {
+            option().leadPiece().restoreOriginalDirection();
+        }
         Direction travelDirection = option().leadPiece().direction();
         for (Piece piece : option().movers()) {
             Position from = piece.position();

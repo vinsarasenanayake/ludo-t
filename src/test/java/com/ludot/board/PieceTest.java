@@ -35,7 +35,18 @@ class PieceTest {
         assertFalse(red1.hasCaptured());
         assertEquals(0, red1.approachPasses());
         assertEquals(Direction.CLOCKWISE, red1.direction());
+        assertEquals(Direction.CLOCKWISE, red1.originalDirection());
         assertEquals(5, red1.adjustRoll(5));
+    }
+
+    @Test
+    void reversingKeepsTheOriginalDirection() {
+        red1.enterBoard(Direction.CLOCKWISE);
+        red1.reverseDirection();
+        assertEquals(Direction.COUNTER_CLOCKWISE, red1.direction());
+        assertEquals(Direction.CLOCKWISE, red1.originalDirection());
+        red1.restoreOriginalDirection();
+        assertEquals(Direction.CLOCKWISE, red1.direction());
     }
 
     @Test

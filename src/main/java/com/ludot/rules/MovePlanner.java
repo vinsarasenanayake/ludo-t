@@ -53,8 +53,14 @@ public final class MovePlanner {
         if (!inPlay || !piece.canMove()) {
             return Optional.empty();
         }
-        Walk walk = new Walk(Type.MOVE_PIECE, List.of(piece), piece.direction(), steps);
+        Walk walk = new Walk(Type.MOVE_PIECE, List.of(piece), directionOfSingleMove(piece), steps);
         return traceRoute(walk).map(route -> toOption(walk, route, mysteryCell));
+    }
+
+    // T-5, T-6: a piece leaving a block moves in its original direction
+    private Direction directionOfSingleMove(Piece piece) {
+        boolean leavesBlock = piece.isOnTrack() && board.isBlockOwnedBy(piece.position().index(), piece.colour());
+        return leavesBlock ? piece.originalDirection() : piece.direction();
     }
 
     // T-3: a move cut short by a block is a last resort
@@ -169,13 +175,14 @@ public final class MovePlanner {
 
     private boolean everyMoverMayEnterHomeStraight(Walk walk, int passesGained) {
         return walk.movers().stream()
-                .allMatch(mover -> isAllowedIntoHomeStraight(mover, walk.passesCreditedTo(mover, passesGained)));
+                .allMatch(mover -> isAllowedIntoHomeStraight(mover, walk.directionOf(mover),
+                        walk.passesCreditedTo(mover, passesGained)));
     }
 
     // T-7 + T-1: needs a capture and enough approach passes
-    private boolean isAllowedIntoHomeStraight(Piece piece, int passesGained) {
+    private boolean isAllowedIntoHomeStraight(Piece piece, Direction direction, int passesGained) {
         int passes = piece.approachPasses() + passesGained;
-        return piece.hasCaptured() && passes >= navigator.passesNeededToEnterHome(piece.direction());
+        return piece.hasCaptured() && passes >= navigator.passesNeededToEnterHome(direction);
     }
 
     private boolean blocksPassage(Walk walk, Position next, boolean isFinalStep) {
@@ -261,8 +268,13 @@ public final class MovePlanner {
             return leader().position();
         }
 
+        // A single piece walks its own planned direction; a block piece only if it matches
+        Direction directionOf(Piece mover) {
+            return type == Type.MOVE_PIECE ? direction : mover.direction();
+        }
+
         int passesCreditedTo(Piece mover, int passesGained) {
-            return mover.direction() == direction ? passesGained : 0;
+            return directionOf(mover) == direction ? passesGained : 0;
         }
     }
 }
