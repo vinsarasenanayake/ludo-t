@@ -8,7 +8,7 @@ import com.ludot.board.Position;
 import com.ludot.board.TrackNavigator;
 import com.ludot.mystery.MysteryCell;
 import com.ludot.mystery.Teleporter;
-import com.ludot.output.RecordingObserver;
+import com.ludot.output.RecordingListener;
 import com.ludot.random.Coin;
 import com.ludot.random.Dice;
 import com.ludot.rules.MoveOption;
@@ -34,7 +34,7 @@ class CommandFactoryTest {
     private static final MysteryCell NO_MYSTERY = MysteryCell.None.INSTANCE;
 
     private final Board board = new Board();
-    private final RecordingObserver observer = new RecordingObserver();
+    private final RecordingListener listener = new RecordingListener();
     private final TrackNavigator navigator = new TrackNavigator();
     private final MovePlanner planner = new MovePlanner(board, navigator);
     private final Dice teleportDice = mock(Dice.class);
@@ -49,7 +49,7 @@ class CommandFactoryTest {
         GameCommand command = enter(red1, true);
         assertInstanceOf(EnterBoardCommand.class, command);
         assertEquals(Position.onTrack(26), red1.position());
-        assertTrue(observer.hasEvent("entered R1"));
+        assertTrue(listener.hasEvent("entered R1"));
         assertTrue(command.showsPlayerStatus());
     }
 
@@ -76,7 +76,7 @@ class CommandFactoryTest {
         GameCommand command = move(red1, 4);
         assertInstanceOf(MovePieceCommand.class, command);
         assertEquals(Position.onTrack(26), red1.position());
-        assertTrue(observer.hasEvent("moved R1 to 26"));
+        assertTrue(listener.hasEvent("moved R1 to 26"));
         assertEquals(1, red1.approachPasses());
         assertFalse(command.grantsBonusRoll());
         assertFalse(command.showsPlayerStatus());
@@ -91,7 +91,7 @@ class CommandFactoryTest {
         assertTrue(board.occupantsAt(30).contains(red1));
         assertTrue(red1.hasCaptured());
         assertTrue(command.grantsBonusRoll());
-        assertTrue(observer.hasEvent("capture R1 G1"));
+        assertTrue(listener.hasEvent("capture R1 G1"));
     }
 
     @Test
@@ -101,8 +101,8 @@ class CommandFactoryTest {
         placeOnTrack(green2, 4);
         move(red1, 6);
         assertEquals(Position.onTrack(3), red1.position());
-        assertTrue(observer.hasEvent("blocked R1 by G1"));
-        assertTrue(observer.hasEvent("moved before block RED 3"));
+        assertTrue(listener.hasEvent("blocked R1 by G1"));
+        assertTrue(listener.hasEvent("moved before block RED 3"));
     }
 
     @Test
@@ -125,8 +125,8 @@ class CommandFactoryTest {
         placeOnTrack(green2, 4);
         GameCommand command = move(red1, 5);
         assertEquals(Position.onTrack(3), red1.position());
-        assertTrue(observer.hasEvent("blocked R1 by G1"));
-        assertTrue(observer.hasEvent("blocked throw ignored RED"));
+        assertTrue(listener.hasEvent("blocked R1 by G1"));
+        assertTrue(listener.hasEvent("blocked throw ignored RED"));
         assertFalse(command.grantsBonusRoll());
     }
 
@@ -173,14 +173,14 @@ class CommandFactoryTest {
         placeOnTrack(new Piece(Colour.GREEN, 3), 2);
         moveBlock(6);
         assertEquals(Position.onTrack(1), red1.position());
-        assertTrue(observer.hasEvent("moved before block RED 1"));
+        assertTrue(listener.hasEvent("moved before block RED 1"));
     }
 
     @Test
     void noMoveCommandDoesNothing() {
         GameCommand command = execute(factory(true).createNoMove());
         assertInstanceOf(NullMoveCommand.class, command);
-        assertTrue(observer.events().isEmpty());
+        assertTrue(listener.events().isEmpty());
         assertFalse(command.grantsBonusRoll());
         assertFalse(command.showsPlayerStatus());
     }
@@ -190,7 +190,7 @@ class CommandFactoryTest {
         board.move(red1, Position.inHomeStraight(2));
         move(red1, 3);
         assertTrue(red1.isHome());
-        assertTrue(observer.hasEvent("moved R1 to Home"));
+        assertTrue(listener.hasEvent("moved R1 to Home"));
     }
 
     @Test
@@ -200,7 +200,7 @@ class CommandFactoryTest {
         placeOnTrack(green2, 4);
         move(red1, 6);
         assertEquals(Position.onTrack(5), red1.position());
-        assertTrue(observer.hasEvent("moved before block RED 5"));
+        assertTrue(listener.hasEvent("moved before block RED 5"));
     }
 
     @Test
@@ -209,7 +209,7 @@ class CommandFactoryTest {
         when(teleportDice.roll()).thenReturn(BETA_FACE);
         execute(factory(true).create(entry));
         assertEquals(Position.onTrack(25), red1.position());
-        assertTrue(observer.hasEvent("teleport R1 BETA"));
+        assertTrue(listener.hasEvent("teleport R1 BETA"));
     }
 
     @Test
@@ -274,8 +274,8 @@ class CommandFactoryTest {
 
     private CommandFactory factory(boolean coinHeads) {
         when(coin.tossHeads()).thenReturn(coinHeads);
-        Teleporter teleporter = new Teleporter(board, teleportDice, coin, navigator, observer);
-        return new CommandFactory(board, coin, teleporter, observer);
+        Teleporter teleporter = new Teleporter(board, teleportDice, coin, navigator, listener);
+        return new CommandFactory(board, coin, teleporter, listener);
     }
 
     private MoveOption option(List<Piece> pieces, int roll, Type type, MysteryCell mysteryCell) {

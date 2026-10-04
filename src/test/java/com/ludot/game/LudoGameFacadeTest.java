@@ -4,7 +4,7 @@ import com.ludot.board.Board;
 import com.ludot.board.Colour;
 import com.ludot.board.TrackNavigator;
 import com.ludot.mystery.MysteryCellManager;
-import com.ludot.output.RecordingObserver;
+import com.ludot.output.RecordingListener;
 import com.ludot.player.Player;
 import com.ludot.player.PlayerFactory;
 import com.ludot.random.SeededRandomness;
@@ -19,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LudoGameFacadeTest {
 
-    private final RecordingObserver observer = new RecordingObserver();
+    private final RecordingListener listener = new RecordingListener();
 
     @Test
     void playIntroducesPlayersThenDecidesTheOrder() {
         facade().play();
-        List<String> events = observer.events();
+        List<String> events = listener.events();
         assertEquals("introduced RED", events.get(0));
         assertEquals("introduced BLUE", events.get(3));
         assertTrue(events.get(4).startsWith("opening roll"));
@@ -32,13 +32,13 @@ class LudoGameFacadeTest {
 
     private LudoGameFacade facade() {
         Board board = new Board();
-        GameWiring wiring = new GameWiring(board, observer);
+        GameWiring wiring = new GameWiring(board, listener);
         SeededRandomness random = new SeededRandomness(1);
         PlayerFactory playerFactory = new PlayerFactory(new TrackNavigator());
         List<Player> players = Arrays.stream(Colour.values()).map(playerFactory::createPlayer).toList();
         MysteryCellManager mysteryCells = wiring.mysteryCells(random);
         TurnProcessor turns = wiring.turnProcessor(random, random, mysteryCells);
-        GameEngine engine = new GameEngine(players, turns, mysteryCells, observer);
-        return new LudoGameFacade(engine, new TurnOrderResolver(random, observer));
+        GameEngine engine = new GameEngine(players, turns, mysteryCells, listener);
+        return new LudoGameFacade(engine, new TurnOrderResolver(random, listener));
     }
 }

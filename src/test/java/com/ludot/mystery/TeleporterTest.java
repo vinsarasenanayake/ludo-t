@@ -6,7 +6,7 @@ import com.ludot.board.Direction;
 import com.ludot.board.Piece;
 import com.ludot.board.Position;
 import com.ludot.board.TrackNavigator;
-import com.ludot.output.RecordingObserver;
+import com.ludot.output.RecordingListener;
 import com.ludot.random.Coin;
 import com.ludot.random.Dice;
 
@@ -31,13 +31,13 @@ class TeleporterTest {
     private final Dice dice = mock(Dice.class);
     private final Coin coin = mock(Coin.class);
     private Board board;
-    private RecordingObserver observer;
+    private RecordingListener listener;
     private Piece red1;
 
     @BeforeEach
     void setUp() {
         board = new Board();
-        observer = new RecordingObserver();
+        listener = new RecordingListener();
         red1 = new Piece(Colour.RED, 1);
         board.enter(red1, Direction.CLOCKWISE);
         board.move(red1, Position.onTrack(30));
@@ -61,7 +61,7 @@ class TeleporterTest {
         teleporterRolling(BETA_FACE, true).teleport(red1);
         assertEquals(Position.onTrack(25), red1.position());
         assertFalse(red1.canMove());
-        assertTrue(observer.hasEvent("teleport R1 BETA"));
+        assertTrue(listener.hasEvent("teleport R1 BETA"));
     }
 
     @Test
@@ -77,8 +77,8 @@ class TeleporterTest {
         teleporterRolling(GAMMA_FACE, true).teleport(red1);
         assertEquals(Position.onTrack(25), red1.position());
         assertFalse(red1.canMove());
-        assertTrue(observer.hasEvent("effect R1 SENT_TO_BETA"));
-        assertFalse(observer.hasEvent("teleport R1 BETA"));
+        assertTrue(listener.hasEvent("effect R1 SENT_TO_BETA"));
+        assertFalse(listener.hasEvent("teleport R1 BETA"));
     }
 
     @Test
@@ -124,6 +124,6 @@ class TeleporterTest {
     private Teleporter teleporterRolling(int dieFace, boolean heads) {
         when(dice.roll()).thenReturn(dieFace);
         when(coin.tossHeads()).thenReturn(heads);
-        return new Teleporter(board, dice, coin, new TrackNavigator(), observer);
+        return new Teleporter(board, dice, coin, new TrackNavigator(), listener);
     }
 }

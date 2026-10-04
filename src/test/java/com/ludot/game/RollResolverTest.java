@@ -8,7 +8,7 @@ import com.ludot.board.PieceEffect;
 import com.ludot.board.Position;
 import com.ludot.board.TrackNavigator;
 import com.ludot.movement.GameCommand;
-import com.ludot.output.RecordingObserver;
+import com.ludot.output.RecordingListener;
 import com.ludot.player.Player;
 import com.ludot.player.PlayerFactory;
 
@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RollResolverTest {
 
-    private final RecordingObserver observer = new RecordingObserver();
+    private final RecordingListener listener = new RecordingListener();
     private final Board board = new Board();
-    private final GameWiring wiring = new GameWiring(board, observer);
+    private final GameWiring wiring = new GameWiring(board, listener);
     private final PlayerFactory playerFactory = new PlayerFactory(new TrackNavigator());
     private final Player red = playerFactory.createPlayer(Colour.RED);
     private final Player green = playerFactory.createPlayer(Colour.GREEN);

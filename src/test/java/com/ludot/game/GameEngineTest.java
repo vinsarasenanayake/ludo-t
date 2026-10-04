@@ -4,7 +4,7 @@ import com.ludot.board.Board;
 import com.ludot.board.Colour;
 import com.ludot.board.TrackNavigator;
 import com.ludot.mystery.MysteryCellManager;
-import com.ludot.output.RecordingObserver;
+import com.ludot.output.RecordingListener;
 import com.ludot.player.Player;
 import com.ludot.player.PlayerFactory;
 import com.ludot.random.SeededRandomness;
@@ -26,9 +26,9 @@ class GameEngineTest {
     private static final int UNCHANGED_ROUNDS_BEFORE_STALL = 50;
     private static final List<Colour> TURN_ORDER = List.of(Colour.RED, Colour.GREEN, Colour.YELLOW, Colour.BLUE);
 
-    private final RecordingObserver observer = new RecordingObserver();
+    private final RecordingListener listener = new RecordingListener();
     private final Board board = new Board();
-    private final GameWiring wiring = new GameWiring(board, observer);
+    private final GameWiring wiring = new GameWiring(board, listener);
     private final PlayerFactory playerFactory = new PlayerFactory(new TrackNavigator());
     private final List<Player> players = Arrays.stream(Colour.values()).map(playerFactory::createPlayer).toList();
 
@@ -37,15 +37,15 @@ class GameEngineTest {
         SeededRandomness random = new SeededRandomness(1);
         MysteryCellManager mysteryCells = wiring.mysteryCells(random);
         TurnProcessor turns = wiring.turnProcessor(random, random, mysteryCells);
-        GameResultDto result = new GameEngine(players, turns, mysteryCells, observer).run(TURN_ORDER);
+        GameResultDto result = new GameEngine(players, turns, mysteryCells, listener).run(TURN_ORDER);
         assertEquals(4, result.finishingOrder().size());
-        assertTrue(observer.hasEvent("finished " + result.finishingOrder().getFirst() + " 1"));
+        assertTrue(listener.hasEvent("finished " + result.finishingOrder().getFirst() + " 1"));
     }
 
     @Test
     void everyRoundEndsWithASummary() {
         GameResultDto result = stalledGame();
-        long summaries = observer.events().stream().filter("round ended"::equals).count();
+        long summaries = listener.events().stream().filter("round ended"::equals).count();
         assertEquals(result.rounds(), summaries);
     }
 
@@ -53,7 +53,7 @@ class GameEngineTest {
     void gameWithoutProgressIsStalled() {
         GameResultDto result = stalledGame();
         assertEquals(FIRST_ROUND + UNCHANGED_ROUNDS_BEFORE_STALL, result.rounds());
-        assertTrue(observer.hasEvent("stalled after " + UNCHANGED_ROUNDS_BEFORE_STALL));
+        assertTrue(listener.hasEvent("stalled after " + UNCHANGED_ROUNDS_BEFORE_STALL));
     }
 
     @Test
@@ -66,6 +66,6 @@ class GameEngineTest {
     private GameResultDto stalledGame() {
         MysteryCellManager mysteryCells = wiring.mysteryCells(pickerChoosing(0));
         TurnProcessor turns = wiring.turnProcessor(diceRolling(1), coinLanding(true), mysteryCells);
-        return new GameEngine(players, turns, mysteryCells, observer).run(TURN_ORDER);
+        return new GameEngine(players, turns, mysteryCells, listener).run(TURN_ORDER);
     }
 }

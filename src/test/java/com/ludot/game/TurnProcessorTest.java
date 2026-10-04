@@ -7,7 +7,7 @@ import com.ludot.board.Piece;
 import com.ludot.board.PieceEffect;
 import com.ludot.board.Position;
 import com.ludot.board.TrackNavigator;
-import com.ludot.output.RecordingObserver;
+import com.ludot.output.RecordingListener;
 import com.ludot.player.Player;
 import com.ludot.player.PlayerFactory;
 import com.ludot.random.Dice;
@@ -26,9 +26,9 @@ import static org.mockito.Mockito.verify;
 
 class TurnProcessorTest {
 
-    private final RecordingObserver observer = new RecordingObserver();
+    private final RecordingListener listener = new RecordingListener();
     private final Board board = new Board();
-    private final GameWiring wiring = new GameWiring(board, observer);
+    private final GameWiring wiring = new GameWiring(board, listener);
     private final PlayerFactory playerFactory = new PlayerFactory(new TrackNavigator());
     private final Player red = playerFactory.createPlayer(Colour.RED);
     private final Player green = playerFactory.createPlayer(Colour.GREEN);
@@ -55,8 +55,8 @@ class TurnProcessorTest {
     @Test
     void sixEntersAPieceAndShowsStatus() {
         turnsRolling(6, 1).playTurn(red);
-        assertTrue(observer.hasEvent("entered R1"));
-        assertTrue(observer.hasEvent("status RED 1/3"));
+        assertTrue(listener.hasEvent("entered R1"));
+        assertTrue(listener.hasEvent("status RED 1/3"));
     }
 
     @Test
@@ -87,7 +87,7 @@ class TurnProcessorTest {
         turns.playTurn(red);
         turns.playTurn(red);
         assertTrue(red1.isInBase());
-        assertTrue(observer.hasEvent("briefing return R1"));
+        assertTrue(listener.hasEvent("briefing return R1"));
     }
 
     @Test
@@ -100,7 +100,7 @@ class TurnProcessorTest {
         board.move(green2, Position.onTrack(26));
         turnsRolling(6, 1).playTurn(red);
         assertEquals(1, countRolls());
-        assertTrue(observer.hasEvent("blocked throw ignored RED"));
+        assertTrue(listener.hasEvent("blocked throw ignored RED"));
     }
 
     @Test
@@ -151,6 +151,6 @@ class TurnProcessorTest {
     }
 
     private int countRolls() {
-        return (int) observer.events().stream().filter(event -> event.startsWith("rolled")).count();
+        return (int) listener.events().stream().filter(event -> event.startsWith("rolled")).count();
     }
 }

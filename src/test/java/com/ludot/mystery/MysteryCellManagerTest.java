@@ -4,7 +4,7 @@ import com.ludot.board.Board;
 import com.ludot.board.Colour;
 import com.ludot.board.Direction;
 import com.ludot.board.Piece;
-import com.ludot.output.RecordingObserver;
+import com.ludot.output.RecordingListener;
 import com.ludot.random.CellPicker;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,12 +23,12 @@ class MysteryCellManagerTest {
 
     private final CellPicker cellPicker = mock(CellPicker.class);
     private Board board;
-    private RecordingObserver observer;
+    private RecordingListener listener;
 
     @BeforeEach
     void setUp() {
         board = new Board();
-        observer = new RecordingObserver();
+        listener = new RecordingListener();
     }
 
     @Test
@@ -45,7 +45,7 @@ class MysteryCellManagerTest {
         assertFalse(manager.current().isActive());
         manager.endRound(true);
         assertEquals(10, manager.current().location());
-        assertTrue(observer.hasEvent("mystery spawned 10"));
+        assertTrue(listener.hasEvent("mystery spawned 10"));
     }
 
     @Test
@@ -69,7 +69,7 @@ class MysteryCellManagerTest {
 
     private MysteryCellManager managerPicking(Integer firstCell, Integer... laterCells) {
         when(cellPicker.pick(anyList())).thenReturn(firstCell, laterCells);
-        return new MysteryCellManager(board, cellPicker, observer);
+        return new MysteryCellManager(board, cellPicker, listener);
     }
 
     private void endRounds(MysteryCellManager manager, boolean anyPieceOnTrack, int rounds) {
